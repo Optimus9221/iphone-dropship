@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/header";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -32,6 +33,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           <main className="flex-1">{children}</main>
+          <ScrollToTop />
         </Providers>
       </body>
     </html>
