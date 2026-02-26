@@ -179,6 +179,12 @@ export default function DashboardPage() {
         >
           {t("myOrders")}
         </Link>
+        <Link
+          href="/dashboard/settings"
+          className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10"
+        >
+          {t("dashboardSettings")}
+        </Link>
       </motion.div>
     </div>
   );
