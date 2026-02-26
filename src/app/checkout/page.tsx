@@ -140,6 +140,12 @@ function CheckoutContent() {
     }
   };
 
+  const steps = [
+    { label: t("checkoutStep1"), done: true },
+    { label: t("checkoutStep2"), done: false, active: true },
+    { label: t("checkoutStep3"), done: false },
+  ];
+
   return (
     <div className="relative min-h-[calc(100vh-4rem)]">
       <PhoneBackground patternId="phones-checkout" />
@@ -148,6 +154,27 @@ function CheckoutContent() {
           {t("backToCatalog")}
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("checkoutTitle")}</h1>
+
+        {/* Progress steps */}
+        <div className="mt-6 flex items-center gap-2">
+          {steps.map((step, i) => (
+            <div key={i} className="flex flex-1 items-center gap-2">
+              <div
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+                  step.done ? "bg-emerald-500 text-white" : step.active ? "border-2 border-emerald-500 bg-emerald-500/20 text-emerald-400" : "border border-white/20 bg-white/5 text-slate-500"
+                }`}
+              >
+                {step.done ? "✓" : i + 1}
+              </div>
+              <span className={`hidden text-sm sm:inline ${step.active ? "font-medium text-white" : "text-slate-500"}`}>
+                {step.label}
+              </span>
+              {i < steps.length - 1 && (
+                <div className="hidden h-px flex-1 bg-white/20 sm:block" />
+              )}
+            </div>
+          ))}
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}

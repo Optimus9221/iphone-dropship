@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign,
   Users,
@@ -14,9 +14,8 @@ import {
   Package,
   CreditCard,
   Smartphone,
-  Check,
-  X,
   ChevronDown,
+  Star,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
@@ -37,17 +36,32 @@ type Product = {
   stock: number;
 };
 
+const FAQ_ITEMS = [
+  { q: "faq1Q" as const, a: "faq1A" as const },
+  { q: "faq2Q" as const, a: "faq2A" as const },
+  { q: "faq3Q" as const, a: "faq3A" as const },
+  { q: "faq4Q" as const, a: "faq4A" as const },
+];
+
 export default function Home() {
   const { t } = useI18n();
   const { data: session } = useSession();
   const isLoggedIn = !!session;
   const [products, setProducts] = useState<Product[]>([]);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [stats, setStats] = useState({ usersCount: 0, ordersCount: 0 });
 
   useEffect(() => {
     fetch("/api/products")
       .then((r) => r.json())
       .then((data) => setProducts(data.slice(0, 4)));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/public/stats")
+      .then((r) => r.json())
+      .then(setStats)
+      .catch(() => {});
   }, []);
 
   return (
@@ -209,6 +223,62 @@ export default function Home() {
           </motion.section>
         )}
 
+        {/* Social proof stats */}
+        <motion.section
+          className="mt-24"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={stagger}
+        >
+          <div className="flex flex-wrap justify-center gap-8 rounded-2xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur-md">
+            <motion.div variants={fadeUp} className="flex items-center gap-3">
+              <Users className="h-8 w-8 text-emerald-400" />
+              <span className="text-lg font-semibold text-white">
+                {t("homeStatsUsers", { count: Math.max(stats.usersCount, 100) })}
+              </span>
+            </motion.div>
+            <motion.div variants={fadeUp} className="flex items-center gap-3">
+              <Package className="h-8 w-8 text-emerald-400" />
+              <span className="text-lg font-semibold text-white">
+                {t("homeStatsOrders", { count: Math.max(stats.ordersCount, 50) })}
+              </span>
+            </motion.div>
+          </div>
+        </motion.section>
+
+        {/* Testimonials */}
+        <motion.section
+          className="mt-24"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={stagger}
+        >
+          <h2 className="mb-8 text-center text-2xl font-bold text-white">{t("homeTestimonialsTitle")}</h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { name: "testimonial1Name", text: "testimonial1Text" },
+              { name: "testimonial2Name", text: "testimonial2Text" },
+              { name: "testimonial3Name", text: "testimonial3Text" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                variants={fadeUp}
+                className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+              >
+                <div className="flex gap-1 text-amber-400">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="h-4 w-4 fill-current" />
+                  ))}
+                </div>
+                <p className="mt-3 text-slate-300">{t(item.text as "testimonial1Text")}</p>
+                <p className="mt-3 font-medium text-white">{t(item.name as "testimonial1Name")}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
         {/* Trust badges */}
         <motion.section
           className="mt-24"
@@ -261,6 +331,49 @@ export default function Home() {
               {t("shopNow")}
             </Link>
           </motion.div>
+        </motion.section>
+
+        {/* FAQ */}
+        <motion.section
+          className="mt-24"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={stagger}
+        >
+          <h2 className="mb-6 text-center text-2xl font-bold text-white">{t("homeFaqTitle")}</h2>
+          <div className="mx-auto max-w-4xl space-y-2">
+            {FAQ_ITEMS.map((item, i) => (
+              <motion.div
+                key={i}
+                variants={fadeUp}
+                className="overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-md"
+              >
+                <button
+                  type="button"
+                  onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                  className="flex w-full items-center justify-between px-4 py-4 text-left text-white hover:bg-white/5"
+                >
+                  <span className="font-medium">{t(item.q)}</span>
+                  <ChevronDown
+                    className={`h-5 w-5 shrink-0 transition-transform ${faqOpen === i ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {faqOpen === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="border-t border-white/10"
+                    >
+                      <p className="px-4 py-3 text-sm text-slate-400">{t(item.a)}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
+          </div>
         </motion.section>
       </div>
     </div>
