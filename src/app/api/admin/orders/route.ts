@@ -32,6 +32,7 @@ export async function GET() {
       status: o.status,
       total: Number(o.total),
       trackingNumber: o.trackingNumber,
+      imei: o.imei,
       shippedAt: o.shippedAt,
       deliveredAt: o.deliveredAt,
       createdAt: o.createdAt,
@@ -39,6 +40,7 @@ export async function GET() {
       shippingAddress: o.shippingAddress,
       shippingPhone: o.shippingPhone,
       shippingEmail: o.shippingEmail,
+      comment: o.comment,
       user: o.user,
       items: o.items.map((i) => ({
         productName: i.product.name,

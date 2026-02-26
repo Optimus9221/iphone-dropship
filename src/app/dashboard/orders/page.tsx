@@ -13,6 +13,7 @@ type Order = {
   status: string;
   total: number;
   trackingNumber: string | null;
+  imei: string | null;
   createdAt: string;
   deliveredAt: string | null;
   items: Array<{ productName: string; productSlug: string; quantity: number; price: number }>;
@@ -120,7 +121,20 @@ export default function OrdersPage() {
                   </div>
                   {order.trackingNumber && (
                     <p className="mt-2 text-sm text-emerald-400">
-                      {t("orderTracking")}: {order.trackingNumber}
+                      {t("orderTracking")}:{" "}
+                      <a
+                        href={`https://novaposhta.ua/tracking/?cargo_number=${order.trackingNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline"
+                      >
+                        {order.trackingNumber}
+                      </a>
+                    </p>
+                  )}
+                  {order.imei && (
+                    <p className="mt-1 text-sm text-slate-500">
+                      IMEI: {order.imei}
                     </p>
                   )}
                 </div>

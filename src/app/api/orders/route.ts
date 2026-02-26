@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { createOrder } from "@/lib/orders";
+import { sendOrderConfirmation } from "@/lib/email";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -36,6 +37,7 @@ export async function GET() {
       status: o.status,
       total: Number(o.total),
       trackingNumber: o.trackingNumber,
+      imei: o.imei,
       createdAt: o.createdAt,
       deliveredAt: o.deliveredAt,
       items: o.items.map((i) => ({
@@ -92,6 +94,23 @@ export async function POST(req: Request) {
       shippingEmail,
       comment,
     });
+
+    // Send order confirmation email
+    const fullOrder = await prisma.order.findUnique({
+      where: { id: order.id },
+      include: { items: { include: { product: { select: { name: true } } } } },
+    });
+    if (fullOrder?.shippingEmail) {
+      const itemsStr = fullOrder.items
+        .map((i) => `${i.product.name} × ${i.quantity}`)
+        .join(", ");
+      await sendOrderConfirmation({
+        to: fullOrder.shippingEmail,
+        orderNumber: fullOrder.orderNumber,
+        total: Number(fullOrder.total),
+        items: itemsStr,
+      });
+    }
 
     return NextResponse.json({
       id: order.id,

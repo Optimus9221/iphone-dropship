@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
+import { useToast } from "@/components/toast/toast-provider";
 
 const FREE_IPHONE_REQUIRED = 20;
 
@@ -20,8 +21,12 @@ type User = {
 
 export default function AdminUsersPage() {
   const { t } = useI18n();
+  const toast = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<User | null>(null);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", role: "USER" as "USER" | "ADMIN" });
+  const [saving, setSaving] = useState(false);
 
   const load = () => {
     fetch("/api/admin/users")
@@ -34,6 +39,31 @@ export default function AdminUsersPage() {
   useEffect(() => {
     load();
   }, []);
+
+  const openEdit = (u: User) => {
+    setEditing(u);
+    setForm({ name: u.name ?? "", email: u.email, phone: u.phone ?? "", role: u.role as "USER" | "ADMIN" });
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editing) return;
+    setSaving(true);
+    const res = await fetch(`/api/admin/users/${editing.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: form.name || null, email: form.email, phone: form.phone || null, role: form.role }),
+    });
+    const data = await res.json();
+    setSaving(false);
+    if (res.ok) {
+      setEditing(null);
+      load();
+      toast(t("adminSettingsSaved"));
+    } else {
+      toast(data.error ?? "Error");
+    }
+  };
 
   const handleBlock = async (id: string, isBlocked: boolean) => {
     const res = await fetch(`/api/admin/users/${id}`, {
@@ -118,22 +148,97 @@ export default function AdminUsersPage() {
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">
-                    {u.role !== "ADMIN" && (
+                    <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => handleBlock(u.id, !u.isBlocked)}
-                        className={`text-sm hover:underline ${
-                          u.isBlocked ? "text-emerald-600" : "text-red-600"
-                        }`}
+                        onClick={() => openEdit(u)}
+                        className="text-sm text-emerald-600 hover:underline"
                       >
-                        {u.isBlocked ? t("adminUnblock") : t("adminBlock")}
+                        {t("adminEdit")}
                       </button>
-                    )}
+                      {u.role !== "ADMIN" && (
+                        <button
+                          type="button"
+                          onClick={() => handleBlock(u.id, !u.isBlocked)}
+                          className={`text-sm hover:underline ${
+                            u.isBlocked ? "text-emerald-600" : "text-red-600"
+                          }`}
+                        >
+                          {u.isBlocked ? t("adminUnblock") : t("adminBlock")}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
+            <h3 className="text-lg font-semibold">{t("adminEditUser")}</h3>
+            <form onSubmit={handleSave} className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium">{t("adminUserName")}</label>
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">{t("adminUserEmail")}</label>
+                <input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">{t("adminUserPhone")}</label>
+                <input
+                  type="text"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="+380..."
+                  className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">{t("adminUserRole")}</label>
+                <select
+                  value={form.role}
+                  onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as "USER" | "ADMIN" }))}
+                  className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
+                >
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="rounded bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+                >
+                  {saving ? "..." : t("adminSave")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditing(null)}
+                  className="rounded border px-4 py-2"
+                >
+                  {t("adminCancel")}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

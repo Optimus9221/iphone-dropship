@@ -23,12 +23,15 @@ E-commerce platform for selling iPhone 15-17 with official warranty. Features re
 ```bash
 cp .env.example .env
 # Edit .env: DATABASE_URL, NEXTAUTH_SECRET
+# Optional: RESEND_API_KEY for email (order confirmation, status updates)
 ```
 
 Generate secret:
 ```bash
 openssl rand -base64 32
 ```
+
+**Email (optional):** Set `RESEND_API_KEY` from [resend.com](https://resend.com) to enable order confirmation and status update emails.
 
 ### 2. Database
 
@@ -96,9 +99,9 @@ src/
 
 ### Phase 2
 - [ ] Checkout & payments (Stripe)
-- [ ] Order management (status, tracking, IMEI)
-- [ ] Full admin CRUD
-- [ ] Email notifications
+- [x] Order management (status, tracking, IMEI)
+- [x] Full admin CRUD (users, orders, settings)
+- [x] Email notifications (order confirmation, status updates)
 
 *Cashback accumulates toward free iPhone — no payout/withdrawal.*
 

@@ -192,11 +192,12 @@ export default function Home() {
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {products.map((p, i) => (
-                <motion.div key={p.id} variants={fadeUp}>
-                  <Link
-                    href={`/product/${p.slug}`}
-                    className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
-                  >
+                <motion.div
+                  key={p.id}
+                  variants={fadeUp}
+                  className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
+                >
+                  <Link href={`/product/${p.slug}`} className="block">
                     <div className="relative aspect-square overflow-hidden bg-white/5">
                       {p.images[0] ? (
                         <img
@@ -217,6 +218,14 @@ export default function Home() {
                       <p className="text-sm text-emerald-400">+${Math.round(p.price * 0.05)} {t("cashback")}</p>
                     </div>
                   </Link>
+                  <div className="px-4 pb-4">
+                    <Link
+                      href={`/checkout?product=${p.id}`}
+                      className="block w-full rounded-xl bg-emerald-500 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-emerald-400"
+                    >
+                      {t("buyNow")}
+                    </Link>
+                  </div>
                 </motion.div>
               ))}
             </div>

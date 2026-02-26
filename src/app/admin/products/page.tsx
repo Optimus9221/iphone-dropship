@@ -62,6 +62,15 @@ export default function AdminProductsPage() {
     setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
   };
 
+  const setMainImage = (index: number) => {
+    if (index === 0) return;
+    setForm((f) => {
+      const arr = [...f.images];
+      const [img] = arr.splice(index, 1);
+      return { ...f, images: [img, ...arr] };
+    });
+  };
+
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch("/api/admin/products", {
@@ -207,17 +216,41 @@ export default function AdminProductsPage() {
 
       <div className="mt-4">
         <label className="block text-sm text-zinc-500">{t("adminProductImages")}</label>
+        <p className="mt-0.5 text-xs text-zinc-400">{t("adminProductImagesHint")}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {form.images.map((url, i) => (
             <div key={i} className="group relative">
-              <img src={url} alt="" className="h-16 w-16 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect fill='%23ddd' width='64' height='64'/><text x='50%' y='50%' fill='%23999' text-anchor='middle' dy='.3em' font-size='10'>?</text></svg>"; }} />
-              <button
-                type="button"
-                onClick={() => removeImage(i)}
-                className="absolute -right-1 -top-1 rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white"
-              >
-                ×
-              </button>
+              <div className="relative">
+                <img
+                  src={url}
+                  alt=""
+                  className={`h-16 w-16 rounded object-cover ${i === 0 ? "ring-2 ring-emerald-500" : ""}`}
+                  onError={(e) => { (e.target as HTMLImageElement).src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect fill='%23ddd' width='64' height='64'/><text x='50%' y='50%' fill='%23999' text-anchor='middle' dy='.3em' font-size='10'>?</text></svg>"; }}
+                />
+                {i === 0 && (
+                  <span className="absolute bottom-0 left-0 right-0 rounded-b bg-emerald-600 px-1 py-0.5 text-center text-[10px] font-medium text-white">
+                    {t("adminMainImage")}
+                  </span>
+                )}
+              </div>
+              <div className="mt-1 flex gap-1">
+                {i !== 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setMainImage(i)}
+                    className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-500"
+                  >
+                    {t("adminSetMain")}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeImage(i)}
+                  className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-400"
+                >
+                  ×
+                </button>
+              </div>
             </div>
           ))}
         </div>

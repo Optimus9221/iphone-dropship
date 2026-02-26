@@ -1,14 +1,21 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import "dotenv/config";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Admin user
-  const adminHash = await bcrypt.hash("admin123", 12);
+  // Admin user - use ADMIN_PASSWORD from .env for security
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword || adminPassword.length < 12) {
+    throw new Error(
+      "Set ADMIN_PASSWORD in .env (min 12 chars, letters+numbers). Example: ADMIN_PASSWORD=YourStr0ng!Pass123"
+    );
+  }
+  const adminHash = await bcrypt.hash(adminPassword, 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
-    update: {},
+    update: { passwordHash: adminHash },
     create: {
       email: "admin@example.com",
       passwordHash: adminHash,
@@ -16,7 +23,7 @@ async function main() {
       role: "ADMIN",
     },
   });
-  console.log("Admin:", admin.email);
+  console.log("Admin:", admin.email, "(password from ADMIN_PASSWORD)");
 
   // Demo user
   const userHash = await bcrypt.hash("user123", 12);
@@ -40,6 +47,19 @@ async function main() {
     { model: "17", storage: "256GB", color: "Titanium", price: 1099, bg: "52525b", fg: "e4e4e7" },
   ];
 
+  const iphone15Images = [
+    "/images/iphone-15/3ef4493bfb03012592eef32e0d19ddd9.png",
+    "/images/iphone-15/446b61df0423d9a9377373d44b922d10.png",
+    "/images/iphone-15/4fae8bf68e1ce3e991d9a6889ba5f8b3.png",
+    "/images/iphone-15/5426b893535bbad42f4509cb9acaf0bc.png",
+    "/images/iphone-15/6ba87ad63477641830fd1303c416cd37.png",
+    "/images/iphone-15/6cb636ec62bb85280e8dfc11fe973315.png",
+    "/images/iphone-15/85837cf48b0352b8e1694781d2cf73a9.png",
+    "/images/iphone-15/a8b051d4824db23709a908dc5d7e9195.png",
+    "/images/iphone-15/bc22fb8fbde0e353b448792f89e9600a.png",
+    "/images/iphone-15/f46bc9bb18658266f8d8b81ea8f9f316.png",
+  ];
+
   const iphone16Images = [
     "/images/iphone-16/3b10e25a7505f1fceb4fa77024e77ee4.png",
     "/images/iphone-16/54ae07733584c642840d1a0dbc6f7f41.png",
@@ -57,10 +77,11 @@ async function main() {
   for (const p of products) {
     const name = `iPhone ${p.model} ${p.storage} ${p.color}`;
     const slug = `iphone-${p.model}-${p.storage.toLowerCase()}-${p.color.toLowerCase().replace(/\s/g, "-")}`;
+    const isIphone15 = p.model === "15";
     const isIphone16 = p.model === "16";
     const isIphone17 = p.model === "17";
     const imageUrl = `https://placehold.co/600x600/${p.bg}/${p.fg}?text=iPhone+${p.model}+${p.color}`;
-    const images = isIphone16 ? iphone16Images : isIphone17 ? iphone17Images : [imageUrl];
+    const images = isIphone15 ? iphone15Images : isIphone16 ? iphone16Images : isIphone17 ? iphone17Images : [imageUrl];
     await prisma.product.upsert({
       where: { slug },
       update: { images },

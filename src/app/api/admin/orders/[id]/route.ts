@@ -3,12 +3,14 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { accrueCashbackOnDelivery } from "@/lib/orders";
+import { sendOrderStatusUpdate } from "@/lib/email";
 import { z } from "zod";
 import type { OrderStatus } from "@prisma/client";
 
 const updateSchema = z.object({
   status: z.enum(["NEW", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"]),
   trackingNumber: z.string().optional(),
+  imei: z.string().optional(),
 });
 
 export async function PATCH(
@@ -43,6 +45,7 @@ export async function PATCH(
   const updateData: {
     status: OrderStatus;
     trackingNumber?: string | null;
+    imei?: string | null;
     shippedAt?: Date;
     deliveredAt?: Date;
   } = {
@@ -51,6 +54,9 @@ export async function PATCH(
 
   if (parsed.data.trackingNumber !== undefined) {
     updateData.trackingNumber = parsed.data.trackingNumber || null;
+  }
+  if (parsed.data.imei !== undefined) {
+    updateData.imei = parsed.data.imei || null;
   }
 
   if (parsed.data.status === "SHIPPED" && !order.shippedAt) {
@@ -64,16 +70,32 @@ export async function PATCH(
   const updated = await prisma.order.update({
     where: { id },
     data: updateData,
+    include: { user: { select: { email: true } } },
   });
 
   if (parsed.data.status === "DELIVERED" && updated.deliveredAt) {
     await accrueCashbackOnDelivery(id, updated.deliveredAt);
   }
 
+  // Send email notification on status/tracking/IMEI update
+  const hasChanges = order.status !== parsed.data.status ||
+    (parsed.data.trackingNumber !== undefined && (order.trackingNumber ?? "") !== (parsed.data.trackingNumber ?? "")) ||
+    (parsed.data.imei !== undefined && (order.imei ?? "") !== (parsed.data.imei ?? ""));
+  if (hasChanges && updated.user?.email) {
+    await sendOrderStatusUpdate({
+      to: updated.user.email,
+      orderNumber: updated.orderNumber,
+      status: updated.status,
+      trackingNumber: updated.trackingNumber,
+      imei: updated.imei,
+    });
+  }
+
   return NextResponse.json({
     id: updated.id,
     status: updated.status,
     trackingNumber: updated.trackingNumber,
+    imei: updated.imei,
     deliveredAt: updated.deliveredAt,
   });
 }
