@@ -74,8 +74,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-zinc-800 dark:bg-zinc-950/90">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="text-xl font-semibold tracking-tight shrink-0">
+        <Link href="/" className="flex items-baseline gap-1.5 shrink-0 text-xl font-semibold tracking-tight">
           {t("siteName")}
+          <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400">by Optimus</span>
         </Link>
 
         <nav className="hidden items-center gap-4 sm:flex sm:gap-6">
