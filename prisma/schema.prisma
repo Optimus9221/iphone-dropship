@@ -259,6 +259,18 @@ enum PayoutStatus {
   REJECTED
 }
 
+// === CALLBACK REQUESTS ("Перезвоните мне") ===
+model CallbackRequest {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  comment   String?
+  status    String   @default("NEW") @map("status")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("callback_requests")
+}
+
 // === SYSTEM SETTINGS (admin configurable) ===
 model SystemSetting {
   id        String   @id @default(cuid())

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Outfit, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { MessengerWidget } from "@/components/messenger-widget";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import "./globals.css";
 
@@ -32,7 +34,9 @@ export default function RootLayout({
       <body className={`${outfit.variable} ${jetbrainsMono.variable} min-h-screen antialiased font-sans`}>
         <Providers>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col">{children}</main>
+          <Footer />
+          <MessengerWidget />
           <ScrollToTop />
         </Providers>
       </body>

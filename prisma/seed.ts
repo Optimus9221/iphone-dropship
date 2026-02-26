@@ -158,6 +158,16 @@ A16 Bionic
     update: { value: "14" },
     create: { key: "cashback_hold_days", value: "14" },
   });
+  await prisma.systemSetting.upsert({
+    where: { key: "whatsapp_phone" },
+    update: { value: "+380501234567" },
+    create: { key: "whatsapp_phone", value: "+380501234567" },
+  });
+  await prisma.systemSetting.upsert({
+    where: { key: "telegram_link" },
+    update: { value: "https://t.me/iphone_store_ua" },
+    create: { key: "telegram_link", value: "https://t.me/iphone_store_ua" },
+  });
 
   console.log("Seed complete");
 }

@@ -22,7 +22,18 @@ export async function GET() {
   }
 
   const settings = await prisma.systemSetting.findMany({
-    where: { key: { in: ["min_withdrawal", "cashback_hold_days"] } },
+    where: {
+      key: {
+        in: [
+          "min_withdrawal",
+          "cashback_hold_days",
+          "whatsapp_phone",
+          "telegram_link",
+          "privacy_policy",
+          "terms_of_service",
+        ],
+      },
+    },
   });
 
   const map: Record<string, string> = {};
@@ -31,12 +42,20 @@ export async function GET() {
   return NextResponse.json({
     min_withdrawal: map.min_withdrawal ?? "10",
     cashback_hold_days: map.cashback_hold_days ?? "14",
+    whatsapp_phone: map.whatsapp_phone ?? "+380501234567",
+    telegram_link: map.telegram_link ?? "https://t.me/iphone_store_ua",
+    privacy_policy: map.privacy_policy ?? "",
+    terms_of_service: map.terms_of_service ?? "",
   });
 }
 
 const updateSchema = z.object({
   min_withdrawal: z.string().regex(/^\d+$/).optional(),
   cashback_hold_days: z.string().regex(/^\d+$/).optional(),
+  whatsapp_phone: z.string().optional(),
+  telegram_link: z.string().optional(),
+  privacy_policy: z.string().optional(),
+  terms_of_service: z.string().optional(),
 });
 
 export async function PATCH(req: Request) {
