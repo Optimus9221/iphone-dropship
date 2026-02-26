@@ -369,6 +369,262 @@ const noteEn = "Note: In cold weather below +5°C, do not turn on the device imm
 const noteRu = "Примечание: в холодный период при температуре ниже +5°C не включайте устройство сразу после доставки, чтобы избежать конденсата. Подождите 8 часов при комнатной температуре перед первым включением.";
 const noteUk = "Зверніть увагу: у холодний період року за температури нижче +5°C не можна вмикати техніку відразу після доставки, щоб уникнути утворення конденсату. До першого увімкнення потрібно почекати 8 годин за кімнатної температури.";
 
+// ——— iPhone 14 Pro Max (Refurbished) ———
+const iphone14ProMaxIntroEn = `iPhone 14 Pro Max 128GB Space Black — Refurbished / Like New.
+
+Premium build with Ceramic Shield display, stainless steel frame, and IP68 water resistance. Dynamic Island for quick access to alerts and activities. Super Retina XDR display with ProMotion 10–120Hz and up to 2000 nits peak brightness. 48MP main camera with Photonic Engine. A16 Bionic chip. Up to 23 hours battery life. MagSafe wireless charging. Crash Detection for safety.`;
+const iphone14ProMaxIntroRu = `iPhone 14 Pro Max 128GB Space Black — Восстановленный / Почти как новый.
+
+Премиальная сборка: Ceramic Shield, стальная рамка, IP68. Dynamic Island для быстрого доступа к уведомлениям. Дисплей Super Retina XDR с ProMotion 10–120 Гц, яркость до 2000 нит. Основная камера 48 МП, Photonic Engine. Чип A16 Bionic. Автономность до 23 часов. MagSafe. Crash Detection.`;
+const iphone14ProMaxIntroUk = `iPhone 14 Pro Max 128GB Space Black — Відновлений / Майже новий.
+
+Преміальна збірка: Ceramic Shield, сталева рамка, IP68. Dynamic Island для швидкого доступу до сповіщень. Дисплей Super Retina XDR з ProMotion 10–120 Гц, яскравість до 2000 ніт. Основна камера 48 МП, Photonic Engine. Чіп A16 Bionic. Автономність до 23 годин. MagSafe. Crash Detection.`;
+
+const iphone14ProMaxSpecsEn = (storage: string): SpecCategory[] => [
+  {
+    title: "General",
+    items: [
+      { key: "Manufacturer", value: "Apple" },
+      { key: "Model", value: "iPhone 14 Pro Max A2894" },
+      { key: "Type", value: "Smartphone" },
+      { key: "Condition", value: "Refurbished / Like New" },
+      { key: "Design", value: "Monoblock, Stainless steel frame" },
+      { key: "OS", value: "iOS" },
+    ],
+  },
+  {
+    title: "Display",
+    items: [
+      { key: "Diagonal", value: '6.7"' },
+      { key: "Matrix", value: "Super Retina XDR OLED" },
+      { key: "Resolution", value: "2796×1290 px" },
+      { key: "Pixel density", value: "460 PPI" },
+      { key: "Refresh rate", value: "ProMotion 10–120 Hz" },
+      { key: "Peak brightness", value: "2000 nits" },
+      { key: "Features", value: "Dynamic Island, Always-On, Ceramic Shield" },
+    ],
+  },
+  { title: "Memory", items: [{ key: "Internal storage", value: storage }] },
+  {
+    title: "Processor",
+    items: [
+      { key: "Name", value: "A16 Bionic" },
+      { key: "Cores", value: "6-core" },
+      { key: "GPU", value: "5-core GPU" },
+    ],
+  },
+  {
+    title: "Cameras",
+    items: [
+      { key: "Lenses", value: "3" },
+      { key: "Main camera", value: "48 MP, f/1.78, Photonic Engine" },
+      { key: "Ultrawide", value: "12 MP, f/2.2, 13mm" },
+      { key: "Telephoto", value: "12 MP, f/2.8, 3× optical zoom" },
+      { key: "Front camera", value: "12 MP TrueDepth, f/1.9" },
+      { key: "Video", value: "4K@24/30/60fps, ProRes" },
+    ],
+  },
+  {
+    title: "Connectivity",
+    items: [
+      { key: "Standards", value: "5G, 4G LTE" },
+      { key: "WLAN", value: "Wi-Fi 802.11 ax" },
+      { key: "Bluetooth", value: "v5.3" },
+      { key: "Biometrics", value: "Face ID" },
+      { key: "Protection", value: "IP68" },
+      { key: "Safety", value: "Crash Detection" },
+    ],
+  },
+  {
+    title: "Power",
+    items: [
+      { key: "Connector", value: "Lightning" },
+      { key: "Battery", value: "Up to 23h video playback" },
+      { key: "Fast charging", value: "Yes" },
+      { key: "Wireless charging", value: "MagSafe, Qi" },
+    ],
+  },
+  {
+    title: "Dimensions",
+    items: [
+      { key: "Weight", value: "240 g" },
+      { key: "Height", value: "160.7 mm" },
+      { key: "Width", value: "77.6 mm" },
+      { key: "Depth", value: "7.85 mm" },
+    ],
+  },
+];
+
+const iphone14ProMaxSpecsRu = (storage: string): SpecCategory[] => [
+  {
+    title: "Общие",
+    items: [
+      { key: "Производитель", value: "Apple" },
+      { key: "Модель", value: "iPhone 14 Pro Max A2894" },
+      { key: "Тип", value: "Смартфон" },
+      { key: "Состояние", value: "Восстановленный / Почти новый" },
+      { key: "Конструкция", value: "Моноблок, стальная рамка" },
+      { key: "ОС", value: "iOS" },
+    ],
+  },
+  {
+    title: "Экран",
+    items: [
+      { key: "Диагональ", value: '6.7"' },
+      { key: "Матрица", value: "Super Retina XDR OLED" },
+      { key: "Разрешение", value: "2796×1290 px" },
+      { key: "Плотность", value: "460 PPI" },
+      { key: "Частота", value: "ProMotion 10–120 Гц" },
+      { key: "Яркость", value: "2000 нит" },
+      { key: "Особенности", value: "Dynamic Island, Always-On, Ceramic Shield" },
+    ],
+  },
+  { title: "Память", items: [{ key: "Внутренняя", value: storage }] },
+  {
+    title: "Процессор",
+    items: [
+      { key: "Название", value: "A16 Bionic" },
+      { key: "Ядра", value: "6" },
+      { key: "GPU", value: "5-core GPU" },
+    ],
+  },
+  {
+    title: "Камеры",
+    items: [
+      { key: "Объективы", value: "3" },
+      { key: "Основная", value: "48 МП, f/1.78, Photonic Engine" },
+      { key: "Ультраширокоугольная", value: "12 МП, f/2.2" },
+      { key: "Телеобъектив", value: "12 МП, 3× оптический зум" },
+      { key: "Фронтальная", value: "12 МП TrueDepth" },
+      { key: "Видео", value: "4K@24/30/60fps, ProRes" },
+    ],
+  },
+  {
+    title: "Связь",
+    items: [
+      { key: "Стандарты", value: "5G, 4G LTE" },
+      { key: "Wi-Fi", value: "802.11 ax" },
+      { key: "Bluetooth", value: "v5.3" },
+      { key: "Биометрия", value: "Face ID" },
+      { key: "Защита", value: "IP68" },
+      { key: "Безопасность", value: "Crash Detection" },
+    ],
+  },
+  {
+    title: "Питание",
+    items: [
+      { key: "Разъём", value: "Lightning" },
+      { key: "Батарея", value: "До 23 ч видео" },
+      { key: "Быстрая зарядка", value: "Да" },
+      { key: "Беспроводная", value: "MagSafe, Qi" },
+    ],
+  },
+  {
+    title: "Размеры",
+    items: [
+      { key: "Вес", value: "240 г" },
+      { key: "Высота", value: "160.7 мм" },
+      { key: "Ширина", value: "77.6 мм" },
+      { key: "Толщина", value: "7.85 мм" },
+    ],
+  },
+];
+
+const iphone14ProMaxSpecsUk = (storage: string): SpecCategory[] => [
+  {
+    title: "Загальні",
+    items: [
+      { key: "Виробник", value: "Apple" },
+      { key: "Модель", value: "iPhone 14 Pro Max A2894" },
+      { key: "Тип", value: "Смартфон" },
+      { key: "Стан", value: "Відновлений / Майже новий" },
+      { key: "Конструкція", value: "Моноблок, сталева рамка" },
+      { key: "ОС", value: "iOS" },
+    ],
+  },
+  {
+    title: "Екран",
+    items: [
+      { key: "Діагональ", value: '6.7"' },
+      { key: "Матриця", value: "Super Retina XDR OLED" },
+      { key: "Роздільність", value: "2796×1290 px" },
+      { key: "Щільність", value: "460 PPI" },
+      { key: "Частота", value: "ProMotion 10–120 Гц" },
+      { key: "Яскравість", value: "2000 ніт" },
+      { key: "Особливості", value: "Dynamic Island, Always-On, Ceramic Shield" },
+    ],
+  },
+  { title: "Пам'ять", items: [{ key: "Внутрішня", value: storage }] },
+  {
+    title: "Процесор",
+    items: [
+      { key: "Назва", value: "A16 Bionic" },
+      { key: "Ядра", value: "6" },
+      { key: "GPU", value: "5-core GPU" },
+    ],
+  },
+  {
+    title: "Камери",
+    items: [
+      { key: "Об'єктиви", value: "3" },
+      { key: "Основна", value: "48 МП, f/1.78, Photonic Engine" },
+      { key: "Надширококутна", value: "12 МП, f/2.2" },
+      { key: "Телеоб'єктив", value: "12 МП, 3× оптичний зум" },
+      { key: "Фронтальна", value: "12 МП TrueDepth" },
+      { key: "Відео", value: "4K@24/30/60fps, ProRes" },
+    ],
+  },
+  {
+    title: "Зв'язок",
+    items: [
+      { key: "Стандарти", value: "5G, 4G LTE" },
+      { key: "Wi-Fi", value: "802.11 ax" },
+      { key: "Bluetooth", value: "v5.3" },
+      { key: "Біометрія", value: "Face ID" },
+      { key: "Захист", value: "IP68" },
+      { key: "Безпека", value: "Crash Detection" },
+    ],
+  },
+  {
+    title: "Живлення",
+    items: [
+      { key: "Роз'єм", value: "Lightning" },
+      { key: "Батарея", value: "До 23 год відео" },
+      { key: "Швидка зарядка", value: "Так" },
+      { key: "Бездротова", value: "MagSafe, Qi" },
+    ],
+  },
+  {
+    title: "Розміри",
+    items: [
+      { key: "Вага", value: "240 г" },
+      { key: "Висота", value: "160.7 мм" },
+      { key: "Ширина", value: "77.6 мм" },
+      { key: "Товщина", value: "7.85 мм" },
+    ],
+  },
+];
+
+function getIphone14ProMaxContent(storage: string) {
+  return {
+    en: {
+      intro: iphone14ProMaxIntroEn,
+      specs: iphone14ProMaxSpecsEn(storage),
+      note: noteEn,
+    },
+    ru: {
+      intro: iphone14ProMaxIntroRu,
+      specs: iphone14ProMaxSpecsRu(storage),
+      note: noteRu,
+    },
+    uk: {
+      intro: iphone14ProMaxIntroUk,
+      specs: iphone14ProMaxSpecsUk(storage),
+      note: noteUk,
+    },
+  };
+}
+
 // ——— iPhone 15 ———
 const iphone15SpecsEn = (storage: string): SpecCategory[] => [
   {
@@ -1082,6 +1338,7 @@ export function getProductContent(
   storage?: string
 ): ProductContent | null {
   const bySlug: Record<string, Record<Locale, ProductContent>> = {
+    "iphone-14-pro-max-128gb-space-black": getIphone14ProMaxContent("128 GB"),
     "iphone-15-128gb-black": getIphone15Content("128 GB"),
     "iphone-15-256gb-blue": getIphone15Content("256 GB"),
     "iphone-16-128gb-white": getIphone16Content("128 GB"),

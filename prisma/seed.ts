@@ -40,12 +40,37 @@ async function main() {
 
   // Sample products with images (placehold.co by color, or picsum for variety)
   const products = [
-    { model: "15", storage: "128GB", color: "Black", price: 799, bg: "0f172a", fg: "94a3b8" },
-    { model: "15", storage: "256GB", color: "Blue", price: 899, bg: "1e3a8a", fg: "93c5fd" },
-    { model: "16", storage: "128GB", color: "White", price: 899, bg: "f8fafc", fg: "64748b" },
-    { model: "16", storage: "256GB", color: "Black", price: 999, bg: "0f172a", fg: "94a3b8" },
-    { model: "17", storage: "256GB", color: "Titanium", price: 1099, bg: "52525b", fg: "e4e4e7" },
+    { model: "14 Pro Max", storage: "128GB", color: "Space Black", price: 749, bg: "0f172a", fg: "94a3b8", description: null, specs: null },
+    { model: "15", storage: "128GB", color: "Black", price: 799, bg: "0f172a", fg: "94a3b8", description: null, specs: null },
+    { model: "15", storage: "256GB", color: "Blue", price: 899, bg: "1e3a8a", fg: "93c5fd", description: null, specs: null },
+    { model: "16", storage: "128GB", color: "White", price: 899, bg: "f8fafc", fg: "64748b", description: null, specs: null },
+    { model: "16", storage: "256GB", color: "Black", price: 999, bg: "0f172a", fg: "94a3b8", description: null, specs: null },
+    { model: "17", storage: "256GB", color: "Titanium", price: 1099, bg: "52525b", fg: "e4e4e7", description: null, specs: null },
   ];
+
+  const iphone14ProMaxDescription = `Смартфон Apple iPhone 14 Pro Max 128GB A2894 Space Black (Відновлений / Майже новий)
+
+СТАН: Майже новий. Можливі поодинокі мікроподряпини. Можлива заміна компонентів для відновлення. Комплектується заводською або фірмовою еко-коробкою by Breezy, кабелем та скріпкою. 100% протестовано, усі функції працюють!
+
+Преміальна надійність
+Керамічна панель, що покриває екран, міцніша за будь-яке скло смартфонів. Елегантна рамка з хірургічної нержавіючої сталі. Водонепроникність IP68.
+
+Dynamic Island
+Інтерактивний острівець працює з усіма додатками та відображає важливу інформацію.
+
+Super Retina XDR
+Дисплей з надточною кольоропередачею, яскравість до 2000 нит. ProMotion 10–120 Гц.
+
+Crash Detection
+Технологія розпізнає автомобільну аварію та автоматично повідомляє екстрені служби.
+
+Камера 48 Мп
+Оновлена основна камера з 4-піксельним сенсором. Photonic Engine для кращих фото в темряві. Відео 4K 24fps.
+
+A16 Bionic
+Потужний процесор з 5-ядерною графікою для ігор та складних завдань.
+
+Автономність до 23 годин, MagSafe для швидкого бездротового підзаряджання.`;
 
   const iphone15Images = [
     "/images/iphone-15/3ef4493bfb03012592eef32e0d19ddd9.png",
@@ -74,17 +99,38 @@ async function main() {
     "/images/iphone-17/44a1cfb645b34868983311ae341596c5.png",
   ];
 
+  const iphone14ProMaxImages = [
+    "/images/iphone-14-pro-max/2aac8373587591f9830fe6f6cb6a40a0.png",
+    "/images/iphone-14-pro-max/d1dc984068b32d84441962c11285726c.png",
+    "/images/iphone-14-pro-max/effd1b0d74e31a15def25bab29102a30.png",
+    "/images/iphone-14-pro-max/f0aa3cc1250646279e5bf9447601d2c4.png",
+    "/images/iphone-14-pro-max/fb2b96b65c37ffe1d99055023b15ebd0.png",
+  ];
+
   for (const p of products) {
     const name = `iPhone ${p.model} ${p.storage} ${p.color}`;
-    const slug = `iphone-${p.model}-${p.storage.toLowerCase()}-${p.color.toLowerCase().replace(/\s/g, "-")}`;
+    const slug = `iphone-${p.model.toLowerCase().replace(/\s/g, "-")}-${p.storage.toLowerCase()}-${p.color.toLowerCase().replace(/\s/g, "-")}`;
     const isIphone15 = p.model === "15";
     const isIphone16 = p.model === "16";
     const isIphone17 = p.model === "17";
+    const isIphone14ProMax = p.model === "14 Pro Max";
     const imageUrl = `https://placehold.co/600x600/${p.bg}/${p.fg}?text=iPhone+${p.model}+${p.color}`;
-    const images = isIphone15 ? iphone15Images : isIphone16 ? iphone16Images : isIphone17 ? iphone17Images : [imageUrl];
+    const images = isIphone14ProMax
+      ? iphone14ProMaxImages
+      : isIphone15
+        ? iphone15Images
+        : isIphone16
+          ? iphone16Images
+          : isIphone17
+            ? iphone17Images
+            : [imageUrl];
+    const description = isIphone14ProMax ? iphone14ProMaxDescription : p.description;
+    const specs = isIphone14ProMax
+      ? { display: "6.7\" Super Retina XDR", processor: "A16 Bionic", camera: "48MP Main", battery: "Up to 23h" }
+      : { display: "6.1\" Super Retina XDR", processor: "A17 Pro", camera: "48MP Main", battery: "All-day battery" };
     await prisma.product.upsert({
       where: { slug },
-      update: { images },
+      update: { images, description: description ?? undefined, specs },
       create: {
         name,
         slug,
@@ -94,12 +140,8 @@ async function main() {
         price: p.price,
         stock: 10,
         images,
-        specs: {
-          display: "6.1\" Super Retina XDR",
-          processor: "A17 Pro",
-          camera: "48MP Main",
-          battery: "All-day battery",
-        },
+        description: description ?? undefined,
+        specs,
       },
     });
   }

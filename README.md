@@ -16,6 +16,10 @@ E-commerce platform for selling iPhone 15-17 with official warranty. Features re
 - **IMEI verification** — For free iPhone bonus
 - **Phone verification** — Optional, for stricter validation
 
+## Production
+
+**См. [DEPLOYMENT.md](DEPLOYMENT.md)** — где и как настроить переменные окружения, что делает каждая переменная.
+
 ## Quick Start
 
 ### 1. Environment
