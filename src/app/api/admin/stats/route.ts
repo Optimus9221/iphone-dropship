@@ -22,7 +22,10 @@ export async function GET() {
     prisma.product.count(),
     prisma.order.count(),
     prisma.order.aggregate({
-      where: { status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] } },
+      where: {
+        status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] },
+        isFreeiPhoneBonus: false,
+      },
       _sum: { total: true },
     }),
   ]);

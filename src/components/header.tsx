@@ -2,15 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { motion, AnimatePresence } from "framer-motion";
 
+const navLinkClass = (isActive: boolean) =>
+  `text-sm font-medium ${
+    isActive
+      ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+  }`;
+
 export function Header() {
   const { data: session, status } = useSession();
   const { t } = useI18n();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = (
@@ -18,7 +27,7 @@ export function Header() {
       <LanguageSwitcher />
       <Link
         href="/catalog"
-        className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        className={navLinkClass(pathname === "/catalog" || pathname.startsWith("/product"))}
         onClick={() => setMobileOpen(false)}
       >
         {t("catalog")}
@@ -30,7 +39,7 @@ export function Header() {
           {(session.user as { role?: string })?.role === "ADMIN" && (
             <Link
               href="/admin"
-              className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              className={navLinkClass(pathname.startsWith("/admin"))}
               onClick={() => setMobileOpen(false)}
             >
               {t("adminPanel")}
@@ -38,7 +47,7 @@ export function Header() {
           )}
           <Link
             href="/dashboard"
-            className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className={navLinkClass(pathname.startsWith("/dashboard"))}
             onClick={() => setMobileOpen(false)}
           >
             {t("dashboard")}
@@ -54,7 +63,7 @@ export function Header() {
         <>
           <Link
             href="/login"
-            className="text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            className={navLinkClass(pathname === "/login")}
             onClick={() => setMobileOpen(false)}
           >
             {t("login")}
@@ -74,7 +83,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-zinc-800 dark:bg-zinc-950/90">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-baseline gap-1.5 shrink-0 text-xl font-semibold tracking-tight">
+        <Link
+          href="/"
+          className={`flex items-baseline gap-1.5 shrink-0 text-xl font-semibold tracking-tight ${
+            pathname === "/" ? "text-emerald-600 dark:text-emerald-400" : ""
+          }`}
+        >
           {t("siteName")}
           <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400">by Optimus</span>
         </Link>
