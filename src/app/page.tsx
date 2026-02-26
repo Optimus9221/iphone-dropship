@@ -1,8 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { DollarSign, Users, Shield, ShoppingBag } from "lucide-react";
+import {
+  DollarSign,
+  Users,
+  Shield,
+  ShoppingBag,
+  UserPlus,
+  ShoppingCart,
+  Coins,
+  Package,
+  CreditCard,
+  Smartphone,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
 import { PhoneBackground } from "@/components/phone-background";
@@ -10,10 +22,29 @@ import { PhoneBackground } from "@/components/phone-background";
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } };
 const stagger = { animate: { transition: { staggerChildren: 0.1 } } };
 
+type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  model: string;
+  storage: string;
+  color: string;
+  price: number;
+  images: string[];
+  stock: number;
+};
+
 export default function Home() {
   const { t } = useI18n();
   const { data: session } = useSession();
   const isLoggedIn = !!session;
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => setProducts(data.slice(0, 4)));
+  }, []);
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
@@ -67,6 +98,38 @@ export default function Home() {
           </motion.div>
         </motion.section>
 
+        {/* How it works */}
+        <motion.section
+          className="mt-24"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={stagger}
+        >
+          <h2 className="mb-8 text-center text-2xl font-bold text-white">{t("homeHowItWorks")}</h2>
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              { icon: UserPlus, title: t("homeStep1Title"), desc: t("homeStep1Desc") },
+              { icon: ShoppingCart, title: t("homeStep2Title"), desc: t("homeStep2Desc") },
+              { icon: Coins, title: t("homeStep3Title"), desc: t("homeStep3Desc") },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                variants={fadeUp}
+                className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-emerald-500/30 hover:bg-white/10"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20">
+                  <item.icon className="h-7 w-7 text-emerald-400" />
+                </div>
+                <span className="mt-2 text-sm font-medium text-emerald-400/80">Step {i + 1}</span>
+                <h3 className="mt-1 font-semibold text-white">{item.title}</h3>
+                <p className="mt-1 text-center text-sm text-slate-400">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Feature cards */}
         <motion.section
           className="mt-24 grid gap-8 md:grid-cols-3"
           initial="initial"
@@ -89,6 +152,111 @@ export default function Home() {
               <p className="mt-2 text-sm text-slate-400">{item.desc}</p>
             </motion.div>
           ))}
+        </motion.section>
+
+        {/* Popular products */}
+        {products.length > 0 && (
+          <motion.section
+            className="mt-24"
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-50px" }}
+            variants={stagger}
+          >
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">{t("homePopularProducts")}</h2>
+              <Link
+                href="/catalog"
+                className="text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:underline"
+              >
+                {t("homeViewAllCatalog")} →
+              </Link>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {products.map((p, i) => (
+                <motion.div key={p.id} variants={fadeUp}>
+                  <Link
+                    href={`/product/${p.slug}`}
+                    className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
+                  >
+                    <div className="relative aspect-square overflow-hidden bg-white/5">
+                      {p.images[0] ? (
+                        <img
+                          src={p.images[0]}
+                          alt={p.name}
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Smartphone className="h-16 w-16 text-white/30" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-white">{p.name}</h3>
+                      <p className="mt-1 text-sm text-slate-400">{p.color} • {p.storage}</p>
+                      <p className="mt-2 text-lg font-bold text-white">${p.price}</p>
+                      <p className="text-sm text-emerald-400">+${Math.round(p.price * 0.05)} {t("cashback")}</p>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {/* Trust badges */}
+        <motion.section
+          className="mt-24"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={stagger}
+        >
+          <div className="flex flex-wrap justify-center gap-8 rounded-2xl border border-white/10 bg-white/5 px-8 py-6 backdrop-blur-md">
+            <motion.div variants={fadeUp} className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                <Shield className="h-5 w-5 text-emerald-400" />
+              </div>
+              <span className="text-sm font-medium text-slate-300">{t("homeTrustApple")}</span>
+            </motion.div>
+            <motion.div variants={fadeUp} className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                <Package className="h-5 w-5 text-emerald-400" />
+              </div>
+              <span className="text-sm font-medium text-slate-300">{t("homeTrustNovaPoshta")}</span>
+            </motion.div>
+            <motion.div variants={fadeUp} className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                <CreditCard className="h-5 w-5 text-emerald-400" />
+              </div>
+              <span className="text-sm font-medium text-slate-300">{t("homeTrustSecure")}</span>
+            </motion.div>
+          </div>
+        </motion.section>
+
+        {/* Bottom CTA */}
+        <motion.section
+          className="mt-24 text-center"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          variants={stagger}
+        >
+          <motion.div
+            variants={fadeUp}
+            className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-8 py-12 backdrop-blur-md"
+          >
+            <h2 className="text-2xl font-bold text-white">{t("homeCtaTitle")}</h2>
+            <p className="mx-auto mt-2 max-w-xl text-slate-400">{t("homeCtaDesc")}</p>
+            <Link
+              href="/catalog"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-3 font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:scale-105 hover:shadow-emerald-500/40"
+            >
+              <ShoppingBag className="h-5 w-5" />
+              {t("shopNow")}
+            </Link>
+          </motion.div>
         </motion.section>
       </div>
     </div>
