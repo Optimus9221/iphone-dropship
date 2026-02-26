@@ -1,0 +1,270 @@
+// iPhone Dropship - E-commerce with Referral & Cashback
+// Anti-fraud: 1 person = 1 account (phone), cashback after 14 days, IMEI verification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// === USERS & AUTH ===
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?   @map("password_hash") // null for OAuth
+  name          String?
+  phone         String?   @unique // 1 person = 1 account (anti-fraud)
+  phoneVerified Boolean   @default(false) @map("phone_verified")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  image         String?
+  role          UserRole  @default(USER)
+  isBlocked     Boolean   @default(false) @map("is_blocked")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Referral: who invited this user
+  referredById   String?   @map("referred_by_id")
+  referredBy     User?     @relation("Referrals", fields: [referredById], references: [id])
+  referrals      User[]    @relation("Referrals")
+
+  // Referral link (short code)
+  referralCode   String    @unique @default(cuid()) @map("referral_code")
+
+  // Orders, cashback, payouts
+  orders         Order[]
+  cashbackEntries CashbackEntry[]
+  payoutMethods  PayoutMethod[]
+  payoutRequests PayoutRequest[]
+  referralClicks ReferralClick[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// === REFERRAL TRACKING ===
+model ReferralClick {
+  id          String   @id @default(cuid())
+  referralCode String  @map("referral_code")
+  userId      String?  @map("user_id") // who clicked
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  utmSource   String?  @map("utm_source")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User?    @relation(fields: [userId], references: [id])
+  @@index([referralCode])
+  @@index([createdAt])
+  @@map("referral_clicks")
+}
+
+// === PRODUCTS ===
+model Product {
+  id            String   @id @default(cuid())
+  name          String   // iPhone 15 128GB
+  slug          String   @unique
+  model         String   // 15, 16, 17
+  storage       String   // 128GB, 256GB, 512GB, 1TB
+  color         String
+  description   String?
+  specs         Json?    // { display, processor, camera, battery... }
+  price         Decimal  @db.Decimal(10, 2)
+  costPrice     Decimal? @map("cost_price") @db.Decimal(10, 2)
+  stock         Int      @default(0)
+  images        String[] // URLs
+  isPublished   Boolean  @default(true) @map("is_published")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  orderItems    OrderItem[]
+  cashbackRates ProductCashbackRate[]
+
+  @@index([model, storage, color])
+  @@map("products")
+}
+
+// Cashback % per product (override default)
+model ProductCashbackRate {
+  id              String   @id @default(cuid())
+  productId       String   @map("product_id")
+  ownPurchasePercent   Decimal @map("own_purchase_percent") @db.Decimal(5, 2) // 3-5%
+  referralPercent Decimal @map("referral_percent") @db.Decimal(5, 2) // 2-5%
+  validFrom       DateTime @map("valid_from")
+  validTo         DateTime? @map("valid_to") // null = no end
+
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@index([productId])
+  @@map("product_cashback_rates")
+}
+
+// === ORDERS ===
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique @map("order_number")
+  userId          String      @map("user_id")
+  status          OrderStatus @default(NEW)
+  
+  // Delivery
+  shippingName    String      @map("shipping_name")
+  shippingAddress String      @map("shipping_address")
+  shippingPhone   String      @map("shipping_phone")
+  shippingEmail   String      @map("shipping_email")
+  comment         String?
+  
+  // Totals
+  subtotal        Decimal     @db.Decimal(10, 2)
+  shippingCost    Decimal     @default(0) @map("shipping_cost") @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  
+  // Tracking
+  trackingNumber  String?     @map("tracking_number")
+  shippedAt       DateTime?   @map("shipped_at")
+  deliveredAt     DateTime?   @map("delivered_at")
+  
+  // Anti-fraud: IMEI for verification
+  imei            String?     // filled when shipped
+  
+  // Free iPhone bonus (20 referrals)
+  isFreeiPhoneBonus Boolean  @default(false) @map("is_free_iphone_bonus")
+
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user            User        @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  cashbackEntries CashbackEntry[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  quantity  Int     @default(1)
+  price     Decimal @db.Decimal(10, 2)
+
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  NEW
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// === CASHBACK (начисление только после 14 дней - период возврата) ===
+model CashbackEntry {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  amount      Decimal         @db.Decimal(10, 2)
+  type        CashbackType
+  status      CashbackStatus  @default(PENDING)
+  
+  // Source
+  orderId     String?         @map("order_id")     // for own purchase or referral
+  referralId  String?         @map("referral_id")  // if from referral purchase
+  
+  // Anti-fraud: блокировка 14 дней после доставки
+  availableAt DateTime        @map("available_at") // when becomes withdrawable
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  user        User            @relation(fields: [userId], references: [id])
+  order       Order?          @relation(fields: [orderId], references: [id])
+  payoutRequest PayoutRequest? @relation(fields: [payoutRequestId], references: [id])
+  payoutRequestId String?     @map("payout_request_id")
+
+  @@index([userId])
+  @@index([status])
+  @@index([availableAt])
+  @@map("cashback_entries")
+}
+
+enum CashbackType {
+  OWN_PURCHASE
+  REFERRAL_PURCHASE
+  BONUS_10_REFERRALS   // $50
+  BONUS_15_REFERRALS   // $100
+  BONUS_20_REFERRALS   // Free iPhone
+}
+
+enum CashbackStatus {
+  PENDING    // awaiting 14 days / order delivery
+  AVAILABLE  // can be withdrawn
+  PAID_OUT   // withdrawn
+  CANCELLED  // order refunded
+}
+
+// === PAYOUTS ===
+model PayoutMethod {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  type        PayoutMethodType
+  // Encrypted in DB, display masked (last 4 digits)
+  data        String        // encrypted JSON
+  isDefault   Boolean       @default(false) @map("is_default")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@map("payout_methods")
+}
+
+enum PayoutMethodType {
+  CARD
+  PAYPAL
+  CRYPTO
+  BANK_TRANSFER
+}
+
+model PayoutRequest {
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  amount      Decimal       @db.Decimal(10, 2)
+  status      PayoutStatus  @default(PENDING)
+  methodData  String?       @map("method_data") // encrypted snapshot
+  processedAt DateTime?     @map("processed_at")
+  rejectReason String?      @map("reject_reason")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user        User          @relation(fields: [userId], references: [id])
+  cashbackEntries CashbackEntry[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("payout_requests")
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+// === SYSTEM SETTINGS (admin configurable) ===
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}

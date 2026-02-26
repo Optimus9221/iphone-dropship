@@ -1,0 +1,17 @@
+"use client";
+
+import { SessionProvider } from "next-auth/react";
+import { I18nProvider } from "@/lib/i18n/context";
+import { ToastProvider } from "@/components/toast/toast-provider";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <I18nProvider>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </I18nProvider>
+    </SessionProvider>
+  );
+}
