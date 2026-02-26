@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type SiteSettings = {
   whatsapp_phone: string;
@@ -9,6 +10,7 @@ type SiteSettings = {
 };
 
 export function MessengerWidget() {
+  const pathname = usePathname();
   const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
@@ -18,7 +20,7 @@ export function MessengerWidget() {
       .catch(() => setSettings({ whatsapp_phone: "+380501234567", telegram_link: "https://t.me/iphone_store_ua" }));
   }, []);
 
-  if (!settings) return null;
+  if (pathname !== "/" || !settings) return null;
 
   const waPhone = settings.whatsapp_phone.replace(/\D/g, "");
   const waUrl = `https://wa.me/${waPhone}`;
