@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getReferralStats, getOrCreateReferralCode } from "@/lib/referral";
+import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount, getLastFreeiPhoneDeliveredAt } from "@/lib/referral";
 import { processAvailableCashback } from "@/lib/cashback";
 
 export async function GET() {
@@ -15,7 +15,7 @@ export async function GET() {
 
   await processAvailableCashback();
 
-  const [referralStats, code, cashbackAgg, available] = await Promise.all([
+  const [referralStats, code, cashbackAgg, available, qualifiedForFreeiPhone, lastFreeiPhoneAt] = await Promise.all([
     getReferralStats(userId),
     getOrCreateReferralCode(userId),
     prisma.cashbackEntry.aggregate({
@@ -26,6 +26,8 @@ export async function GET() {
       where: { userId, status: "AVAILABLE" },
       _sum: { amount: true },
     }),
+    getFreeiPhoneQualifiedReferralsCount(userId),
+    getLastFreeiPhoneDeliveredAt(userId),
   ]);
 
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -37,5 +39,7 @@ export async function GET() {
     availableCashback: available._sum.amount ? Number(available._sum.amount) : 0,
     totalEarned: cashbackAgg._sum.amount ? Number(cashbackAgg._sum.amount) : 0,
     referralUrl,
+    qualifiedForFreeiPhone,
+    lastFreeiPhoneAt: lastFreeiPhoneAt?.toISOString() ?? null,
   });
 }

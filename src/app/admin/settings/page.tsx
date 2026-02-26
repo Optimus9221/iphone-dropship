@@ -61,6 +61,7 @@ export default function AdminSettingsPage() {
       <form onSubmit={handleSave} className="mt-8 max-w-md space-y-4">
         <div>
           <label className="block text-sm font-medium">{t("adminMinWithdrawal")}</label>
+          <p className="mt-0.5 text-xs text-zinc-500">{t("adminMinWithdrawalHint")}</p>
           <input
             type="text"
             value={settings?.min_withdrawal ?? "10"}

@@ -27,7 +27,7 @@ type UserDetail = {
   user: { id: string; email: string; name: string | null; phone: string | null; referralCode: string };
   qualifiedReferralsCount: number;
   qualifiedReferrals: QualifiedReferral[];
-  alreadyReceived: boolean;
+  canReceive: boolean;
 };
 
 type Product = { id: string; name: string; slug: string; stock: number };
@@ -164,9 +164,9 @@ export default function AdminFreeiPhonePage() {
                 <div className="border-t border-zinc-200 bg-zinc-50/80 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900/30">
                   {detailLoading ? (
                     <div className="h-32 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
-                  ) : detail?.alreadyReceived ? (
+                  ) : detail && !detail.canReceive ? (
                     <p className="rounded-lg bg-amber-500/20 px-4 py-2 text-amber-700 dark:text-amber-400">
-                      {t("adminFreeiPhoneAlreadyReceived")}
+                      {t("adminFreeiPhoneNotEligible")}
                     </p>
                   ) : detail ? (
                     <>

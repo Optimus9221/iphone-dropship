@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 
+const FREE_IPHONE_REQUIRED = 20;
+
 type User = {
   id: string;
   email: string;
@@ -12,6 +14,8 @@ type User = {
   isBlocked: boolean;
   createdAt: string;
   ordersCount: number;
+  qualifiedReferrals: number;
+  progressPercent: number;
 };
 
 export default function AdminUsersPage() {
@@ -64,6 +68,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserName")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserRole")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserOrders")}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium min-w-[140px]">{t("adminUserProgress")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserJoined")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminActions")}</th>
               </tr>
@@ -83,6 +88,32 @@ export default function AdminUsersPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">{u.ordersCount}</td>
+                  <td className="px-4 py-3">
+                    {u.role === "USER" ? (
+                      <div className="min-w-[120px]">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs text-zinc-500">
+                            {u.qualifiedReferrals}/{FREE_IPHONE_REQUIRED}
+                          </span>
+                          {u.qualifiedReferrals >= FREE_IPHONE_REQUIRED && (
+                            <span className="text-xs font-medium text-emerald-600">✓</span>
+                          )}
+                        </div>
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              u.qualifiedReferrals >= FREE_IPHONE_REQUIRED
+                                ? "bg-emerald-500"
+                                : "bg-emerald-400"
+                            }`}
+                            style={{ width: `${u.progressPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-zinc-400">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-sm text-zinc-500">
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>

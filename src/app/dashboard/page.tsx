@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/context";
 import { useToast } from "@/components/toast/toast-provider";
 import { DashboardStatsSkeleton } from "@/components/ui/skeleton";
+import { Gift } from "lucide-react";
+
+const FREE_IPHONE_REQUIRED = 20;
 
 type Stats = {
   totalReferrals: number;
@@ -14,6 +17,8 @@ type Stats = {
   availableCashback: number;
   totalEarned: number;
   referralUrl: string;
+  qualifiedForFreeiPhone?: number;
+  lastFreeiPhoneAt?: string | null;
 };
 
 export default function DashboardPage() {
@@ -79,6 +84,47 @@ export default function DashboardPage() {
           <p className="mt-1 text-xs text-slate-500">{t("purchasedLast90")}</p>
         </div>
       </motion.div>
+
+      {stats && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 backdrop-blur-md"
+        >
+          <div className="flex items-center gap-2">
+            <Gift className="h-6 w-6 text-emerald-400" />
+            <h2 className="font-semibold text-white">{t("freeiPhoneProgress")}</h2>
+          </div>
+          {(stats.qualifiedForFreeiPhone ?? 0) >= FREE_IPHONE_REQUIRED && !stats.lastFreeiPhoneAt ? (
+            <p className="mt-2 font-medium text-emerald-400">{t("freeiPhoneReady")}</p>
+          ) : (stats.qualifiedForFreeiPhone ?? 0) >= FREE_IPHONE_REQUIRED && stats.lastFreeiPhoneAt ? (
+            (() => {
+              const last = new Date(stats.lastFreeiPhoneAt);
+              const nextEligible = new Date(last.getTime() + 365 * 24 * 60 * 60 * 1000);
+              const monthsLeft = Math.max(1, Math.ceil((nextEligible.getTime() - Date.now()) / (30 * 24 * 60 * 60 * 1000)));
+              return <p className="mt-2 text-slate-400">{t("freeiPhoneNextIn", { months: monthsLeft })}</p>;
+            })()
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-slate-400">
+                {t("freeiPhoneProgressDesc", {
+                  current: stats?.qualifiedForFreeiPhone ?? 0,
+                  total: FREE_IPHONE_REQUIRED,
+                })}
+              </p>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 transition-all duration-500"
+                  style={{
+                    width: `${Math.min(100, ((stats.qualifiedForFreeiPhone ?? 0) / FREE_IPHONE_REQUIRED) * 100)}%`,
+                  }}
+                />
+              </div>
+            </>
+          )}
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}

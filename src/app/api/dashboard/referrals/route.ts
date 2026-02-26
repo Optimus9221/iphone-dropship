@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getReferralStats } from "@/lib/referral";
+import { getReferralStats, getFreeiPhoneQualifiedReferralsCount } from "@/lib/referral";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -9,12 +9,16 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const stats = await getReferralStats(session.user.id);
+  const [stats, qualifiedForFreeiPhone] = await Promise.all([
+    getReferralStats(session.user.id),
+    getFreeiPhoneQualifiedReferralsCount(session.user.id),
+  ]);
 
   return NextResponse.json({
     total: stats.total,
     active: stats.active,
     inactive: stats.inactive,
+    qualifiedForFreeiPhone,
     referrals: stats.referrals.map((r) => ({
       id: r.id,
       email: r.email,

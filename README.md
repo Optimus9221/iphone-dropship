@@ -98,8 +98,9 @@ src/
 - [ ] Checkout & payments (Stripe)
 - [ ] Order management (status, tracking, IMEI)
 - [ ] Full admin CRUD
-- [ ] Payout requests
 - [ ] Email notifications
+
+*Cashback accumulates toward free iPhone — no payout/withdrawal.*
 
 ### Phase 3
 - [ ] 2FA, OAuth

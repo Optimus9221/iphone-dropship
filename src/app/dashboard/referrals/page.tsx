@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Users } from "lucide-react";
+import { Users, Gift } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+
+const FREE_IPHONE_REQUIRED = 20;
 
 type Referral = {
   id: string;
@@ -21,6 +23,7 @@ type Data = {
   total: number;
   active: number;
   inactive: number;
+  qualifiedForFreeiPhone?: number;
   referrals: Referral[];
 };
 
@@ -74,6 +77,34 @@ export default function ReferralsPage() {
       <p className="mt-1 text-slate-400">
         {data?.total ?? 0} {t("totalReferrals")} · {data?.active ?? 0} {t("active")}
       </p>
+
+      {/* Progress bar to free iPhone */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 backdrop-blur-md"
+      >
+        <div className="flex items-center gap-2">
+          <Gift className="h-5 w-5 text-emerald-400" />
+          <span className="font-medium text-white">{t("freeiPhoneProgress")}</span>
+        </div>
+        <p className="mt-1 text-sm text-slate-400">
+          {t("freeiPhoneProgressDesc", {
+            current: data?.qualifiedForFreeiPhone ?? 0,
+            total: FREE_IPHONE_REQUIRED,
+          })}
+        </p>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{
+              width: `${Math.min(100, ((data?.qualifiedForFreeiPhone ?? 0) / FREE_IPHONE_REQUIRED) * 100)}%`,
+            }}
+            transition={{ duration: 0.6 }}
+            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500"
+          />
+        </div>
+      </motion.div>
 
       {referrals.length === 0 ? (
         <motion.div

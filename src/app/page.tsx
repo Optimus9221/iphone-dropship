@@ -14,6 +14,9 @@ import {
   Package,
   CreditCard,
   Smartphone,
+  Check,
+  X,
+  ChevronDown,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
@@ -39,6 +42,7 @@ export default function Home() {
   const { data: session } = useSession();
   const isLoggedIn = !!session;
   const [products, setProducts] = useState<Product[]>([]);
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/products")

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import {
   getFreeiPhoneQualifiedReferrals,
   getFreeiPhoneQualifiedReferralsCount,
-  hasReceivedFreeiPhoneBonus,
+  canReceiveFreeiPhone,
 } from "@/lib/referral";
 
 export async function GET(
@@ -34,16 +34,16 @@ export async function GET(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const [qualifiedCount, referrals, alreadyReceived] = await Promise.all([
+  const [qualifiedCount, referrals, canReceive] = await Promise.all([
     getFreeiPhoneQualifiedReferralsCount(userId),
     getFreeiPhoneQualifiedReferrals(userId),
-    hasReceivedFreeiPhoneBonus(userId),
+    canReceiveFreeiPhone(userId),
   ]);
 
   return NextResponse.json({
     user,
     qualifiedReferralsCount: qualifiedCount,
     qualifiedReferrals: referrals,
-    alreadyReceived,
+    canReceive,
   });
 }

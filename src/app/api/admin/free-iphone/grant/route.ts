@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { createFreeiPhoneOrder } from "@/lib/orders";
 import {
   getFreeiPhoneQualifiedReferralsCount,
-  hasReceivedFreeiPhoneBonus,
+  canReceiveFreeiPhone,
 } from "@/lib/referral";
 
 const grantSchema = z.object({
@@ -36,9 +36,9 @@ export async function POST(req: Request) {
 
   const { userId, productId } = parsed.data;
 
-  const [qualifiedCount, alreadyReceived] = await Promise.all([
+    const [qualifiedCount, eligible] = await Promise.all([
     getFreeiPhoneQualifiedReferralsCount(userId),
-    hasReceivedFreeiPhoneBonus(userId),
+    canReceiveFreeiPhone(userId),
   ]);
 
   if (qualifiedCount < 20) {
@@ -47,9 +47,9 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  if (alreadyReceived) {
+    if (!eligible) {
     return NextResponse.json(
-      { error: "User has already received the free iPhone bonus" },
+      { error: "User is not eligible (already received this year or within last 12 months)" },
       { status: 400 }
     );
   }

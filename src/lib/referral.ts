@@ -106,7 +106,7 @@ export const REFERRAL_BONUSES = {
 
 /** 1 year in ms - referrals must have purchased within this period */
 const FREE_IPHONE_REFERRAL_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
-const FREE_IPHONE_REQUIRED_COUNT = 20;
+export const FREE_IPHONE_REQUIRED_COUNT = 20;
 
 /**
  * Count referrals who purchased (DELIVERED order) within the last year.
@@ -168,6 +168,28 @@ export async function hasReceivedFreeiPhoneBonus(userId: string): Promise<boolea
   return count > 0;
 }
 
+/** Last delivered free iPhone order date (for "every year" eligibility) */
+export async function getLastFreeiPhoneDeliveredAt(userId: string): Promise<Date | null> {
+  const order = await prisma.order.findFirst({
+    where: { userId, isFreeiPhoneBonus: true, status: "DELIVERED", deliveredAt: { not: null } },
+    orderBy: { deliveredAt: "desc" },
+    select: { deliveredAt: true },
+  });
+  return order?.deliveredAt ?? null;
+}
+
+/** Can receive free iPhone: 20+ qualified refs AND (never received OR last received > 1 year ago) */
+export async function canReceiveFreeiPhone(userId: string): Promise<boolean> {
+  const [count, lastDelivered] = await Promise.all([
+    getFreeiPhoneQualifiedReferralsCount(userId),
+    getLastFreeiPhoneDeliveredAt(userId),
+  ]);
+  if (count < FREE_IPHONE_REQUIRED_COUNT) return false;
+  if (!lastDelivered) return true;
+  const oneYearAgo = new Date(Date.now() - FREE_IPHONE_REFERRAL_WINDOW_MS);
+  return lastDelivered < oneYearAgo;
+}
+
 /**
  * Users who have 20+ referrals with purchases in the last year and haven't received the bonus.
  */
@@ -198,8 +220,8 @@ export async function getFreeiPhoneCandidates() {
   for (const u of usersWithReferrals) {
     const count = await getFreeiPhoneQualifiedReferralsCount(u.id);
     if (count >= FREE_IPHONE_REQUIRED_COUNT) {
-      const alreadyReceived = await hasReceivedFreeiPhoneBonus(u.id);
-      if (!alreadyReceived) {
+      const eligible = await canReceiveFreeiPhone(u.id);
+      if (eligible) {
         candidates.push({
           id: u.id,
           email: u.email,
