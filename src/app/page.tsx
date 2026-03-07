@@ -357,17 +357,18 @@ export default function Home() {
             const visibleItems = canScroll
               ? displayItems.slice(safeIndex, safeIndex + 3)
               : displayItems;
-            const goPrev = () => setReviewCarouselIndex((i) => Math.max(0, i - 1));
-            const goNext = () => setReviewCarouselIndex((i) => Math.min(maxIndex, i + 1));
+            const goPrev = () =>
+              setReviewCarouselIndex((i) => (i === 0 ? maxIndex : i - 1));
+            const goNext = () =>
+              setReviewCarouselIndex((i) => (i >= maxIndex ? 0 : i + 1));
             return (
               <div className="relative">
                 {canScroll && (
                   <button
                     type="button"
                     onClick={goPrev}
-                    disabled={safeIndex === 0}
                     aria-label={t("reviewPrev")}
-                    className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none md:-translate-x-4"
+                    className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 md:-translate-x-4"
                   >
                     <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
                   </button>
@@ -395,9 +396,8 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={goNext}
-                    disabled={safeIndex >= maxIndex}
                     aria-label={t("reviewNext")}
-                    className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none md:translate-x-4"
+                    className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 md:translate-x-4"
                   >
                     <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
                   </button>
