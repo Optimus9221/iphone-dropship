@@ -14,6 +14,7 @@ export function AdminNav() {
     { href: "/admin/orders", label: t("adminOrders") },
     { href: "/admin/users", label: t("adminUsers") },
     { href: "/admin/callback-requests", label: t("adminCallbackRequests") },
+    { href: "/admin/reviews", label: t("adminReviews") },
     { href: "/admin/free-iphone", label: t("adminFreeiPhone") },
     { href: "/admin/settings", label: t("adminSettings") },
   ];

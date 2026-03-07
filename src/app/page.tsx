@@ -15,10 +15,13 @@ import {
   CreditCard,
   Smartphone,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Star,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
+import { useToast } from "@/components/toast/toast-provider";
 import { PhoneBackground } from "@/components/phone-background";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } };
@@ -36,6 +39,14 @@ type Product = {
   stock: number;
 };
 
+type Review = {
+  id: string;
+  text: string;
+  rating: number;
+  createdAt: string;
+  userName: string;
+};
+
 const FAQ_ITEMS = [
   { q: "faq1Q" as const, a: "faq1A" as const },
   { q: "faq2Q" as const, a: "faq2A" as const },
@@ -45,11 +56,19 @@ const FAQ_ITEMS = [
 
 export default function Home() {
   const { t } = useI18n();
-  const { data: session } = useSession();
-  const isLoggedIn = !!session;
+  const toast = useToast();
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated" && !!session;
   const [products, setProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [stats, setStats] = useState({ usersCount: 0, ordersCount: 0 });
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewFormOpen, setReviewFormOpen] = useState(false);
+  const [reviewCarouselIndex, setReviewCarouselIndex] = useState(0);
 
   useEffect(() => {
     fetch("/api/products")
@@ -63,6 +82,43 @@ export default function Home() {
       .then(setStats)
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetch("/api/reviews")
+      .then((r) => r.json())
+      .then(setReviews)
+      .catch(() => []);
+  }, []);
+
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewText.trim() || reviewText.trim().length < 10) {
+      toast(t("reviewFillBodyFirst"), "error");
+      return;
+    }
+    setReviewSubmitting(true);
+    try {
+      const res = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: reviewText.trim(), rating: reviewRating }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setReviewText("");
+        setReviewRating(5);
+        setReviewSubmitted(true);
+        toast(t("reviewSubmitSuccess"));
+      } else {
+        const msg = data?.error === "Unauthorized" ? t("pleaseSignIn") : (data?.error || t("errorOccurred"));
+        toast(msg, "error");
+      }
+    } catch {
+      toast(t("errorOccurred"), "error");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
@@ -256,7 +312,7 @@ export default function Home() {
           </div>
         </motion.section>
 
-        {/* Testimonials */}
+        {/* Testimonials (approved reviews + static fallback), carousel when > 3 */}
         <motion.section
           className="mt-24"
           initial="initial"
@@ -265,26 +321,179 @@ export default function Home() {
           variants={stagger}
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-white">{t("homeTestimonialsTitle")}</h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
+          {(() => {
+            const staticFallback = [
               { name: "testimonial1Name", text: "testimonial1Text" },
               { name: "testimonial2Name", text: "testimonial2Text" },
               { name: "testimonial3Name", text: "testimonial3Text" },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
-              >
-                <div className="flex gap-1 text-amber-400">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-current" />
+            ] as const;
+            const baseItems =
+              reviews.length >= 3
+                ? reviews.map((r) => ({ id: r.id, text: r.text, userName: r.userName, rating: r.rating }))
+                : [
+                    ...reviews.map((r) => ({ id: r.id, text: r.text, userName: r.userName, rating: r.rating })),
+                    ...staticFallback.slice(0, 3 - reviews.length).map((item, i) => ({
+                      id: `static-${i}`,
+                      text: t(item.text),
+                      userName: t(item.name),
+                      rating: 5,
+                    })),
+                  ];
+            const needToPad =
+              baseItems.length < 3 ? 3 - baseItems.length : (3 - (baseItems.length % 3)) % 3;
+            const padItems = Array.from({ length: needToPad }, (_, i) => {
+              const item = staticFallback[(baseItems.length + i) % 3];
+              return {
+                id: `static-pad-${i}`,
+                text: t(item.text),
+                userName: t(item.name),
+                rating: 5,
+              };
+            });
+            const displayItems = [...baseItems, ...padItems];
+            const canScroll = displayItems.length > 3;
+            const maxIndex = Math.max(0, displayItems.length - 3);
+            const safeIndex = Math.min(reviewCarouselIndex, maxIndex);
+            const visibleItems = canScroll
+              ? displayItems.slice(safeIndex, safeIndex + 3)
+              : displayItems;
+            const goPrev = () => setReviewCarouselIndex((i) => Math.max(0, i - 1));
+            const goNext = () => setReviewCarouselIndex((i) => Math.min(maxIndex, i + 1));
+            return (
+              <div className="relative">
+                {canScroll && (
+                  <button
+                    type="button"
+                    onClick={goPrev}
+                    disabled={safeIndex === 0}
+                    aria-label={t("reviewPrev")}
+                    className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none md:-translate-x-4"
+                  >
+                    <ChevronLeft className="h-6 w-6 md:h-8 md:w-8" />
+                  </button>
+                )}
+                <div className="grid gap-6 md:grid-cols-3">
+                  {visibleItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+                    >
+                      <div className="flex gap-1 text-amber-400">
+                        {[...Array(5)].map((_, j) => (
+                          <Star
+                            key={j}
+                            className={`h-4 w-4 ${j < item.rating ? "fill-current" : "text-white/20"}`}
+                          />
+                        ))}
+                      </div>
+                      <p className="mt-3 text-slate-300">{item.text}</p>
+                      <p className="mt-3 font-medium text-white">{item.userName}</p>
+                    </div>
                   ))}
                 </div>
-                <p className="mt-3 text-slate-300">{t(item.text as "testimonial1Text")}</p>
-                <p className="mt-3 font-medium text-white">{t(item.name as "testimonial1Name")}</p>
-              </motion.div>
-            ))}
+                {canScroll && (
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    disabled={safeIndex >= maxIndex}
+                    aria-label={t("reviewNext")}
+                    className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 disabled:opacity-30 disabled:pointer-events-none md:translate-x-4"
+                  >
+                    <ChevronRight className="h-6 w-6 md:h-8 md:w-8" />
+                  </button>
+                )}
+                {canScroll && (
+                  <div className="mt-4 flex justify-center gap-2">
+                    {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setReviewCarouselIndex(i)}
+                        aria-label={t("reviewPage", { num: i + 1 })}
+                        className={`h-2 rounded-full transition-all ${
+                          i === safeIndex ? "w-6 bg-emerald-400" : "w-2 bg-white/40 hover:bg-white/60"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Write review — collapsible block */}
+          <div className="mt-12">
+            <button
+              type="button"
+              onClick={() => setReviewFormOpen((v) => !v)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-4 text-xl font-bold text-white transition hover:bg-white/10 hover:border-white/20"
+            >
+              {t("reviewWriteTitle")}
+              <ChevronDown
+                className={`h-6 w-6 shrink-0 transition-transform duration-200 ${reviewFormOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            <AnimatePresence initial={false}>
+              {reviewFormOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-4">
+                    {status === "loading" ? (
+                      <p className="text-center text-slate-400">{t("loading")}</p>
+                    ) : isLoggedIn ? (
+                      reviewSubmitted ? (
+                        <p className="text-center text-emerald-400">{t("reviewSubmitSuccess")}</p>
+                      ) : (
+                        <form
+                          onSubmit={submitReview}
+                          className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+                        >
+                          <div className="mb-3 flex justify-center gap-1">
+                            {[1, 2, 3, 4, 5].map((n) => (
+                              <button
+                                key={n}
+                                type="button"
+                                onClick={() => setReviewRating(n)}
+                                className="rounded p-1 transition hover:opacity-80"
+                              >
+                                <Star
+                                  className={`h-8 w-8 ${
+                                    n <= reviewRating ? "fill-amber-400 text-amber-400" : "text-white/30"
+                                  }`}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                          <textarea
+                            value={reviewText}
+                            onChange={(e) => setReviewText(e.target.value)}
+                            placeholder={t("reviewWritePlaceholder")}
+                            rows={4}
+                            minLength={10}
+                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                          />
+                          <p className="mt-1 text-xs text-slate-400">{t("reviewMinLength")}</p>
+                          <button
+                            type="submit"
+                            disabled={reviewSubmitting}
+                            className="mt-4 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-white transition hover:bg-emerald-400 disabled:opacity-50"
+                          >
+                            {reviewSubmitting ? "..." : t("reviewSubmit")}
+                          </button>
+                        </form>
+                      )
+                    ) : (
+                      <p className="text-center text-slate-400">{t("reviewSignInToWrite")}</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.section>
 

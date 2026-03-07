@@ -39,6 +39,7 @@ model User {
   payoutMethods  PayoutMethod[]
   payoutRequests PayoutRequest[]
   referralClicks ReferralClick[]
+  reviews        Review[]
 
   @@map("users")
 }
@@ -269,6 +270,28 @@ model CallbackRequest {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("callback_requests")
+}
+
+// === REVIEWS (moderated: only approved shown on site) ===
+model Review {
+  id        String      @id @default(cuid())
+  userId    String      @map("user_id")
+  text      String      @db.Text
+  rating    Int         @default(5) // 1-5
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([status])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // === SYSTEM SETTINGS (admin configurable) ===
