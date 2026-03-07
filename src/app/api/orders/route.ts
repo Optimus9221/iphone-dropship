@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "VALIDATION_ERROR", details: parsed.error.flatten() },
+        { error: "Validation error", errorCode: "validation", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
@@ -73,18 +73,11 @@ export async function POST(req: Request) {
       where: { id: productId },
     });
     if (!product) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      return NextResponse.json({ error: "Product not found", errorCode: "product_not_found" }, { status: 404 });
     }
     if (!product.isPublished) {
-      return NextResponse.json({ error: "Product not available" }, { status: 400 });
+      return NextResponse.json({ error: "Product not available", errorCode: "product_not_available" }, { status: 400 });
     }
-    if (product.stock < quantity) {
-      return NextResponse.json(
-        { error: "Insufficient stock", stock: product.stock },
-        { status: 400 }
-      );
-    }
-
     const order = await createOrder({
       userId: session.user.id,
       items: [{ productId, quantity, price: Number(product.price) }],
@@ -120,6 +113,6 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Failed to create order";
-    return NextResponse.json({ error: msg }, { status: 400 });
+    return NextResponse.json({ error: msg, errorCode: "failed" }, { status: 400 });
   }
 }

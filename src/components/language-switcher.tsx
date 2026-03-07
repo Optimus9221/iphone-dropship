@@ -9,9 +9,6 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
   const { locale, setLocale } = useI18n();
 
   const isHero = variant === "hero";
-  const isRuSelected = locale === "ru";
-  const isUkSelected = locale === "uk";
-
   return (
     <div
       className={`flex items-center gap-1 rounded-full p-1 ${
@@ -45,19 +42,6 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
           title={localeNames[l as Locale]}
         >
           {l.toUpperCase()}
-          {l === "ru" && isRuSelected && (
-            <span className="pointer-events-none absolute left-1/2 top-full flex w-8 -translate-x-1/2 justify-center gap-0.5 pt-0.5" aria-hidden>
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className="h-2.5 w-1.5 shrink-0 rounded-b-full bg-red-600/90 origin-top"
-                  style={{
-                    animation: `blood-drip 1.8s ease-in-out ${i * 0.25}s infinite`,
-                  }}
-                />
-              ))}
-            </span>
-          )}
         </button>
         );
       })}

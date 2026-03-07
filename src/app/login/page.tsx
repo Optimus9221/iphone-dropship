@@ -71,7 +71,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/20"
-                placeholder="you@example.com"
+                placeholder={t("placeholderEmail")}
               />
             </div>
 
@@ -87,6 +87,9 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/20"
               />
+              <Link href="/forgot-password" className="mt-1 block text-right text-xs text-emerald-400 hover:underline">
+                {t("forgotPassword")}
+              </Link>
             </div>
 
             <LoadingButton

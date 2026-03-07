@@ -34,7 +34,7 @@ function interpolate(text: string, params?: Record<string, string | number>): st
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const [locale, setLocaleState] = useState<Locale>("uk");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

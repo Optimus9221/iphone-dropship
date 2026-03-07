@@ -27,6 +27,7 @@ function CheckoutContent() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [form, setForm] = useState({
     deliveryMethod: "nova_poshta" as "nova_poshta" | "courier",
     shippingName: "",
@@ -95,7 +96,7 @@ function CheckoutContent() {
         <PhoneBackground patternId="phones-checkout" />
         <div className="relative mx-auto max-w-xl px-4 py-12 text-center">
           <h1 className="text-2xl font-bold text-white">{t("checkoutTitle")}</h1>
-          <p className="mt-4 text-slate-400">Select a product from the catalog first.</p>
+          <p className="mt-4 text-slate-400">{t("checkoutSelectProductFirst")}</p>
           <Link href="/catalog" className="mt-6 inline-block text-emerald-400 hover:underline">
             {t("backToCatalog")}
           </Link>
@@ -106,9 +107,19 @@ function CheckoutContent() {
 
   const cashback = Math.round(product.price * 0.05);
 
+  const getOrderErrorMessage = (errorCode: string) => {
+    const keys: Record<string, "orderError_product_not_found" | "orderError_product_not_available" | "orderError_failed"> = {
+      product_not_found: "orderError_product_not_found",
+      product_not_available: "orderError_product_not_available",
+      failed: "orderError_failed",
+    };
+    return t(keys[errorCode] ?? "orderError_failed");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
     setSubmitting(true);
     const shippingAddress =
       form.deliveryMethod === "nova_poshta"
@@ -130,15 +141,36 @@ function CheckoutContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error ?? "Failed");
+        const code = data.errorCode ?? "failed";
+        if (code === "validation" && data.details?.fieldErrors) {
+          const next: Record<string, string> = {};
+          const map: Record<string, "orderError_validation_name" | "orderError_validation_address" | "orderError_validation_phone" | "orderError_validation_email"> = {
+            shippingName: "orderError_validation_name",
+            shippingAddress: "orderError_validation_address",
+            shippingPhone: "orderError_validation_phone",
+            shippingEmail: "orderError_validation_email",
+          };
+          for (const [field, msgs] of Object.entries(data.details.fieldErrors) as [string, string[]][]) {
+            const key = map[field];
+            if (key && msgs?.length) next[field] = t(key);
+          }
+          setFieldErrors(next);
+          setError(t("orderError_validation"));
+        } else {
+          setError(getOrderErrorMessage(code));
+        }
+        return;
       }
       router.push("/dashboard/orders");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to place order");
+      setError(t("orderError_failed"));
     } finally {
       setSubmitting(false);
     }
   };
+
+  const inputErrorClass = (field: string) =>
+    fieldErrors[field] ? "border-red-500 focus:border-red-500" : "border-white/20 focus:border-emerald-500";
 
   const steps = [
     { label: t("checkoutStep1"), done: true },
@@ -216,10 +248,11 @@ function CheckoutContent() {
               type="text"
               required
               value={form.shippingName}
-              onChange={(e) => setForm((f) => ({ ...f, shippingName: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-              placeholder="John Doe"
+              onChange={(e) => { setForm((f) => ({ ...f, shippingName: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingName: "" })); }}
+              className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${inputErrorClass("shippingName")}`}
+              placeholder={t("placeholderName")}
             />
+            {fieldErrors.shippingName && <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingName}</p>}
           </div>
 
           <div>
@@ -254,9 +287,9 @@ function CheckoutContent() {
                   type="text"
                   required
                   value={form.novaPoshtaCity}
-                  onChange={(e) => setForm((f) => ({ ...f, novaPoshtaCity: e.target.value }))}
-                  className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                  placeholder="Київ"
+                  onChange={(e) => { setForm((f) => ({ ...f, novaPoshtaCity: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
+                  className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${fieldErrors.shippingAddress ? "border-red-500" : "border-white/20 focus:border-emerald-500"}`}
+                  placeholder={t("checkoutPlaceholderCity")}
                 />
               </div>
               <div>
@@ -265,10 +298,11 @@ function CheckoutContent() {
                   type="text"
                   required
                   value={form.novaPoshtaDepartment}
-                  onChange={(e) => setForm((f) => ({ ...f, novaPoshtaDepartment: e.target.value }))}
-                  className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                  placeholder="Відділення №1 або адреса"
+                  onChange={(e) => { setForm((f) => ({ ...f, novaPoshtaDepartment: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
+                  className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${fieldErrors.shippingAddress ? "border-red-500" : "border-white/20 focus:border-emerald-500"}`}
+                  placeholder={t("checkoutPlaceholderDepartment")}
                 />
+                {fieldErrors.shippingAddress && <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingAddress}</p>}
               </div>
             </>
           ) : (
@@ -278,10 +312,11 @@ function CheckoutContent() {
                 type="text"
                 required
                 value={form.shippingAddress}
-                onChange={(e) => setForm((f) => ({ ...f, shippingAddress: e.target.value }))}
-                className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-                placeholder="123 Main St, City"
+                onChange={(e) => { setForm((f) => ({ ...f, shippingAddress: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
+                className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${inputErrorClass("shippingAddress")}`}
+                placeholder={t("checkoutPlaceholderAddress")}
               />
+              {fieldErrors.shippingAddress && <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingAddress}</p>}
             </div>
           )}
           <div>
@@ -290,10 +325,11 @@ function CheckoutContent() {
               type="tel"
               required
               value={form.shippingPhone}
-              onChange={(e) => setForm((f) => ({ ...f, shippingPhone: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-              placeholder="+1234567890"
+              onChange={(e) => { setForm((f) => ({ ...f, shippingPhone: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingPhone: "" })); }}
+              className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${inputErrorClass("shippingPhone")}`}
+              placeholder={t("phonePlaceholder")}
             />
+            {fieldErrors.shippingPhone && <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingPhone}</p>}
           </div>
           <div>
             <label className="block text-sm text-slate-400">{t("shippingEmail")}</label>
@@ -301,9 +337,11 @@ function CheckoutContent() {
               type="email"
               required
               value={form.shippingEmail}
-              onChange={(e) => setForm((f) => ({ ...f, shippingEmail: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+              onChange={(e) => { setForm((f) => ({ ...f, shippingEmail: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingEmail: "" })); }}
+              className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${inputErrorClass("shippingEmail")}`}
+              placeholder={t("placeholderEmail")}
             />
+            {fieldErrors.shippingEmail && <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingEmail}</p>}
           </div>
           <div>
             <label className="block text-sm text-slate-400">{t("comment")}</label>

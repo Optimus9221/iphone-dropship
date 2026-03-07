@@ -23,13 +23,12 @@ export async function createOrder(params: {
   const shippingCost = 0; // MVP: free shipping
   const total = subtotal + shippingCost;
 
-  // Check stock and decrease
+  // Validate products exist (allow pre-order when stock 0)
   for (const item of params.items) {
     const product = await prisma.product.findUnique({
       where: { id: item.productId },
     });
     if (!product) throw new Error("Product not found");
-    if (product.stock < item.quantity) throw new Error(`Insufficient stock for ${product.name}`);
   }
 
   const order = await prisma.$transaction(async (tx) => {
@@ -58,9 +57,14 @@ export async function createOrder(params: {
           price: item.price,
         },
       });
+      const product = await tx.product.findUnique({
+        where: { id: item.productId },
+        select: { stock: true },
+      });
+      const newStock = product ? Math.max(0, product.stock - item.quantity) : 0;
       await tx.product.update({
         where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
+        data: { stock: newStock },
       });
     }
 

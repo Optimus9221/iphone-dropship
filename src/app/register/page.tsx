@@ -109,7 +109,7 @@ function RegisterForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className={inputClass}
-          placeholder="you@example.com"
+          placeholder={t("placeholderEmail")}
         />
       </div>
 
@@ -136,7 +136,7 @@ function RegisterForm() {
           value={name}
           onChange={(e) => { setName(e.target.value); setError(""); }}
           className={inputClass}
-          placeholder="John"
+          placeholder={t("placeholderName")}
         />
       </div>
 

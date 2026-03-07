@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ChevronRight, Smartphone } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronRight, Smartphone, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 import { getProductContent } from "@/lib/i18n/product-content";
 import { productDescriptions } from "@/lib/i18n/product-descriptions";
@@ -33,6 +33,9 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
   useEffect(() => {
     fetch("/api/products")
@@ -58,6 +61,20 @@ export default function ProductPage() {
   const content = getProductContent(locale, product.slug, product.storage);
   const fallbackDesc = productDescriptions[locale]?.[product.slug] ?? product.description;
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) setSelectedImage((i) => Math.min(images.length - 1, i + 1));
+      else setSelectedImage((i) => Math.max(0, i - 1));
+    }
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
       <PhoneBackground patternId="phones-product" />
@@ -76,23 +93,36 @@ export default function ProductPage() {
           className="mt-8 grid gap-10 md:grid-cols-2"
         >
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
-            <div className="aspect-square overflow-hidden">
+            <div
+              className="aspect-square overflow-hidden touch-pan-y md:touch-auto"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onClick={() => setLightboxOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setLightboxOpen(true)}
+              aria-label="View fullscreen"
+            >
               {images[selectedImage] ? (
-                <img src={images[selectedImage]} alt={product.name} className="h-full w-full object-cover" />
+                <img src={images[selectedImage]} alt={product.name} className="h-full w-full object-cover select-none" draggable={false} />
               ) : (
                 <div className="flex h-full items-center justify-center bg-white/5">
                   <Smartphone className="h-24 w-24 text-white/30" />
                 </div>
               )}
             </div>
+            <p className="px-3 pb-2 text-center text-xs text-slate-500 md:hidden">
+              {t("productImageTapHint")}
+            </p>
             {images.length > 1 && (
-              <div className="flex gap-2 p-3">
+              <div className="flex gap-2 overflow-x-auto p-3 snap-x snap-mandatory md:flex-wrap">
                 {images.map((img, i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setSelectedImage(i)}
-                    className={`h-16 w-16 overflow-hidden rounded-lg border-2 transition ${
+                    className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 snap-center transition ${
                       selectedImage === i ? "border-emerald-400" : "border-white/20 hover:border-white/40"
                     }`}
                   >
@@ -107,6 +137,43 @@ export default function ProductPage() {
                 ))}
               </div>
             )}
+            <AnimatePresence>
+              {lightboxOpen && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+                  onClick={() => setLightboxOpen(false)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Escape" && setLightboxOpen(false)}
+                  aria-label="Close"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setLightboxOpen(false)}
+                    className="absolute right-4 top-4 rounded-full p-2 text-white hover:bg-white/10"
+                    aria-label="Close"
+                  >
+                    <X className="h-8 w-8" />
+                  </button>
+                  {images[selectedImage] ? (
+                    <img
+                      src={images[selectedImage]}
+                      alt={product.name}
+                      className="max-h-full max-w-full object-contain"
+                      onClick={(e) => e.stopPropagation()}
+                      draggable={false}
+                    />
+                  ) : (
+                    <div className="flex h-64 w-64 items-center justify-center">
+                      <Smartphone className="h-24 w-24 text-white/30" />
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div>
@@ -126,14 +193,14 @@ export default function ProductPage() {
               href={`/checkout?product=${product.id}`}
               className="mt-6 block w-full rounded-full bg-white py-4 text-center font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100 hover:shadow-indigo-500/30"
             >
-              {t("buyNow")}
+              {product.stock === 0 ? t("orderNow") : t("buyNow")}
             </Link>
 
             {product.stock < 5 && product.stock > 0 && (
               <p className="mt-2 text-center text-sm text-amber-400">{t("onlyLeft", { count: product.stock })}</p>
             )}
             {product.stock === 0 && (
-              <p className="mt-2 text-center text-sm text-red-400">{t("outOfStock")}</p>
+              <p className="mt-2 text-center text-sm text-slate-400">{t("outOfStock")}</p>
             )}
 
             {content?.intro ? (

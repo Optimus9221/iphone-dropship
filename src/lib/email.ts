@@ -10,6 +10,32 @@ const FROM_EMAIL = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "iPhone Store";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+export async function sendPasswordResetEmail(params: { to: string; resetLink: string; locale?: string }) {
+  if (!resend) return;
+  const subject =
+    params.locale === "ru"
+      ? `Восстановление пароля — ${SITE_NAME}`
+      : params.locale === "uk"
+        ? `Відновлення пароля — ${SITE_NAME}`
+        : `Password reset — ${SITE_NAME}`;
+  const body =
+    params.locale === "ru"
+      ? `<p>Перейдите по ссылке, чтобы задать новый пароль:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Ссылка действительна 1 час.</p>`
+      : params.locale === "uk"
+        ? `<p>Перейдіть за посиланням, щоб встановити новий пароль:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Посилання дійсне 1 годину.</p>`
+        : `<p>Click the link to set a new password:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Link expires in 1 hour.</p>`;
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject,
+      html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+    });
+  } catch (e) {
+    console.error("Password reset email error:", e);
+  }
+}
+
 export async function sendOrderConfirmation(params: {
   to: string;
   orderNumber: string;
