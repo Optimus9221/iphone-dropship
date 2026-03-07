@@ -10,6 +10,7 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
 
   const isHero = variant === "hero";
   const isRuSelected = locale === "ru";
+  const isUkSelected = locale === "uk";
 
   return (
     <div
@@ -19,19 +20,27 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
           : "border border-zinc-200 bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-800/80"
       }`}
     >
-      {locales.map((l) => (
+      {locales.map((l) => {
+        const selected = locale === l;
+        const isUkButton = l === "uk";
+        const ukFlagBg = isUkButton && selected
+          ? "bg-[linear-gradient(to_bottom,#0057B7_50%,#FFD700_50%)] text-white shadow-inner [text-shadow:0_0_1px_rgba(0,0,0,0.3)]"
+          : "";
+        return (
         <button
           key={l}
           type="button"
           onClick={() => setLocale(l as Locale)}
           className={`relative overflow-visible rounded-full px-3 py-1.5 text-sm font-medium transition ${
-            locale === l
+            selected && !isUkButton
               ? isHero
                 ? "bg-white text-slate-900"
                 : "bg-white text-slate-900 shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
-              : isHero
-                ? "text-slate-300 hover:bg-white/10 hover:text-white"
-                : "text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-700"
+              : selected && isUkButton
+                ? ukFlagBg
+                : isHero
+                  ? "text-slate-300 hover:bg-white/10 hover:text-white"
+                  : "text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-700"
           }`}
           title={localeNames[l as Locale]}
         >
@@ -50,7 +59,8 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
             </span>
           )}
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
