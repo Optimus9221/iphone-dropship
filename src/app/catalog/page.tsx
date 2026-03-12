@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Smartphone } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { usdToUah } from "@/lib/currency";
 import { PhoneBackground } from "@/components/phone-background";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
 
@@ -93,7 +94,7 @@ export default function CatalogPage() {
                   <div className="p-4">
                     <h3 className="font-semibold text-white">{p.name}</h3>
                     <p className="mt-1 text-sm text-slate-400">{p.color} • {p.storage}</p>
-                    <p className="mt-2 text-lg font-bold text-white">${p.price}</p>
+                    <p className="mt-2 text-lg font-bold text-white">${p.price} <span className="text-sm font-normal text-slate-400">{t("priceApproxUah", { uah: usdToUah(p.price) })}</span></p>
                     <p className="text-sm text-emerald-400">
                       +${Math.round(p.price * 0.05)} {t("cashback")}
                     </p>
@@ -102,9 +103,13 @@ export default function CatalogPage() {
                 <div className="px-4 pb-4">
                   <Link
                     href={`/checkout?product=${p.id}`}
-                    className="block w-full rounded-xl bg-emerald-500 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-emerald-400"
+                    className={`block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition ${
+                      p.stock === 0
+                        ? "bg-amber-500 hover:bg-amber-400"
+                        : "bg-emerald-500 hover:bg-emerald-400"
+                    }`}
                   >
-                    {t("buyNow")}
+                    {p.stock === 0 ? t("orderNow") : t("buyNow")}
                   </Link>
                 </div>
               </motion.div>

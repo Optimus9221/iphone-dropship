@@ -39,6 +39,14 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
       }
+      // Refresh role from DB so admin-assigned role applies without re-login
+      if (token.id && typeof token.id === "string") {
+        const u = await prisma.user.findUnique({
+          where: { id: token.id },
+          select: { role: true },
+        });
+        if (u) token.role = u.role;
+      }
       return token;
     },
     async session({ session, token }) {

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Smartphone, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { usdToUah } from "@/lib/currency";
 import { getProductContent } from "@/lib/i18n/product-content";
 import { productDescriptions } from "@/lib/i18n/product-descriptions";
 import { PhoneBackground } from "@/components/phone-background";
@@ -181,7 +182,7 @@ export default function ProductPage() {
             <p className="mt-2 text-slate-400">
               {product.model} • {product.storage} • {product.color}
             </p>
-            <p className="mt-4 text-3xl font-bold text-white">${product.price}</p>
+            <p className="mt-4 text-3xl font-bold text-white">${product.price} <span className="text-lg font-normal text-slate-400">{t("priceApproxUah", { uah: usdToUah(product.price) })}</span></p>
             <p className="mt-1 text-emerald-400">
               +${cashback} {t("cashbackOnPurchase")}
             </p>

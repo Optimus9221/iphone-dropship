@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/context";
+import { usdToUah } from "@/lib/currency";
 import { PhoneBackground } from "@/components/phone-background";
 
 type Product = {
@@ -225,7 +226,7 @@ function CheckoutContent() {
             )}
             <div>
               <p className="font-medium text-white">{product.name}</p>
-              <p className="text-lg font-bold text-white">${product.price}</p>
+              <p className="text-lg font-bold text-white">${product.price} <span className="text-sm font-normal text-slate-400">{t("priceApproxUah", { uah: usdToUah(product.price) })}</span></p>
               <p className="text-sm text-emerald-400">+${cashback} {t("cashbackOnPurchase")}</p>
             </div>
           </div>

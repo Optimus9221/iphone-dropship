@@ -1,6 +1,6 @@
 export type Locale = "en" | "ru" | "uk";
 
-export const locales: Locale[] = ["en", "ru", "uk"];
+export const locales: Locale[] = ["uk", "en", "ru"];
 
 export const localeNames: Record<Locale, string> = {
   en: "English",
@@ -106,6 +106,7 @@ export const translations = {
     orderNow: "Order",
     onlyLeft: "Only {count} left",
     outOfStock: "Out of stock",
+    priceApproxUah: "~{uah} UAH",
     spec_display: "Display",
     spec_processor: "Processor",
     spec_camera: "Camera",
@@ -460,6 +461,7 @@ export const translations = {
     orderNow: "Заказать",
     onlyLeft: "Осталось {count} шт.",
     outOfStock: "Нет в наличии",
+    priceApproxUah: "~{uah} грн",
     spec_display: "Дисплей",
     spec_processor: "Процессор",
     spec_camera: "Камера",
@@ -806,6 +808,7 @@ export const translations = {
     orderNow: "Замовити",
     onlyLeft: "Залишилось {count} шт.",
     outOfStock: "Немає в наявності",
+    priceApproxUah: "~{uah} грн",
     spec_display: "Дисплей",
     spec_processor: "Процесор",
     spec_camera: "Камера",
