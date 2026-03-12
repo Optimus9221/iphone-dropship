@@ -74,9 +74,9 @@ export default function CatalogPage() {
               <motion.div
                 key={p.id}
                 variants={{ initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } }}
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
               >
-                <Link href={`/product/${p.slug}`} className="block">
+                <Link href={`/product/${p.slug}`} className="block flex-1 min-h-0">
                   <div className="relative aspect-square overflow-hidden bg-white/5">
                     {p.images[0] ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -100,10 +100,10 @@ export default function CatalogPage() {
                     </p>
                   </div>
                 </Link>
-                <div className="px-4 pb-4">
+                <div className="mt-auto px-4 pb-4 flex flex-col justify-end">
                   <Link
                     href={`/checkout?product=${p.id}`}
-                    className={`block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition ${
+                    className={`block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition min-h-[42px] flex items-center justify-center ${
                       p.stock === 0
                         ? "bg-amber-500 hover:bg-amber-400"
                         : "bg-emerald-500 hover:bg-emerald-400"
