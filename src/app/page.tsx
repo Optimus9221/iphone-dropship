@@ -22,6 +22,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
 import { usdToUah } from "@/lib/currency";
+import { getYoutubeEmbedUrl } from "@/lib/video-url";
 import { useToast } from "@/components/toast/toast-provider";
 import { PhoneBackground } from "@/components/phone-background";
 
@@ -44,6 +45,7 @@ type Review = {
   id: string;
   text: string;
   rating: number;
+  videoUrl: string | null;
   createdAt: string;
   userName: string;
 };
@@ -66,6 +68,7 @@ export default function Home() {
   const [stats, setStats] = useState({ usersCount: 0, ordersCount: 0 });
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
+  const [reviewVideoUrl, setReviewVideoUrl] = useState("");
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
@@ -102,12 +105,17 @@ export default function Home() {
       const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: reviewText.trim(), rating: reviewRating }),
+        body: JSON.stringify({
+          text: reviewText.trim(),
+          rating: reviewRating,
+          videoUrl: reviewVideoUrl.trim() || undefined,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setReviewText("");
         setReviewRating(5);
+        setReviewVideoUrl("");
         setReviewSubmitted(true);
         toast(t("reviewSubmitSuccess"));
       } else {
@@ -334,14 +342,15 @@ export default function Home() {
             ] as const;
             const baseItems =
               reviews.length >= 3
-                ? reviews.map((r) => ({ id: r.id, text: r.text, userName: r.userName, rating: r.rating }))
+                ? reviews.map((r) => ({ id: r.id, text: r.text, userName: r.userName, rating: r.rating, videoUrl: r.videoUrl ?? null }))
                 : [
-                    ...reviews.map((r) => ({ id: r.id, text: r.text, userName: r.userName, rating: r.rating })),
+                    ...reviews.map((r) => ({ id: r.id, text: r.text, userName: r.userName, rating: r.rating, videoUrl: r.videoUrl ?? null })),
                     ...staticFallback.slice(0, 3 - reviews.length).map((item, i) => ({
                       id: `static-${i}`,
                       text: t(item.text),
                       userName: t(item.name),
                       rating: 5,
+                      videoUrl: null as string | null,
                     })),
                   ];
             const needToPad =
@@ -353,6 +362,7 @@ export default function Home() {
                 text: t(item.text),
                 userName: t(item.name),
                 rating: 5,
+                videoUrl: null as string | null,
               };
             });
             const displayItems = [...baseItems, ...padItems];
@@ -379,23 +389,48 @@ export default function Home() {
                   </button>
                 )}
                 <div className="grid gap-6 md:grid-cols-3">
-                  {visibleItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
-                    >
-                      <div className="flex gap-1 text-amber-400">
-                        {[...Array(5)].map((_, j) => (
-                          <Star
-                            key={j}
-                            className={`h-4 w-4 ${j < item.rating ? "fill-current" : "text-white/20"}`}
-                          />
-                        ))}
+                  {visibleItems.map((item) => {
+                    const embedUrl = "videoUrl" in item && item.videoUrl ? getYoutubeEmbedUrl(item.videoUrl) : null;
+                    const videoUrl = "videoUrl" in item ? item.videoUrl : null;
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
+                      >
+                        <div className="flex gap-1 text-amber-400">
+                          {[...Array(5)].map((_, j) => (
+                            <Star
+                              key={j}
+                              className={`h-4 w-4 ${j < item.rating ? "fill-current" : "text-white/20"}`}
+                            />
+                          ))}
+                        </div>
+                        {embedUrl && (
+                          <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl bg-black">
+                            <iframe
+                              src={embedUrl}
+                              title="Review video"
+                              className="h-full w-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        )}
+                        {videoUrl && !embedUrl && (
+                          <a
+                            href={videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-3 inline-block text-sm text-emerald-400 hover:underline"
+                          >
+                            {t("reviewWatchVideo")}
+                          </a>
+                        )}
+                        <p className="mt-3 text-slate-300">{item.text}</p>
+                        <p className="mt-3 font-medium text-white">{item.userName}</p>
                       </div>
-                      <p className="mt-3 text-slate-300">{item.text}</p>
-                      <p className="mt-3 font-medium text-white">{item.userName}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 {canScroll && (
                   <button
@@ -458,22 +493,6 @@ export default function Home() {
                           onSubmit={submitReview}
                           className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
                         >
-                          <div className="mb-3 flex justify-center gap-1">
-                            {[1, 2, 3, 4, 5].map((n) => (
-                              <button
-                                key={n}
-                                type="button"
-                                onClick={() => setReviewRating(n)}
-                                className="rounded p-1 transition hover:opacity-80"
-                              >
-                                <Star
-                                  className={`h-8 w-8 ${
-                                    n <= reviewRating ? "fill-amber-400 text-amber-400" : "text-white/30"
-                                  }`}
-                                />
-                              </button>
-                            ))}
-                          </div>
                           <textarea
                             value={reviewText}
                             onChange={(e) => setReviewText(e.target.value)}
@@ -483,6 +502,33 @@ export default function Home() {
                             className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
                           />
                           <p className="mt-1 text-xs text-slate-400">{t("reviewMinLength")}</p>
+                          <input
+                            type="url"
+                            value={reviewVideoUrl}
+                            onChange={(e) => setReviewVideoUrl(e.target.value)}
+                            placeholder={t("reviewVideoPlaceholder")}
+                            className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                          />
+                          <div className="mt-4 flex items-center gap-3">
+                            <span className="text-sm text-slate-400">{t("reviewRatingLabel")}</span>
+                            <div className="flex gap-0.5">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <button
+                                  key={n}
+                                  type="button"
+                                  onClick={() => setReviewRating(n)}
+                                  className="rounded p-1 transition hover:opacity-80"
+                                  aria-label={`${n} ${t("reviewRatingLabel")}`}
+                                >
+                                  <Star
+                                    className={`h-6 w-6 ${
+                                      n <= reviewRating ? "fill-amber-400 text-amber-400" : "text-white/30"
+                                    }`}
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                           <button
                             type="submit"
                             disabled={reviewSubmitting}

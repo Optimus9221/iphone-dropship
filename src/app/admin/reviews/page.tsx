@@ -9,6 +9,7 @@ type Review = {
   id: string;
   text: string;
   rating: number;
+  videoUrl: string | null;
   status: string;
   createdAt: string;
   user: { id: string; name: string | null; email: string | null };
@@ -19,12 +20,24 @@ export default function AdminReviewsPage() {
   const toast = useToast();
   const [list, setList] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = () => {
+    setLoadError(null);
     fetch("/api/admin/reviews")
-      .then((r) => r.json())
-      .then(setList)
-      .catch(() => [])
+      .then((r) => r.json().then((data) => ({ ok: r.ok, status: r.status, data })))
+      .then(({ ok, status, data }) => {
+        if (ok && Array.isArray(data)) {
+          setList(data);
+        } else {
+          setList([]);
+          if (!ok && data?.error) setLoadError(data.error);
+        }
+      })
+      .catch(() => {
+        setList([]);
+        setLoadError("Помилка завантаження");
+      })
       .finally(() => setLoading(false));
   };
 
@@ -65,7 +78,13 @@ export default function AdminReviewsPage() {
         </p>
       )}
 
-      {list.length === 0 ? (
+      {loadError && (
+        <p className="mt-2 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">
+          {loadError}
+        </p>
+      )}
+
+      {list.length === 0 && !loading ? (
         <p className="mt-8 text-zinc-500">{t("adminNoReviews")}</p>
       ) : (
         <div className="mt-6 space-y-4">
@@ -97,6 +116,23 @@ export default function AdminReviewsPage() {
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300">
                 {r.text}
+              </p>
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                {r.videoUrl ? (
+                  <>
+                    <span className="font-medium text-zinc-700 dark:text-zinc-300">Відео: </span>
+                    <a
+                      href={r.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-600 hover:underline dark:text-emerald-400"
+                    >
+                      {r.videoUrl}
+                    </a>
+                  </>
+                ) : (
+                  <span className="text-zinc-500 dark:text-zinc-500">Відео: не додано</span>
+                )}
               </p>
               <div className="mt-3">
                 <select

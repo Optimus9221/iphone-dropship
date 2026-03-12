@@ -14,20 +14,30 @@ async function requireAdmin() {
   if (user?.role !== "ADMIN") throw new Error("Forbidden");
 }
 
-// GET: list all reviews (all statuses) for admin
+// GET: list all reviews (all statuses) for admin; includes videoUrl
 export async function GET() {
   try {
     await requireAdmin();
   } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  const list = await prisma.review.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { id: true, name: true, email: true } },
-    },
-  });
-  return NextResponse.json(list);
+  try {
+    const list = await prisma.review.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
+    return NextResponse.json(
+      list.map((r) => ({ ...r, videoUrl: r.videoUrl ?? null }))
+    );
+  } catch (err) {
+    console.error("GET /api/admin/reviews error:", err);
+    return NextResponse.json(
+      { error: "Помилка БД. Виконайте: npx prisma db push" },
+      { status: 500 }
+    );
+  }
 }
 
 const statusSchema = z.object({

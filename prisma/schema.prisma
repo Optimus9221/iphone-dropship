@@ -292,6 +292,7 @@ model Review {
   userId    String      @map("user_id")
   text      String      @db.Text
   rating    Int         @default(5) // 1-5
+  videoUrl  String?     @map("video_url") // optional YouTube/video link
   status    ReviewStatus @default(PENDING)
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")

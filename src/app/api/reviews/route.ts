@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
@@ -18,6 +19,7 @@ export async function GET() {
     id: r.id,
     text: r.text,
     rating: r.rating,
+    videoUrl: r.videoUrl ?? null,
     createdAt: r.createdAt,
     userName: r.user.name || r.user.email?.split("@")[0] || "User",
   }));
@@ -27,6 +29,11 @@ export async function GET() {
 const createSchema = z.object({
   text: z.string().min(10).max(2000),
   rating: z.number().int().min(1).max(5).optional(),
+  videoUrl: z
+    .string()
+    .max(500)
+    .optional()
+    .transform((s) => (typeof s === "string" ? s.trim() : s) || undefined),
 });
 
 // POST: authenticated users — create review (status PENDING)
@@ -46,19 +53,36 @@ export async function POST(req: Request) {
       );
     }
 
-    const review = await prisma.review.create({
-      data: {
-        userId: session.user.id,
-        text: parsed.data.text,
-        rating: parsed.data.rating ?? 5,
-        status: "PENDING",
-      },
-    });
+    const videoUrl = parsed.data.videoUrl?.trim() || null;
+    const baseData = {
+      userId: session.user.id,
+      text: parsed.data.text,
+      rating: parsed.data.rating ?? 5,
+      status: "PENDING" as const,
+    };
+    const review = await prisma.review.create({ data: baseData });
+    if (videoUrl) {
+      try {
+        await prisma.$executeRawUnsafe(
+          "ALTER TABLE reviews ADD COLUMN IF NOT EXISTS video_url TEXT"
+        );
+      } catch {
+        // Column may already exist
+      }
+      try {
+        await prisma.$executeRaw(
+          Prisma.sql`UPDATE reviews SET video_url = ${videoUrl} WHERE id = ${review.id}`
+        );
+      } catch (e) {
+        console.error("Failed to save video_url:", e);
+      }
+    }
     return NextResponse.json({ id: review.id, status: review.status });
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Server error";
     console.error("POST /api/reviews error:", err);
     return NextResponse.json(
-      { error: "Server error" },
+      { error: "Server error", details: process.env.NODE_ENV === "development" ? message : undefined },
       { status: 500 }
     );
   }
