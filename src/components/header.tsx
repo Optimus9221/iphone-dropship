@@ -90,7 +90,6 @@ export function Header() {
           }`}
         >
           {t("siteName")}
-          <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400">by Optimus</span>
         </Link>
 
         <nav className="hidden items-center gap-4 sm:flex sm:gap-6">
