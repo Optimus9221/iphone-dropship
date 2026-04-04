@@ -7,6 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { SiteLogo } from "@/components/site-logo";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinkClass = (isActive: boolean) =>
@@ -85,11 +86,10 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className={`flex items-baseline gap-1.5 shrink-0 text-xl font-semibold tracking-tight ${
-            pathname === "/" ? "text-emerald-600 dark:text-emerald-400" : ""
-          }`}
+          className="flex shrink-0 items-center gap-2"
+          aria-label={t("siteName")}
         >
-          {t("siteName")}
+          <SiteLogo homeActive={pathname === "/"} />
         </Link>
 
         <nav className="hidden items-center gap-4 sm:flex sm:gap-6">

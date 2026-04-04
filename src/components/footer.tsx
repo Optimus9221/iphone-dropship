@@ -24,7 +24,7 @@ export function Footer() {
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:gap-8">
           <OptimusProjectFooterLink />
           <p className="text-center text-sm text-zinc-500 dark:text-zinc-500 sm:text-right">
-            © {new Date().getFullYear()} iPhone Store
+            © {new Date().getFullYear()} {t("siteName")}
           </p>
         </div>
       </div>

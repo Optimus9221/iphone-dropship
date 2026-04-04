@@ -11,7 +11,7 @@ export const localeNames: Record<Locale, string> = {
 export const translations = {
   en: {
     // Common / Header
-    siteName: "iPhone Store",
+    siteName: "iPhree",
     catalog: "Catalog",
     dashboard: "Dashboard",
     logout: "Logout",
@@ -48,7 +48,7 @@ export const translations = {
     homeCtaDesc: "Choose your iPhone and start accumulating cashback toward a free one.",
     homeFaqTitle: "FAQ",
     homeCompareTitle: "Why us",
-    homeCompareSubtitle: "iPhone Store vs others",
+    homeCompareSubtitle: "iPhree vs others",
     homeCompareCashback: "Cashback",
     homeCompareCashbackUs: "Up to 5% back",
     homeCompareCashbackOther: "No cashback",
@@ -376,7 +376,7 @@ export const translations = {
     adminLegalPages: "Privacy & Terms",
   },
   ru: {
-    siteName: "iPhone Store",
+    siteName: "iPhree",
     catalog: "Каталог",
     dashboard: "Личный кабинет",
     logout: "Выход",
@@ -412,7 +412,7 @@ export const translations = {
     homeCtaDesc: "Выбери iPhone и накапливай кэшбэк на бесплатный.",
     homeFaqTitle: "Частые вопросы",
     homeCompareTitle: "Почему мы",
-    homeCompareSubtitle: "iPhone Store vs другие",
+    homeCompareSubtitle: "iPhree vs другие",
     homeCompareCashback: "Кэшбэк",
     homeCompareCashbackUs: "До 5% возврата",
     homeCompareCashbackOther: "Нет кэшбэка",
@@ -731,7 +731,7 @@ export const translations = {
     adminLegalPages: "Политика и Оферта",
   },
   uk: {
-    siteName: "iPhone Store",
+    siteName: "iPhree",
     catalog: "Каталог",
     dashboard: "Особистий кабінет",
     logout: "Вихід",
@@ -767,7 +767,7 @@ export const translations = {
     homeCtaDesc: "Обери iPhone та накопичуй кешбек на безкоштовний.",
     homeFaqTitle: "Часті питання",
     homeCompareTitle: "Чому ми",
-    homeCompareSubtitle: "iPhone Store vs інші",
+    homeCompareSubtitle: "iPhree vs інші",
     homeCompareCashback: "Кешбек",
     homeCompareCashbackUs: "До 5% повернення",
     homeCompareCashbackOther: "Немає кешбеку",

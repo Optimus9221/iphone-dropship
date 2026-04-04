@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "iPhone Store | Cashback & Referral Program",
+  title: "iPhree | Cashback & Referral Program",
   description: "Buy new iPhones 15-17 with official warranty. Accumulate cashback toward a free iPhone. Referral program: $50 at 10 refs, $100 at 15, free iPhone at 20.",
 };
 
