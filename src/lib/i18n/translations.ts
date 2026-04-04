@@ -61,6 +61,13 @@ export const translations = {
     homeCompareDelivery: "Delivery",
     homeCompareDeliveryUs: "Nova Poshta, 7-14 days",
     homeCompareDeliveryOther: "Varies",
+    homePartnerTitle: "Become a project partner",
+    homePartnerLead:
+      "You receive a lifetime guarantee of cashback payouts on iPhone purchases made by your referrals.",
+    homePartnerWhyTitle: "Why it pays off",
+    homePartnerBullet1: "People usually upgrade their phone every two to three years.",
+    homePartnerBullet2: "If they do it with us, you keep earning cashback regularly.",
+    homePartnerBullet3: "That way, the partnership gives you long-term, stable income.",
     faq1Q: "How does cashback work?",
     faq1A:
       "You get 3–5% on purchases and 2–5% on referrals. Cashback adds up in your account. You can withdraw accumulated cashback 14 days after your referral buys an iPhone. If you don't withdraw it, you can get a free iPhone.",
@@ -425,6 +432,13 @@ export const translations = {
     homeCompareDelivery: "Доставка",
     homeCompareDeliveryUs: "Новая Почта, 7–14 дней",
     homeCompareDeliveryOther: "Разная",
+    homePartnerTitle: "Становясь партнёром проекта",
+    homePartnerLead:
+      "Вы получаете пожизненную гарантию выплат кэшбэка за покупки iPhone, совершённые вашими рефералами.",
+    homePartnerWhyTitle: "Почему это выгодно",
+    homePartnerBullet1: "Люди обычно обновляют телефон каждые два–три года.",
+    homePartnerBullet2: "Если они будут делать это у нас, вы будете регулярно получать кэшбэк.",
+    homePartnerBullet3: "Таким образом, сотрудничество обеспечивает вам долгосрочный и стабильный доход.",
     faq1Q: "Как работает кэшбэк?",
     faq1A:
       "Вы получаете 3–5% с покупок и 2–5% с рефералов. Кэшбэк накапливается на счёте. Вывод накопленного кэшбэка доступен через 14 дней после покупки iPhone вашим рефералом. Если не выводите кэшбэк — можете получить бесплатный iPhone.",
@@ -780,6 +794,13 @@ export const translations = {
     homeCompareDelivery: "Доставка",
     homeCompareDeliveryUs: "Нова Пошта, 7–14 днів",
     homeCompareDeliveryOther: "Різна",
+    homePartnerTitle: "Ставши партнером проєкту",
+    homePartnerLead:
+      "Ви отримуєте довічну гарантію виплат кешбеку за покупки iPhone, здійснені вашими рефералами.",
+    homePartnerWhyTitle: "Чому це вигідно",
+    homePartnerBullet1: "Люди зазвичай оновлюють телефон кожні два–три роки.",
+    homePartnerBullet2: "Якщо вони робитимуть це у нас, ви регулярно отримуватимете кешбек.",
+    homePartnerBullet3: "Таким чином співпраця забезпечує вам довгостроковий і стабільний дохід.",
     faq1Q: "Як працює кешбек?",
     faq1A:
       "Ви отримуєте 3–5% з покупок та 2–5% з рефералів. Кешбек накопичується на рахунку. Виведення накопиченого кешбеку доступне через 14 днів після покупки iPhone вашим рефералом. Якщо не виводите кешбек — можете отримати безкоштовний iPhone.",

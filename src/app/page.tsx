@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
+  Handshake,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
@@ -236,6 +237,41 @@ export default function Home() {
               <p className="mt-2 text-sm text-slate-400">{item.desc}</p>
             </motion.div>
           ))}
+        </motion.section>
+
+        {/* Партнёрская программа: пожизненная гарантия выплат по рефералам */}
+        <motion.section
+          className="mt-24"
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={stagger}
+        >
+          <motion.div
+            variants={fadeUp}
+            className="mx-auto max-w-3xl rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-white/[0.07] to-emerald-500/10 p-8 shadow-lg shadow-emerald-500/5 backdrop-blur-md md:p-10"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20">
+              <Handshake className="h-7 w-7 text-emerald-400" aria-hidden />
+            </div>
+            <h2 className="mt-5 text-2xl font-bold tracking-tight text-white md:text-3xl">
+              {t("homePartnerTitle")}
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-slate-300 md:text-lg">
+              {t("homePartnerLead")}
+            </p>
+            <h3 className="mt-8 text-lg font-semibold text-emerald-300">
+              {t("homePartnerWhyTitle")}
+            </h3>
+            <ul className="mt-4 list-none space-y-3 text-slate-300">
+              {(["homePartnerBullet1", "homePartnerBullet2", "homePartnerBullet3"] as const).map((key) => (
+                <li key={key} className="flex gap-3">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-hidden />
+                  <span className="leading-relaxed">{t(key)}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </motion.section>
 
         {/* Popular products */}
