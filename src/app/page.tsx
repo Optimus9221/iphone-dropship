@@ -55,6 +55,7 @@ const FAQ_ITEMS = [
   { q: "faq2Q" as const, a: "faq2A" as const },
   { q: "faq3Q" as const, a: "faq3A" as const },
   { q: "faq4Q" as const, a: "faq4A" as const },
+  { q: "faq5Q" as const, a: "faq5A" as const },
 ];
 
 export default function Home() {

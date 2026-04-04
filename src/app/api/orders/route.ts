@@ -88,7 +88,6 @@ export async function POST(req: Request) {
       comment,
     });
 
-    // Send order confirmation email
     const fullOrder = await prisma.order.findUnique({
       where: { id: order.id },
       include: { items: { include: { product: { select: { name: true } } } } },
