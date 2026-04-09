@@ -29,9 +29,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Callback request error:", e);
-    return NextResponse.json(
-      { error: "Server error", message: e instanceof Error ? e.message : "Unknown" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

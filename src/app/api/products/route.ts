@@ -27,10 +27,12 @@ export async function GET(req: Request) {
   });
 
   return NextResponse.json(
-    products.map((p) => ({
-      ...p,
-      price: Number(p.price),
-      costPrice: p.costPrice ? Number(p.costPrice) : null,
-    }))
+    products.map((p) => {
+      const { costPrice: _omit, ...rest } = p;
+      return {
+        ...rest,
+        price: Number(p.price),
+      };
+    })
   );
 }
