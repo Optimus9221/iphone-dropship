@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
-    const { email } = parsed.data;
+    const email = parsed.data.email.trim().toLowerCase();
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user?.passwordHash) {
       return NextResponse.json({ message: "ok" });

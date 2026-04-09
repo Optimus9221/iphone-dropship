@@ -16,7 +16,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { email, code } = parsed.data;
+    const email = parsed.data.email.trim().toLowerCase();
+    const { code } = parsed.data;
 
     const user = await prisma.user.findUnique({
       where: { email },

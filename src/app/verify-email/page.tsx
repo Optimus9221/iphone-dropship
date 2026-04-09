@@ -40,7 +40,7 @@ function VerifyEmailForm() {
     const res = await fetch("/api/auth/verify-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), code: code.trim() }),
+      body: JSON.stringify({ email: email.trim().toLowerCase(), code: code.trim() }),
     });
     const data = await res.json().catch(() => ({}));
     setLoading(false);
@@ -63,7 +63,7 @@ function VerifyEmailForm() {
     const res = await fetch("/api/auth/resend-verification", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), locale }),
+      body: JSON.stringify({ email: email.trim().toLowerCase(), locale }),
     });
     setResendLoading(false);
     if (res.status === 429) {

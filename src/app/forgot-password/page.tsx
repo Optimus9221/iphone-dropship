@@ -7,7 +7,7 @@ import { PhoneBackground } from "@/components/phone-background";
 import { LoadingButton } from "@/components/ui/loading-button";
 
 export default function ForgotPasswordPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, locale: document.documentElement.lang || "uk" }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), locale }),
       });
       if (!res.ok) throw new Error("Failed");
       setSent(true);

@@ -244,6 +244,9 @@ export const translations = {
     loginIdentifierHint: "Use the phone number you registered with, or email for older accounts.",
     loginUnverifiedHint: "Your account is not verified. Complete registration or contact support.",
     forgotPasswordEmailOnly: "Password reset works by email. Phone-only accounts: contact support.",
+    registerEmailOnlyHint: "Sign up with your email. We will send a code to confirm your address.",
+    loginEmailOnlyHint: "Sign in with the email and password you used to register.",
+    loginNoEmailHint: "This account has no email on file. Please contact support.",
 
     notFoundTitle: "Page not found",
     notFoundDesc: "The page you're looking for doesn't exist or has been moved.",
@@ -639,6 +642,9 @@ export const translations = {
     loginIdentifierHint: "Телефон с регистрации или email для старых аккаунтов.",
     loginUnverifiedHint: "Аккаунт не подтверждён. Завершите регистрацию или напишите в поддержку.",
     forgotPasswordEmailOnly: "Сброс пароля — по email. Аккаунт только по телефону: поддержка.",
+    registerEmailOnlyHint: "Регистрация по email. Мы отправим код для подтверждения адреса.",
+    loginEmailOnlyHint: "Вход по email и паролю, указанным при регистрации.",
+    loginNoEmailHint: "У этого аккаунта нет email. Обратитесь в поддержку.",
 
     notFoundTitle: "Страница не найдена",
     notFoundDesc: "Запрашиваемая страница не существует или была перемещена.",
@@ -1030,6 +1036,9 @@ export const translations = {
     loginIdentifierHint: "Телефон з реєстрації або email для старих акаунтів.",
     loginUnverifiedHint: "Акаунт не підтверджено. Завершіть реєстрацію або зверніться в підтримку.",
     forgotPasswordEmailOnly: "Скидання пароля — через email. Акаунт лише за телефоном: підтримка.",
+    registerEmailOnlyHint: "Реєстрація за email. Надішлемо код для підтвердження адреси.",
+    loginEmailOnlyHint: "Вхід за email і паролем, вказаними при реєстрації.",
+    loginNoEmailHint: "У цього акаунта немає email. Зверніться в підтримку.",
 
     notFoundTitle: "Сторінку не знайдено",
     notFoundDesc: "Запитувана сторінка не існує або була переміщена.",

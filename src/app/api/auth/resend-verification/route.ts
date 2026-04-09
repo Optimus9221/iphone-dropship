@@ -18,7 +18,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const { email, locale } = parsed.data;
+    const email = parsed.data.email.trim().toLowerCase();
+    const { locale } = parsed.data;
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || user.emailVerified || !user.email) {

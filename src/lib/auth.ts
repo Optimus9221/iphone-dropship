@@ -2,39 +2,23 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./db";
 import bcrypt from "bcryptjs";
-import { normalizePhoneDigits } from "./phone";
-
-function parseLoginIdentifier(raw: string): { kind: "email"; email: string } | { kind: "phone"; phone: string } | null {
-  const t = raw.trim();
-  if (!t) return null;
-  if (t.includes("@")) {
-    return { kind: "email", email: t.toLowerCase() };
-  }
-  const phone = normalizePhoneDigits(t);
-  if (!phone) return null;
-  return { kind: "phone", phone };
-}
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        identifier: { label: "Phone or email", type: "text" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const idRaw = credentials?.identifier?.trim();
+        const email = credentials?.email?.trim().toLowerCase();
         const password = credentials?.password;
-        if (!idRaw || !password) return null;
+        if (!email || !password) return null;
 
-        const parsed = parseLoginIdentifier(idRaw);
-        if (!parsed) return null;
-
-        const user =
-          parsed.kind === "email"
-            ? await prisma.user.findUnique({ where: { email: parsed.email } })
-            : await prisma.user.findUnique({ where: { phone: parsed.phone } });
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
 
         if (!user || !user.passwordHash || user.isBlocked) return null;
 
@@ -56,15 +40,16 @@ export const authOptions: NextAuthOptions = {
       if (!user?.id || typeof user.id !== "string") return true;
       const u = await prisma.user.findUnique({
         where: { id: user.id },
-        select: { emailVerified: true, email: true, phoneVerified: true },
+        select: { emailVerified: true, email: true },
       });
       if (!u) return false;
-      if (u.phoneVerified || u.emailVerified) return true;
-      if (u.email) {
-        const q = `&email=${encodeURIComponent(u.email)}`;
-        return `/login?error=VerifyEmail${q}`;
+      if (!u.email) {
+        return `/login?error=NoEmail`;
       }
-      return `/login?error=Unverified`;
+      if (!u.emailVerified) {
+        return `/login?error=VerifyEmail&email=${encodeURIComponent(u.email)}`;
+      }
+      return true;
     },
     async jwt({ token, user }) {
       if (user) {
@@ -72,11 +57,11 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as { role?: string }).role;
       }
       if (token.id && typeof token.id === "string") {
-        const u = await prisma.user.findUnique({
+        const dbUser = await prisma.user.findUnique({
           where: { id: token.id },
           select: { role: true },
         });
-        if (u) token.role = u.role;
+        if (dbUser) token.role = dbUser.role;
       }
       return token;
     },

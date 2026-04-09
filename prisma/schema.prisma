@@ -13,7 +13,7 @@ datasource db {
 // === USERS & AUTH ===
 model User {
   id            String    @id @default(cuid())
-  email         String?   @unique // optional for phone-only accounts
+  email         String?   @unique // required for new signups via API; nullable for legacy rows
   passwordHash  String?   @map("password_hash") // null for OAuth
   name          String?
   phone         String?   @unique // 1 person = 1 account (anti-fraud); digits only, no +
@@ -57,18 +57,6 @@ model EmailVerificationToken {
 
   @@index([expiresAt])
   @@map("email_verification_tokens")
-}
-
-// Pending SMS code before user row exists (registration)
-model PhoneRegistrationToken {
-  id        String   @id @default(cuid())
-  phone     String   @unique @map("phone_normalized")
-  codeHash  String   @map("code_hash")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([expiresAt])
-  @@map("phone_registration_tokens")
 }
 
 model PasswordResetToken {

@@ -16,7 +16,7 @@ function LoginForm() {
   const verifyError = searchParams.get("error");
   const pendingEmail = searchParams.get("email");
 
-  const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ function LoginForm() {
     setLoading(true);
 
     const res = await signIn("credentials", {
-      identifier,
+      email: email.trim().toLowerCase(),
       password,
       redirect: false,
     });
@@ -49,6 +49,9 @@ function LoginForm() {
         <div className="w-full rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-md">
           <h1 className="text-2xl font-bold text-white">{t("signIn")}</h1>
           <p className="mt-2 text-sm text-slate-400">
+            {t("loginEmailOnlyHint")}
+          </p>
+          <p className="mt-1 text-sm text-slate-400">
             {t("dontHaveAccount")}{" "}
             <Link href="/register" className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
               {t("signUp")}
@@ -71,9 +74,9 @@ function LoginForm() {
                 </Link>
               </div>
             )}
-            {verifyError === "Unverified" && (
+            {verifyError === "NoEmail" && (
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200">
-                {t("loginUnverifiedHint")}
+                {t("loginNoEmailHint")}
               </div>
             )}
             {error && (
@@ -83,20 +86,19 @@ function LoginForm() {
             )}
 
             <div>
-              <label htmlFor="identifier" className="block text-sm font-medium text-slate-300">
-                {t("loginIdentifierLabel")} *
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+                {t("emailLabel")} *
               </label>
               <input
-                id="identifier"
-                type="text"
+                id="email"
+                type="email"
                 required
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/20"
-                placeholder={t("phonePlaceholder")}
-                autoComplete="username"
+                placeholder={t("placeholderEmail")}
+                autoComplete="email"
               />
-              <p className="mt-1 text-xs text-slate-500">{t("loginIdentifierHint")}</p>
             </div>
 
             <div>
@@ -110,13 +112,11 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/20"
+                autoComplete="current-password"
               />
-              <div className="mt-1 space-y-0.5 text-right">
-                <Link href="/forgot-password" className="block text-xs text-emerald-400 hover:underline">
-                  {t("forgotPassword")}
-                </Link>
-                <p className="text-[10px] text-slate-500">{t("forgotPasswordEmailOnly")}</p>
-              </div>
+              <Link href="/forgot-password" className="mt-1 block text-right text-xs text-emerald-400 hover:underline">
+                {t("forgotPassword")}
+              </Link>
             </div>
 
             <LoadingButton
