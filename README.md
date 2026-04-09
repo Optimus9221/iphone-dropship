@@ -11,14 +11,14 @@ E-commerce platform for selling iPhone 15-17 with official warranty. Features re
 
 ## Anti-Fraud Measures
 
-- **1 person = 1 account** — Phone number uniqueness
+- **1 person = 1 account** — Unique phone when provided; registration is **email-based** with email verification
 - **Cashback after 14 days** — After return period
 - **IMEI verification** — For free iPhone bonus
-- **Phone verification** — Optional, for stricter validation
 
 ## Production
 
-**См. [DEPLOYMENT.md](DEPLOYMENT.md)** — где и как настроить переменные окружения, что делает каждая переменная.
+- **[docs/PROJECT-OVERVIEW.md](docs/PROJECT-OVERVIEW.md)** — единая картина: Vercel + Neon + Resend, админка, auth, требования.
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** — переменные окружения и чеклист перед продом.
 
 ## Quick Start
 
@@ -64,8 +64,10 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ### Demo Accounts
 
-- Admin: `admin@example.com` / `admin123`
-- User: `user@example.com` / `user123`
+After `npm run db:seed` (requires `ADMIN_PASSWORD` in `.env`, min 12 chars):
+
+- **Admin:** `admin@example.com` — password from `ADMIN_PASSWORD`
+- **User:** `user@example.com` / `user123`
 
 ## Project Structure
 
