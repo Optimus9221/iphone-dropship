@@ -144,6 +144,7 @@ export async function getFreeiPhoneQualifiedReferrals(userId: string) {
     select: {
       id: true,
       email: true,
+      phone: true,
       name: true,
       createdAt: true,
       orders: {
@@ -210,7 +211,7 @@ export async function getFreeiPhoneCandidates() {
 
   const candidates: Array<{
     id: string;
-    email: string;
+    email: string | null;
     name: string | null;
     phone: string | null;
     referralCode: string;

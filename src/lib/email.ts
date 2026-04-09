@@ -10,6 +10,39 @@ const FROM_EMAIL = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "iPhree";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+/** @returns true if the message was handed to Resend */
+export async function sendEmailVerificationCode(params: {
+  to: string;
+  code: string;
+  locale?: string;
+}): Promise<boolean> {
+  if (!resend) return false;
+  const subject =
+    params.locale === "ru"
+      ? `Код подтверждения email — ${SITE_NAME}`
+      : params.locale === "uk"
+        ? `Код підтвердження email — ${SITE_NAME}`
+        : `Your email verification code — ${SITE_NAME}`;
+  const body =
+    params.locale === "ru"
+      ? `<p>Ваш код подтверждения email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>Код действителен 30 минут. Если вы не регистрировались, проигнорируйте письмо.</p>`
+      : params.locale === "uk"
+        ? `<p>Ваш код підтвердження email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>Код дійсний 30 хвилин. Якщо ви не реєструвалися, ігноруйте лист.</p>`
+        : `<p>Your email verification code:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>This code expires in 30 minutes. If you did not sign up, ignore this email.</p>`;
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.to,
+      subject,
+      html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+    });
+    return true;
+  } catch (e) {
+    console.error("Verification email error:", e);
+    return false;
+  }
+}
+
 export async function sendPasswordResetEmail(params: { to: string; resetLink: string; locale?: string }) {
   if (!resend) return;
   const subject =

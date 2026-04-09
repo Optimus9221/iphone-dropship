@@ -95,10 +95,10 @@ export async function createFreeiPhoneOrder(params: {
   if (product.stock < 1) throw new Error("Insufficient stock");
 
   const orderNumber = generateOrderNumber();
-  const shippingName = user.name ?? user.email;
+  const shippingName = user.name ?? user.email ?? user.phone ?? "Customer";
   const shippingAddress = "Address to be provided by customer";
   const shippingPhone = user.phone ?? "-";
-  const shippingEmail = user.email;
+  const shippingEmail = user.email ?? `phone-${user.phone ?? "user"}@orders.internal`;
   const comment = "Free iPhone — 20 referrals bonus";
 
   return prisma.$transaction(async (tx) => {

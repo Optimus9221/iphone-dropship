@@ -18,7 +18,7 @@ type Order = {
   shippingPhone: string;
   shippingEmail: string;
   comment: string | null;
-  user: { email: string; name: string | null };
+  user: { email: string | null; name: string | null; phone: string | null };
   items: Array<{ productName: string; quantity: number; price: number }>;
 };
 
@@ -161,7 +161,7 @@ export default function AdminOrdersPage() {
                         <p className="text-xs text-zinc-500">{new Date(o.createdAt).toLocaleString()}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <p>{o.user.name ?? o.user.email}</p>
+                        <p>{o.user.name ?? o.user.email ?? o.user.phone ?? "—"}</p>
                         <p className="text-xs text-zinc-500">{o.shippingEmail}</p>
                       </td>
                       <td className="px-4 py-3 text-sm">

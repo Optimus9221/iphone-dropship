@@ -15,12 +15,14 @@ async function main() {
   const adminHash = await bcrypt.hash(adminPassword, 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
-    update: { passwordHash: adminHash },
+    update: { passwordHash: adminHash, emailVerified: true, phoneVerified: true },
     create: {
       email: "admin@example.com",
       passwordHash: adminHash,
       name: "Admin",
       role: "ADMIN",
+      emailVerified: true,
+      phoneVerified: true,
     },
   });
   console.log("Admin:", admin.email, "(password from ADMIN_PASSWORD)");
@@ -29,11 +31,14 @@ async function main() {
   const userHash = await bcrypt.hash("user123", 12);
   const user = await prisma.user.upsert({
     where: { email: "user@example.com" },
-    update: {},
+    update: { emailVerified: true, phoneVerified: true, phone: "380000000099" },
     create: {
       email: "user@example.com",
       passwordHash: userHash,
       name: "Demo User",
+      phone: "380000000099",
+      emailVerified: true,
+      phoneVerified: true,
     },
   });
   console.log("User:", user.email);

@@ -2,30 +2,48 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./db";
 import bcrypt from "bcryptjs";
+import { normalizePhoneDigits } from "./phone";
+
+function parseLoginIdentifier(raw: string): { kind: "email"; email: string } | { kind: "phone"; phone: string } | null {
+  const t = raw.trim();
+  if (!t) return null;
+  if (t.includes("@")) {
+    return { kind: "email", email: t.toLowerCase() };
+  }
+  const phone = normalizePhoneDigits(t);
+  if (!phone) return null;
+  return { kind: "phone", phone };
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        identifier: { label: "Phone or email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const idRaw = credentials?.identifier?.trim();
+        const password = credentials?.password;
+        if (!idRaw || !password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        const parsed = parseLoginIdentifier(idRaw);
+        if (!parsed) return null;
+
+        const user =
+          parsed.kind === "email"
+            ? await prisma.user.findUnique({ where: { email: parsed.email } })
+            : await prisma.user.findUnique({ where: { phone: parsed.phone } });
 
         if (!user || !user.passwordHash || user.isBlocked) return null;
 
-        const valid = await bcrypt.compare(credentials.password, user.passwordHash);
+        const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
 
         return {
           id: user.id,
-          email: user.email,
+          email: user.email ?? undefined,
           name: user.name ?? undefined,
           image: user.image ?? undefined,
           role: user.role,
@@ -34,12 +52,25 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      if (!user?.id || typeof user.id !== "string") return true;
+      const u = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { emailVerified: true, email: true, phoneVerified: true },
+      });
+      if (!u) return false;
+      if (u.phoneVerified || u.emailVerified) return true;
+      if (u.email) {
+        const q = `&email=${encodeURIComponent(u.email)}`;
+        return `/login?error=VerifyEmail${q}`;
+      }
+      return `/login?error=Unverified`;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
       }
-      // Refresh role from DB so admin-assigned role applies without re-login
       if (token.id && typeof token.id === "string") {
         const u = await prisma.user.findUnique({
           where: { id: token.id },

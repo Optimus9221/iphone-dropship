@@ -6,7 +6,7 @@ import { Gift, ChevronDown, ChevronUp } from "lucide-react";
 
 type Candidate = {
   id: string;
-  email: string;
+  email: string | null;
   name: string | null;
   phone: string | null;
   referralCode: string;
@@ -15,7 +15,8 @@ type Candidate = {
 
 type QualifiedReferral = {
   id: string;
-  email: string;
+  email: string | null;
+  phone: string | null;
   name: string | null;
   createdAt: string;
   firstPurchaseDeliveredAt: string | null;
@@ -24,7 +25,7 @@ type QualifiedReferral = {
 };
 
 type UserDetail = {
-  user: { id: string; email: string; name: string | null; phone: string | null; referralCode: string };
+  user: { id: string; email: string | null; name: string | null; phone: string | null; referralCode: string };
   qualifiedReferralsCount: number;
   qualifiedReferrals: QualifiedReferral[];
   canReceive: boolean;
@@ -149,8 +150,8 @@ export default function AdminFreeiPhonePage() {
                     {c.qualifiedReferralsCount} {t("adminFreeiPhoneQualifiedRefs")}
                   </span>
                   <div>
-                    <p className="font-medium">{c.name ?? c.email}</p>
-                    <p className="text-sm text-zinc-500">{c.email}</p>
+                    <p className="font-medium">{c.name ?? c.email ?? c.phone}</p>
+                    <p className="text-sm text-zinc-500">{c.email ?? c.phone ?? "—"}</p>
                   </div>
                 </div>
                 {expanded === c.id ? (
@@ -184,7 +185,7 @@ export default function AdminFreeiPhonePage() {
                           <tbody>
                             {detail.qualifiedReferrals.map((r) => (
                               <tr key={r.id} className="border-b border-zinc-100 dark:border-zinc-800">
-                                <td className="px-3 py-2">{r.email}</td>
+                                <td className="px-3 py-2">{r.email ?? r.phone ?? "—"}</td>
                                 <td className="px-3 py-2">{r.name ?? "—"}</td>
                                 <td className="px-3 py-2">
                                   {r.firstPurchaseDeliveredAt

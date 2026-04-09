@@ -25,7 +25,7 @@ export async function GET() {
     const list = await prisma.review.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, phone: true } },
       },
     });
     return NextResponse.json(

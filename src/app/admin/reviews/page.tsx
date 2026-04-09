@@ -12,7 +12,7 @@ type Review = {
   videoUrl: string | null;
   status: string;
   createdAt: string;
-  user: { id: string; name: string | null; email: string | null };
+  user: { id: string; name: string | null; email: string | null; phone: string | null };
 };
 
 export default function AdminReviewsPage() {
@@ -96,7 +96,7 @@ export default function AdminReviewsPage() {
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                    {r.user.name || r.user.email || "—"}
+                    {r.user.name || r.user.email || r.user.phone || "—"}
                   </span>
                   <span className="rounded bg-zinc-200 px-2 py-0.5 text-xs dark:bg-zinc-700">
                     {r.status}

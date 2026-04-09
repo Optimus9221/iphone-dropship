@@ -70,7 +70,7 @@ export async function PATCH(
   const updated = await prisma.order.update({
     where: { id },
     data: updateData,
-    include: { user: { select: { email: true } } },
+    include: { user: { select: { email: true, phone: true } } },
   });
 
   if (parsed.data.status === "DELIVERED" && updated.deliveredAt) {
@@ -81,9 +81,10 @@ export async function PATCH(
   const hasChanges = order.status !== parsed.data.status ||
     (parsed.data.trackingNumber !== undefined && (order.trackingNumber ?? "") !== (parsed.data.trackingNumber ?? "")) ||
     (parsed.data.imei !== undefined && (order.imei ?? "") !== (parsed.data.imei ?? ""));
-  if (hasChanges && updated.user?.email) {
+  const notifyTo = updated.user?.email ?? updated.shippingEmail;
+  if (hasChanges && notifyTo) {
     await sendOrderStatusUpdate({
-      to: updated.user.email,
+      to: notifyTo,
       orderNumber: updated.orderNumber,
       status: updated.status,
       trackingNumber: updated.trackingNumber,

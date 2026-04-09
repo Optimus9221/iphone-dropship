@@ -12,7 +12,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     take: 20,
     include: {
-      user: { select: { name: true, email: true } },
+      user: { select: { name: true, email: true, phone: true } },
     },
   });
   const safe = list.map((r) => ({
@@ -21,7 +21,11 @@ export async function GET() {
     rating: r.rating,
     videoUrl: r.videoUrl ?? null,
     createdAt: r.createdAt,
-    userName: r.user.name || r.user.email?.split("@")[0] || "User",
+    userName:
+      r.user.name ||
+      r.user.email?.split("@")[0] ||
+      (r.user.phone ? `…${r.user.phone.slice(-4)}` : null) ||
+      "User",
   }));
   return NextResponse.json(safe);
 }
