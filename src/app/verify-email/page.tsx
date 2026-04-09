@@ -44,8 +44,12 @@ function VerifyEmailForm() {
     });
     const data = await res.json().catch(() => ({}));
     setLoading(false);
-    if (!res.ok) {
-      setError(t(data.error === "CODE_EXPIRED" || data.error === "INVALID_CODE" ? "verifyEmailInvalid" : "registrationFailed"));
+    if (!res.ok || data.ok !== true) {
+      if (res.status === 429) {
+        setError(t("verifyEmailLockedWait"));
+      } else {
+        setError(t("verifyEmailGenericFail"));
+      }
       return;
     }
     toast(t("verifyEmailSuccess"));
@@ -66,12 +70,13 @@ function VerifyEmailForm() {
       body: JSON.stringify({ email: email.trim().toLowerCase(), locale }),
     });
     setResendLoading(false);
-    if (res.status === 429) {
-      setError(t("verifyEmailCooldown"));
-      return;
-    }
-    if (res.status === 503) {
-      setError(t("verifyEmailFailed"));
+    const rdata = await res.json().catch(() => ({}));
+    if (!res.ok || rdata.ok !== true) {
+      if (res.status === 429) {
+        setError(t("verifyEmailCooldown"));
+      } else {
+        setError(t("verifyEmailFailed"));
+      }
       return;
     }
     toast(t("verifyEmailResent"));

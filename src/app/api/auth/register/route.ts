@@ -18,7 +18,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, details: parsed.error.flatten() },
+        { status: 400 }
+      );
     }
 
     const email = parsed.data.email.trim().toLowerCase();
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
       where: { email },
     });
     if (existingEmail) {
-      return NextResponse.json({ error: "EMAIL_EXISTS" }, { status: 400 });
+      return NextResponse.json({ ok: true });
     }
 
     let referredById: string | null = null;
@@ -60,28 +63,18 @@ export async function POST(req: Request) {
         where: { id: user.id },
         data: { emailVerified: true },
       });
-      return NextResponse.json({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        emailVerificationSkipped: true,
-      });
+      return NextResponse.json({ ok: true, readyToLogin: true });
     }
 
     const issued = await issueEmailVerificationCode(user.id, email, locale as Locale | undefined);
     if (!issued.ok && issued.error === "EMAIL_FAILED") {
       await prisma.user.delete({ where: { id: user.id } });
-      return NextResponse.json({ error: "EMAIL_SEND_FAILED" }, { status: 503 });
+      return NextResponse.json({ ok: false }, { status: 503 });
     }
 
-    return NextResponse.json({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      emailVerificationRequired: true,
-    });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Register error:", e);
-    return NextResponse.json({ error: "REGISTRATION_FAILED" }, { status: 500 });
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

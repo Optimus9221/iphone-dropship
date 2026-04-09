@@ -247,6 +247,10 @@ export const translations = {
     registerEmailOnlyHint: "Sign up with your email. We will send a code to confirm your address.",
     loginEmailOnlyHint: "Sign in with the email and password you used to register.",
     loginNoEmailHint: "This account has no email on file. Please contact support.",
+    registerUnifiedToast:
+      "If this email is new, we sent a verification code. Otherwise sign in or use “Forgot password”. Next step: enter the code.",
+    verifyEmailGenericFail: "Could not verify. Check the code or request a new one.",
+    verifyEmailLockedWait: "Too many wrong attempts. Wait until the lock expires, then try again or request a new code.",
 
     notFoundTitle: "Page not found",
     notFoundDesc: "The page you're looking for doesn't exist or has been moved.",
@@ -645,6 +649,10 @@ export const translations = {
     registerEmailOnlyHint: "Регистрация по email. Мы отправим код для подтверждения адреса.",
     loginEmailOnlyHint: "Вход по email и паролю, указанным при регистрации.",
     loginNoEmailHint: "У этого аккаунта нет email. Обратитесь в поддержку.",
+    registerUnifiedToast:
+      "Если адрес новый — мы отправили код подтверждения. Если аккаунт уже есть — войдите или воспользуйтесь «Забыли пароль». Далее введите код.",
+    verifyEmailGenericFail: "Не удалось подтвердить. Проверьте код или запросите новый.",
+    verifyEmailLockedWait: "Слишком много неверных попыток. Дождитесь окончания блокировки или запросите новый код.",
 
     notFoundTitle: "Страница не найдена",
     notFoundDesc: "Запрашиваемая страница не существует или была перемещена.",
@@ -1039,6 +1047,10 @@ export const translations = {
     registerEmailOnlyHint: "Реєстрація за email. Надішлемо код для підтвердження адреси.",
     loginEmailOnlyHint: "Вхід за email і паролем, вказаними при реєстрації.",
     loginNoEmailHint: "У цього акаунта немає email. Зверніться в підтримку.",
+    registerUnifiedToast:
+      "Якщо адреса нова — ми надіслали код підтвердження. Якщо акаунт уже є — увійдіть або скористайтесь «Забули пароль». Далі введіть код.",
+    verifyEmailGenericFail: "Не вдалося підтвердити. Перевірте код або запросіть новий.",
+    verifyEmailLockedWait: "Забагато невірних спроб. Дочекайтесь кінця блокування або запросіть новий код.",
 
     notFoundTitle: "Сторінку не знайдено",
     notFoundDesc: "Запитувана сторінка не існує або була переміщена.",

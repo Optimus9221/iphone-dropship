@@ -47,11 +47,13 @@ model User {
 }
 
 model EmailVerificationToken {
-  id        String   @id @default(cuid())
-  userId    String   @unique @map("user_id")
-  codeHash  String   @map("code_hash")
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id            String    @id @default(cuid())
+  userId        String    @unique @map("user_id")
+  codeHash      String    @map("code_hash")
+  expiresAt     DateTime  @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  wrongAttempts Int       @default(0) @map("wrong_attempts")
+  lockedUntil   DateTime? @map("locked_until")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

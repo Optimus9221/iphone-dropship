@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { sanitizeLegalHtml } from "@/lib/sanitize-html";
 
 const KEYS = ["whatsapp_phone", "telegram_link", "privacy_policy", "terms_of_service"] as const;
 
@@ -14,8 +15,8 @@ export async function GET() {
     return NextResponse.json({
       whatsapp_phone: map.whatsapp_phone ?? "+380501234567",
       telegram_link: map.telegram_link ?? "https://t.me/iphone_store_ua",
-      privacy_policy: map.privacy_policy ?? "",
-      terms_of_service: map.terms_of_service ?? "",
+      privacy_policy: sanitizeLegalHtml(map.privacy_policy ?? ""),
+      terms_of_service: sanitizeLegalHtml(map.terms_of_service ?? ""),
     });
   } catch {
     return NextResponse.json({

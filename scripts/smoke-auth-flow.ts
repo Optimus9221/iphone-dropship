@@ -46,9 +46,9 @@ async function main() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, code: CODE }),
   });
-  if (!v.ok) {
-    const j = await v.json().catch(() => ({}));
-    console.error("verify-email failed", v.status, j);
+  const vj = (await v.json().catch(() => ({}))) as { ok?: boolean };
+  if (!v.ok || vj.ok !== true) {
+    console.error("verify-email failed", v.status, vj);
     process.exit(1);
   }
   console.log("OK verify-email");

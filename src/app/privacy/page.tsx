@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
+import { sanitizeLegalHtml } from "@/lib/sanitize-html";
 
 const DEFAULT_PRIVACY = `
 <h2>Політика конфіденційності</h2>
@@ -24,8 +25,10 @@ export default function PrivacyPage() {
   useEffect(() => {
     fetch("/api/public/site")
       .then((r) => r.json())
-      .then((data) => setHtml(data.privacy_policy || DEFAULT_PRIVACY))
-      .catch(() => setHtml(DEFAULT_PRIVACY));
+      .then((data) =>
+        setHtml(sanitizeLegalHtml(data.privacy_policy || DEFAULT_PRIVACY))
+      )
+      .catch(() => setHtml(sanitizeLegalHtml(DEFAULT_PRIVACY)));
   }, []);
 
   return (

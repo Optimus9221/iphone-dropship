@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
+import { sanitizeLegalHtml } from "@/lib/sanitize-html";
 
 const DEFAULT_TERMS = `
 <h2>Оферта та умови</h2>
@@ -28,8 +29,10 @@ export default function TermsPage() {
   useEffect(() => {
     fetch("/api/public/site")
       .then((r) => r.json())
-      .then((data) => setHtml(data.terms_of_service || DEFAULT_TERMS))
-      .catch(() => setHtml(DEFAULT_TERMS));
+      .then((data) =>
+        setHtml(sanitizeLegalHtml(data.terms_of_service || DEFAULT_TERMS))
+      )
+      .catch(() => setHtml(sanitizeLegalHtml(DEFAULT_TERMS)));
   }, []);
 
   return (

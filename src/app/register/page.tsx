@@ -4,17 +4,9 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
-import type { TranslationKeys } from "@/lib/i18n/translations";
 import { PhoneBackground } from "@/components/phone-background";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { useToast } from "@/components/toast/toast-provider";
-
-const ERROR_MAP: Record<string, TranslationKeys> = {
-  EMAIL_EXISTS: "emailExists",
-  REGISTRATION_FAILED: "registrationFailed",
-  VALIDATION_ERROR: "validationError",
-  EMAIL_SEND_FAILED: "emailSendFailed",
-};
 
 function RegisterForm() {
   const { t, locale } = useI18n();
@@ -64,26 +56,31 @@ function RegisterForm() {
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-      const errKey = ERROR_MAP[data.error] ?? "registrationFailed";
-      setError(t(errKey));
+    if (res.status === 400 && data.details) {
+      setError(t("validationError"));
       setLoading(false);
       return;
     }
 
-    if (data.emailVerificationRequired) {
+    if (!res.ok || data.ok !== true) {
+      setError(t("registrationFailed"));
       setLoading(false);
-      toast(t("verifyEmailSent"));
-      router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
-      router.refresh();
       return;
     }
 
     setLoading(false);
-    toast(t("accountCreated"));
-    router.push("/login?registered=1");
+
+    if (data.readyToLogin === true) {
+      toast(t("accountCreated"));
+      router.push("/login?registered=1");
+      router.refresh();
+      return;
+    }
+
+    toast(t("registerUnifiedToast"));
+    router.push(`/verify-email?email=${encodeURIComponent(email.trim().toLowerCase())}`);
     router.refresh();
   }
 
