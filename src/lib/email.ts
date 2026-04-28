@@ -7,7 +7,7 @@ import { Resend } from "resend";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const FROM_EMAIL = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "phonefree";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "PhoneFree";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /** @returns true if the message was handed to Resend */

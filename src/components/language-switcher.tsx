@@ -3,16 +3,17 @@
 import { useI18n } from "@/lib/i18n/context";
 import { locales, localeNames, type Locale } from "@/lib/i18n/translations";
 
-type Variant = "header" | "hero";
+type Variant = "header" | "headerDark" | "hero";
 
 export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) {
   const { locale, setLocale } = useI18n();
 
   const isHero = variant === "hero";
+  const isHeaderDark = variant === "headerDark";
   return (
     <div
       className={`flex items-center gap-1 rounded-full p-1 ${
-        isHero
+        isHero || isHeaderDark
           ? "border border-white/20 bg-white/5 backdrop-blur-sm"
           : "border border-zinc-200 bg-zinc-100/80 dark:border-zinc-700 dark:bg-zinc-800/80"
       }`}
@@ -30,12 +31,12 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
           onClick={() => setLocale(l as Locale)}
           className={`relative overflow-visible rounded-full px-3 py-1.5 text-sm font-medium transition ${
             selected && !isUkButton
-              ? isHero
-                ? "bg-white text-slate-900"
+              ? isHero || isHeaderDark
+                ? "bg-white text-slate-900 shadow-sm"
                 : "bg-white text-slate-900 shadow-sm dark:bg-zinc-100 dark:text-zinc-900"
               : selected && isUkButton
                 ? ukFlagBg
-                : isHero
+                : isHero || isHeaderDark
                   ? "text-slate-300 hover:bg-white/10 hover:text-white"
                   : "text-zinc-600 hover:bg-zinc-200/80 dark:text-zinc-400 dark:hover:bg-zinc-700"
           }`}
