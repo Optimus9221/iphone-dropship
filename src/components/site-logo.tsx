@@ -5,7 +5,7 @@ type SiteLogoProps = {
 };
 
 export function SiteLogo({ homeActive = false, className = "" }: SiteLogoProps) {
-  const letterI = homeActive
+  const wordStart = homeActive
     ? "text-emerald-600 dark:text-emerald-400"
     : "text-zinc-900 dark:text-zinc-100";
 
@@ -19,25 +19,25 @@ export function SiteLogo({ homeActive = false, className = "" }: SiteLogoProps) 
         aria-hidden
       >
         <defs>
-          <linearGradient id="iphreeLogoGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <linearGradient id="phonefreeLogoGrad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
             <stop stopColor="#34d399" />
             <stop offset="1" stopColor="#059669" />
           </linearGradient>
         </defs>
-        <rect width="32" height="32" rx="9" fill="url(#iphreeLogoGrad)" />
+        <rect width="32" height="32" rx="9" fill="url(#phonefreeLogoGrad)" />
         <text
           x="16"
           y="22"
           textAnchor="middle"
           fill="white"
-          style={{ fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif", fontSize: "11px", fontWeight: 700 }}
+          style={{ fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif", fontSize: "10px", fontWeight: 700 }}
         >
-          iP
+          Pf
         </text>
       </svg>
       <span className="text-xl font-semibold tracking-tight">
-        <span className={letterI}>i</span>
-        <span className="text-emerald-600 dark:text-emerald-400">Phree</span>
+        <span className={wordStart}>phone</span>
+        <span className="text-emerald-600 dark:text-emerald-400">free</span>
       </span>
     </span>
   );
