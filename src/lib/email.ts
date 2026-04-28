@@ -1,14 +1,51 @@
 /**
  * Email notifications using Resend
- * Set RESEND_API_KEY in .env
+ * Set RESEND_API_KEY and (on production) EMAIL_FROM to an address on a domain verified in Resend.
  */
 
 import { Resend } from "resend";
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-const FROM_EMAIL = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
+
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "PhoneFree";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+/** Trims accidental whitespace from Vercel — Resend rejects malformed `from`. */
+function getResendFrom(): string {
+  const raw = process.env.EMAIL_FROM?.trim();
+  return raw && raw.length > 0 ? raw : "onboarding@resend.dev";
+}
+
+/** Helps debug failed sends in Vercel Logs (domain not verified, invalid from, bad API key). */
+function logResendFailure(op: string, err: unknown): void {
+  console.error(`[resend:${op}] send failed`);
+  if (err instanceof Error) {
+    console.error(`[resend:${op}] ${err.message}`);
+    if (err.stack) console.error(err.stack);
+  }
+  if (err && typeof err === "object") {
+    const o = err as Record<string, unknown>;
+    const extras = ["statusCode", "status", "name"] as const;
+    for (const k of extras) {
+      if (o[k] !== undefined) console.error(`[resend:${op}] ${k}:`, o[k]);
+    }
+    const body = o.responseBody ?? (o.response as Record<string, unknown>)?.data;
+    if (body !== undefined) {
+      console.error(
+        `[resend:${op}] response:`,
+        typeof body === "string" ? body : JSON.stringify(body)
+      );
+    }
+  }
+  if (!(err instanceof Error)) {
+    try {
+      console.error(`[resend:${op}] raw:`, JSON.stringify(err));
+    } catch {
+      console.error(`[resend:${op}]`, err);
+    }
+  }
+}
 
 /** @returns true if the message was handed to Resend */
 export async function sendEmailVerificationCode(params: {
@@ -17,6 +54,7 @@ export async function sendEmailVerificationCode(params: {
   locale?: string;
 }): Promise<boolean> {
   if (!resend) return false;
+  const from = getResendFrom();
   const subject =
     params.locale === "ru"
       ? `Код подтверждения email — ${SITE_NAME}`
@@ -31,20 +69,21 @@ export async function sendEmailVerificationCode(params: {
         : `<p>Your email verification code:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>This code expires in 30 minutes. If you did not sign up, ignore this email.</p>`;
   try {
     await resend.emails.send({
-      from: FROM_EMAIL,
+      from,
       to: params.to,
       subject,
       html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
     });
     return true;
   } catch (e) {
-    console.error("Verification email error:", e);
+    logResendFailure("verification", e);
     return false;
   }
 }
 
 export async function sendPasswordResetEmail(params: { to: string; resetLink: string; locale?: string }) {
   if (!resend) return;
+  const from = getResendFrom();
   const subject =
     params.locale === "ru"
       ? `Восстановление пароля — ${SITE_NAME}`
@@ -59,13 +98,13 @@ export async function sendPasswordResetEmail(params: { to: string; resetLink: st
         : `<p>Click the link to set a new password:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Link expires in 1 hour.</p>`;
   try {
     await resend.emails.send({
-      from: FROM_EMAIL,
+      from,
       to: params.to,
       subject,
       html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
     });
   } catch (e) {
-    console.error("Password reset email error:", e);
+    logResendFailure("password-reset", e);
   }
 }
 
@@ -76,9 +115,10 @@ export async function sendOrderConfirmation(params: {
   items: string;
 }) {
   if (!resend) return;
+  const from = getResendFrom();
   try {
     await resend.emails.send({
-      from: FROM_EMAIL,
+      from,
       to: params.to,
       subject: `Order #${params.orderNumber} confirmed — ${SITE_NAME}`,
       html: `
@@ -94,7 +134,7 @@ export async function sendOrderConfirmation(params: {
       `,
     });
   } catch (e) {
-    console.error("Email send error:", e);
+    logResendFailure("order-confirmation", e);
   }
 }
 
@@ -106,6 +146,7 @@ export async function sendOrderStatusUpdate(params: {
   imei?: string | null;
 }) {
   if (!resend) return;
+  const from = getResendFrom();
   try {
     const statusLabels: Record<string, string> = {
       NEW: "New",
@@ -130,7 +171,7 @@ export async function sendOrderStatusUpdate(params: {
     body += `<p>— ${SITE_NAME}</p>`;
 
     await resend.emails.send({
-      from: FROM_EMAIL,
+      from,
       to: params.to,
       subject: `Order #${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`,
       html: `
@@ -141,6 +182,6 @@ export async function sendOrderStatusUpdate(params: {
       `,
     });
   } catch (e) {
-    console.error("Email send error:", e);
+    logResendFailure("order-status", e);
   }
 }
