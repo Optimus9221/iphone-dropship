@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Package } from "lucide-react";
@@ -95,8 +96,35 @@ function PaymentProofForm({
 }
 
 export default function OrdersPage() {
+  return (
+    <Suspense fallback={<OrdersLoadingFallback />}>
+      <OrdersPageInner />
+    </Suspense>
+  );
+}
+
+function OrdersLoadingFallback() {
+  const { t } = useI18n();
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+        {t("backToDashboard")}
+      </Link>
+      <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
+      <div className="mt-8 space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 animate-pulse rounded-2xl bg-white/5" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OrdersPageInner() {
   const { t } = useI18n();
   const { status } = useSession();
+  const searchParams = useSearchParams();
+  const payOrderId = searchParams.get("pay");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -116,6 +144,17 @@ export default function OrdersPage() {
         .finally(() => setLoading(false));
     }
   }, [status]);
+
+  useEffect(() => {
+    if (!payOrderId || loading || orders.length === 0) return;
+    const tid = window.setTimeout(() => {
+      document.getElementById(`order-card-${payOrderId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }, 200);
+    return () => window.clearTimeout(tid);
+  }, [payOrderId, loading, orders]);
 
   if (status === "loading" || loading) {
     return (
@@ -172,13 +211,19 @@ export default function OrdersPage() {
             const hasCryptoDetails =
               !!(order.paymentInstructions?.address?.trim() || order.paymentInstructions?.network?.trim());
             const statusKey = STATUS_KEYS[order.status] ?? "status_NEW";
+            const highlightPayment = payOrderId === order.id;
             return (
               <motion.div
+                id={`order-card-${order.id}`}
                 key={order.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md"
+                className={`overflow-hidden rounded-2xl border bg-white/5 backdrop-blur-md ${
+                  highlightPayment
+                    ? "border-emerald-400/50 ring-2 ring-emerald-400/40"
+                    : "border-white/10"
+                }`}
               >
                 <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>

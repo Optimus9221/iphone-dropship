@@ -127,6 +127,7 @@ export async function PATCH(
     await sendAwaitingPaymentEmail({
       to: notifyTo,
       orderNumber: updated.orderNumber,
+      orderId: updated.id,
       locale: localeFromRequest(req),
     });
   }

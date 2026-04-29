@@ -105,6 +105,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await sendPaymentProofSubmittedEmail({
       to: notifyTo,
       orderNumber: updated.orderNumber,
+      orderId: id,
       locale: localeFromRequest(req),
     });
   }

@@ -144,13 +144,21 @@ export async function sendOrderConfirmation(params: {
 export async function sendAwaitingPaymentEmail(params: {
   to: string;
   orderNumber: string;
+  /** Opens dashboard orders scrolled to this order (?pay=) */
+  orderId: string;
   locale?: string;
 }) {
   if (!resend) return;
   const from = getResendFrom();
   const siteUrl = getPublicSiteUrl();
-  const dashboardUrl = `${siteUrl}/dashboard/orders`;
+  const paymentPageUrl = `${siteUrl}/dashboard/orders?pay=${encodeURIComponent(params.orderId)}`;
   const loc = params.locale ?? "en";
+  const linkLabel =
+    loc === "ru"
+      ? "Открыть страницу оплаты"
+      : loc === "uk"
+        ? "Відкрити сторінку оплати"
+        : "Open payment page";
   const subject =
     loc === "ru"
       ? `Оплатите заказ #${params.orderNumber} — ${SITE_NAME}`
@@ -159,10 +167,10 @@ export async function sendAwaitingPaymentEmail(params: {
         : `Complete payment for order #${params.orderNumber} — ${SITE_NAME}`;
   const html =
     loc === "ru"
-      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Заказ <strong>#${params.orderNumber}</strong> подтверждён. Перейдите в личный кабинет, чтобы увидеть адрес кошелька и сеть для оплаты в криптовалюте.</p><p>После перевода прикрепите скрин транзакции и нажмите «Оплатил» — мы проверим платёж и подтвердим заказ.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Заказ <strong>#${params.orderNumber}</strong> подтверждён. Нажмите кнопку ниже — откроется страница с адресом кошелька, сетью и формой для скрина перевода.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">Если кнопка не работает, скопируйте ссылку:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>После перевода прикрепите скрин транзакции и нажмите «Оплатил».</p><p>— ${SITE_NAME}</p></div>`
       : loc === "uk"
-        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Перейдіть у особистий кабінет, щоб побачити адресу гаманця та мережу для оплати криптовалютою.</p><p>Після переказу додайте скрін транзакції та натисніть «Оплатив» — ми перевіримо платіж і підтвердимо замовлення.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
-        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Sign in to your account to see the crypto wallet address and network for payment.</p><p>After you send the transfer, upload a screenshot of the transaction and click “Paid” — we will verify it and confirm your order.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
+        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Натисніть кнопку нижче — відкриється сторінка з адресою гаманця, мережею та формою для скрина переказу.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">Якщо кнопка не працює, скопіюйте посилання:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>Після переказу додайте скрін та натисніть «Оплатив».</p><p>— ${SITE_NAME}</p></div>`
+        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Use the button below to open the payment page — wallet address, network, and the upload form for your transaction screenshot.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">If the button does not work, copy this link:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>After you send the transfer, upload a screenshot and click “Paid”.</p><p>— ${SITE_NAME}</p></div>`;
   try {
     await resend.emails.send({ from, to: params.to, subject, html });
   } catch (e) {
@@ -174,12 +182,13 @@ export async function sendAwaitingPaymentEmail(params: {
 export async function sendPaymentProofSubmittedEmail(params: {
   to: string;
   orderNumber: string;
+  orderId: string;
   locale?: string;
 }) {
   if (!resend) return;
   const from = getResendFrom();
   const siteUrl = getPublicSiteUrl();
-  const ordersUrl = `${siteUrl}/dashboard/orders`;
+  const ordersUrl = `${siteUrl}/dashboard/orders?pay=${encodeURIComponent(params.orderId)}`;
   const loc = params.locale ?? "en";
   const subject =
     loc === "ru"
