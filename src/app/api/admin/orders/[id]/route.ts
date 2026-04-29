@@ -144,6 +144,8 @@ export async function PATCH(
       status: updated.status,
       trackingNumber: updated.trackingNumber,
       imei: updated.imei,
+      orderId: updated.id,
+      locale: localeFromRequest(req),
     });
   }
 

@@ -284,42 +284,145 @@ export async function sendOrderStatusUpdate(params: {
   status: string;
   trackingNumber?: string | null;
   imei?: string | null;
+  /** Used for dashboard deep-link (?pay=) */
+  orderId?: string;
+  locale?: string;
 }) {
   if (!resend) return;
   const from = getResendFrom();
-  const siteUrl = getPublicSiteUrl();
+  const siteUrl = getPublicSiteUrl().replace(/\/$/, "");
+  const ordersLink = params.orderId
+    ? `${siteUrl}/dashboard/orders?pay=${encodeURIComponent(params.orderId)}`
+    : `${siteUrl}/dashboard/orders`;
+  const loc = params.locale === "uk" ? "uk" : params.locale === "ru" ? "ru" : "en";
+
+  const trackingHtml =
+    params.trackingNumber != null && params.trackingNumber !== ""
+      ? `<p>${loc === "ru" ? "Трек-номер" : loc === "uk" ? "Трек-номер" : "Tracking"}: ${params.trackingNumber}</p>
+         <p><a href="https://novaposhta.ua/tracking/?cargo_number=${encodeURIComponent(params.trackingNumber)}">${loc === "ru" ? "Отследить на Новой Почте" : loc === "uk" ? "Відстежити на Новій Пошті" : "Track on Nova Poshta"}</a></p>`
+      : "";
+
+  const imeiHtml =
+    params.imei != null && params.imei !== ""
+      ? `<p>${loc === "ru" ? "IMEI" : loc === "uk" ? "IMEI" : "IMEI"}: ${params.imei}</p>`
+      : "";
+
+  /** Payment flow — avoid misleading «verification» wording in customer inbox */
+  if (params.status === "AWAITING_PAYMENT" || params.status === "PAYMENT_VERIFICATION_PENDING") {
+    let subject: string;
+    let html: string;
+    if (loc === "ru") {
+      subject = `Заказ №${params.orderNumber} — для оплаты заказа, перейдите по ссылке — ${SITE_NAME}`;
+      html = `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="font-size:18px;margin-bottom:12px;">Обновление статуса заказа</h2>
+          <p>Для оплаты заказа, перейдите по ссылке:</p>
+          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Открыть страницу заказа</a></p>
+          <p style="font-size:13px;color:#525252;">Или скопируйте адрес:<br/><a href="${ordersLink}">${ordersLink}</a></p>
+          ${trackingHtml}${imeiHtml}
+          <p style="margin-top:16px;">— ${SITE_NAME}</p>
+        </div>`;
+    } else if (loc === "uk") {
+      subject = `Замовлення №${params.orderNumber} — для оплати замовлення перейдіть за посиланням — ${SITE_NAME}`;
+      html = `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="font-size:18px;margin-bottom:12px;">Оновлення статусу замовлення</h2>
+          <p>Для оплати замовлення перейдіть за посиланням:</p>
+          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Відкрити сторінку замовлення</a></p>
+          <p style="font-size:13px;color:#525252;">Або скопіюйте адресу:<br/><a href="${ordersLink}">${ordersLink}</a></p>
+          ${trackingHtml}${imeiHtml}
+          <p style="margin-top:16px;">— ${SITE_NAME}</p>
+        </div>`;
+    } else {
+      subject = `Order #${params.orderNumber} — complete payment via link — ${SITE_NAME}`;
+      html = `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2 style="font-size:18px;margin-bottom:12px;">Order status update</h2>
+          <p>To pay for your order, follow the link:</p>
+          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Open order page</a></p>
+          <p style="font-size:13px;color:#525252;">Or copy this URL:<br/><a href="${ordersLink}">${ordersLink}</a></p>
+          ${trackingHtml}${imeiHtml}
+          <p style="margin-top:16px;">— ${SITE_NAME}</p>
+        </div>`;
+    }
+    try {
+      await resend.emails.send({ from, to: params.to, subject, html });
+    } catch (e) {
+      logResendFailure("order-status", e);
+    }
+    return;
+  }
+
+  const labelRu: Record<string, string> = {
+    NEW: "Новый",
+    AWAITING_PAYMENT: "Ожидает оплаты",
+    PAYMENT_VERIFICATION_PENDING: "Ожидает проверки оплаты",
+    PAID: "Оплачен",
+    PROCESSING: "В обработке",
+    SHIPPED: "Отправлен",
+    DELIVERED: "Доставлен",
+    CANCELLED: "Отменён",
+    REFUNDED: "Возврат",
+  };
+  const labelUk: Record<string, string> = {
+    NEW: "Новий",
+    AWAITING_PAYMENT: "Очікує оплати",
+    PAYMENT_VERIFICATION_PENDING: "Очікує перевірки оплати",
+    PAID: "Оплачено",
+    PROCESSING: "В обробці",
+    SHIPPED: "Відправлено",
+    DELIVERED: "Доставлено",
+    CANCELLED: "Скасовано",
+    REFUNDED: "Повернення",
+  };
+  const labelEn: Record<string, string> = {
+    NEW: "New",
+    AWAITING_PAYMENT: "Awaiting payment",
+    PAYMENT_VERIFICATION_PENDING: "Payment verification pending",
+    PAID: "Paid",
+    PROCESSING: "Processing",
+    SHIPPED: "Shipped",
+    DELIVERED: "Delivered",
+    CANCELLED: "Cancelled",
+    REFUNDED: "Refunded",
+  };
+
+  const labels = loc === "ru" ? labelRu : loc === "uk" ? labelUk : labelEn;
+  const statusLabel = labels[params.status] ?? params.status;
+
+  let subject: string;
+  let heading: string;
+  let line: string;
+  let linkLabel: string;
+
+  if (loc === "ru") {
+    subject = `Заказ №${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`;
+    heading = "Обновление статуса заказа";
+    line = `Ваш заказ <strong>#${params.orderNumber}</strong>. Статус: <strong>${statusLabel}</strong>`;
+    linkLabel = "Открыть заказы в личном кабинете";
+  } else if (loc === "uk") {
+    subject = `Замовлення №${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`;
+    heading = "Оновлення статусу замовлення";
+    line = `Ваше замовлення <strong>#${params.orderNumber}</strong>. Статус: <strong>${statusLabel}</strong>`;
+    linkLabel = "Відкрити замовлення в кабінеті";
+  } else {
+    subject = `Order #${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`;
+    heading = "Order status update";
+    line = `Your order <strong>#${params.orderNumber}</strong> status: <strong>${statusLabel}</strong>`;
+    linkLabel = "View orders";
+  }
+
+  const body =
+    `<p>${line}</p>${trackingHtml}${imeiHtml}<p><a href="${ordersLink}">${linkLabel}</a></p><p>— ${SITE_NAME}</p>`;
+
   try {
-    const statusLabels: Record<string, string> = {
-      NEW: "New",
-      AWAITING_PAYMENT: "Awaiting payment",
-      PAYMENT_VERIFICATION_PENDING: "Payment verification pending",
-      PAID: "Paid",
-      PROCESSING: "Processing",
-      SHIPPED: "Shipped",
-      DELIVERED: "Delivered",
-      CANCELLED: "Cancelled",
-      REFUNDED: "Refunded",
-    };
-    const statusLabel = statusLabels[params.status] ?? params.status;
-
-    let body = `<p>Your order <strong>#${params.orderNumber}</strong> status: <strong>${statusLabel}</strong></p>`;
-    if (params.trackingNumber) {
-      body += `<p>Tracking: ${params.trackingNumber}</p>`;
-      body += `<p><a href="https://novaposhta.ua/tracking/?cargo_number=${params.trackingNumber}">Track on Nova Poshta</a></p>`;
-    }
-    if (params.imei) {
-      body += `<p>IMEI: ${params.imei}</p>`;
-    }
-    body += `<p><a href="${siteUrl}/dashboard/orders">View order</a></p>`;
-    body += `<p>— ${SITE_NAME}</p>`;
-
     await resend.emails.send({
       from,
       to: params.to,
-      subject: `Order #${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`,
+      subject,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2>Order status update</h2>
+          <h2>${heading}</h2>
           ${body}
         </div>
       `,
