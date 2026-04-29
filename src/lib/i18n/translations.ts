@@ -336,6 +336,8 @@ export const translations = {
     adminStatsOrders: "Orders",
     adminStatsRevenue: "Revenue",
     adminOrdersCount: "order(s). Change status to DELIVERED to accrue cashback.",
+    adminOrdersPaymentFlowHint:
+      "Crypto payments: choose «Awaiting payment» to email payment instructions to the customer. «Payment verification pending» is set automatically after they upload a screenshot — verify funds and set «Paid». Use crypto overrides in the expanded row when needed.",
     adminNoOrders: "No orders yet",
     adminOrder: "Order",
     adminCustomer: "Customer",
@@ -755,6 +757,8 @@ export const translations = {
     adminStatsOrders: "Заказы",
     adminStatsRevenue: "Выручка",
     adminOrdersCount: "заказ(ов). Смените статус на Доставлен для начисления кешбэка.",
+    adminOrdersPaymentFlowHint:
+      "Оплата криптой: выберите «Ожидает оплаты», чтобы клиент получил письмо с реквизитами. «Ожидает проверки оплаты» ставится автоматически после загрузки скрина — проверьте блокчейн и установите «Оплачен». Реквизиты кошелька можно подставить в развернутой строке заказа.",
     adminNoOrders: "Заказов пока нет",
     adminOrder: "Заказ",
     adminCustomer: "Клиент",
@@ -1174,6 +1178,8 @@ export const translations = {
     adminStatsOrders: "Замовлення",
     adminStatsRevenue: "Виручка",
     adminOrdersCount: "замовлення(нь). Змініть статус на Доставлено для нарахування кешбеку.",
+    adminOrdersPaymentFlowHint:
+      "Криптооплата: оберіть «Очікує оплати», щоб клієнт отримав лист з реквізитами. «Очікує перевірки оплати» встановлюється після завантаження скрина — перевірте блокчейн і поставте «Оплачено». Реквізити гаманця можна задати в розгорнутому рядку замовлення.",
     adminNoOrders: "Замовлень поки немає",
     adminOrder: "Замовлення",
     adminCustomer: "Клієнт",

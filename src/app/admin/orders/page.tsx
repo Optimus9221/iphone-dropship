@@ -50,6 +50,36 @@ const STATUS_KEYS: Record<string, string> = {
   REFUNDED: "status_REFUNDED",
 };
 
+function statusBadgeClasses(status: string): string {
+  switch (status) {
+    case "DELIVERED":
+      return "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200";
+    case "AWAITING_PAYMENT":
+      return "bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100";
+    case "PAYMENT_VERIFICATION_PENDING":
+      return "bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-sky-100";
+    case "CANCELLED":
+    case "REFUNDED":
+      return "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200";
+    default:
+      return "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200";
+  }
+}
+
+function AdminOrderStatusBadge({ status }: { status: string }) {
+  const { t } = useI18n();
+  const key = STATUS_KEYS[status];
+  const label = key ? t(key as "status_NEW") : status;
+  return (
+    <span
+      className={`inline-flex max-w-full rounded-full px-2.5 py-1 text-xs font-medium ${statusBadgeClasses(status)}`}
+      title={status}
+    >
+      {label}
+    </span>
+  );
+}
+
 export default function AdminOrdersPage() {
   const { t } = useI18n();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -158,6 +188,9 @@ export default function AdminOrdersPage() {
       <p className="mt-2 text-zinc-500 dark:text-zinc-400">
         {orders.length} {t("adminOrdersCount")}
       </p>
+      <p className="mt-3 max-w-4xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        {t("adminOrdersPaymentFlowHint")}
+      </p>
 
       {orders.length === 0 ? (
         <p className="mt-8 text-zinc-500">{t("adminNoOrders")}</p>
@@ -212,18 +245,24 @@ export default function AdminOrdersPage() {
                         {o.items.map((i) => `${i.productName} × ${i.quantity}`).join(", ")}
                       </td>
                       <td className="px-4 py-3 font-medium">${o.total}</td>
-                      <td className="px-4 py-3">
-                        <select
-                          value={ed.status}
-                          onChange={(e) => setEdit(o.id, "status", e.target.value)}
-                          className="rounded border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-800"
-                        >
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                              {t(STATUS_KEYS[s] as "status_NEW")}
-                            </option>
-                          ))}
-                        </select>
+                      <td className="px-4 py-3 align-top">
+                        <div className="flex max-w-[min(100%,18rem)] flex-col gap-2">
+                          <AdminOrderStatusBadge status={ed.status} />
+                          <select
+                            value={ed.status}
+                            onChange={(e) => setEdit(o.id, "status", e.target.value)}
+                            className="rounded border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                          >
+                            {(STATUS_OPTIONS as readonly string[]).includes(ed.status) ? null : (
+                              <option value={ed.status}>{ed.status}</option>
+                            )}
+                            {STATUS_OPTIONS.map((s) => (
+                              <option key={s} value={s}>
+                                {t(STATUS_KEYS[s] as "status_NEW")}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <input
