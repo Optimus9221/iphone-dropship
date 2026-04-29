@@ -210,7 +210,18 @@ function OrdersPageInner() {
           {orders.map((order, i) => {
             const hasCryptoDetails =
               !!(order.paymentInstructions?.address?.trim() || order.paymentInstructions?.network?.trim());
-            const statusKey = STATUS_KEYS[order.status] ?? "status_NEW";
+            const proofSubmitted = Boolean(order.paymentProofSubmittedAt);
+            const showPaymentAndProofUpload =
+              order.paymentInstructions &&
+              (order.status === "AWAITING_PAYMENT" ||
+                (order.status === "PAYMENT_VERIFICATION_PENDING" && !proofSubmitted));
+            const showVerificationMessage =
+              order.status === "PAYMENT_VERIFICATION_PENDING" && proofSubmitted;
+            const badgeStatus =
+              order.status === "PAYMENT_VERIFICATION_PENDING" && !proofSubmitted
+                ? "AWAITING_PAYMENT"
+                : order.status;
+            const statusKey = STATUS_KEYS[badgeStatus] ?? "status_NEW";
             const highlightPayment = payOrderId === order.id;
             return (
               <motion.div
@@ -258,7 +269,7 @@ function OrdersPageInner() {
                         IMEI: {order.imei}
                       </p>
                     )}
-                    {order.status === "AWAITING_PAYMENT" && order.paymentInstructions && (
+                    {showPaymentAndProofUpload && (
                       <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-950/40 p-4">
                         <p className="text-sm font-semibold text-amber-100">{t("paymentCryptoTitle")}</p>
                         {!hasCryptoDetails ? (
@@ -267,11 +278,11 @@ function OrdersPageInner() {
                           <dl className="mt-3 space-y-2 text-sm">
                             <div>
                               <dt className="text-slate-500">{t("paymentCryptoNetwork")}</dt>
-                              <dd className="font-medium text-white">{order.paymentInstructions.network || "—"}</dd>
+                              <dd className="font-medium text-white">{order.paymentInstructions!.network || "—"}</dd>
                             </div>
                             <div>
                               <dt className="text-slate-500">{t("paymentCryptoAddress")}</dt>
-                              <dd className="break-all font-mono text-xs text-emerald-300">{order.paymentInstructions.address || "—"}</dd>
+                              <dd className="break-all font-mono text-xs text-emerald-300">{order.paymentInstructions!.address || "—"}</dd>
                             </div>
                           </dl>
                         )}
@@ -282,7 +293,7 @@ function OrdersPageInner() {
                         />
                       </div>
                     )}
-                    {order.status === "PAYMENT_VERIFICATION_PENDING" && (
+                    {showVerificationMessage && (
                       <div className="mt-4 rounded-xl border border-sky-500/30 bg-sky-950/40 p-4">
                         <p className="text-sm text-sky-100">{t("paymentWaitingVerification")}</p>
                         {order.paymentProofSubmittedAt && (
@@ -295,13 +306,13 @@ function OrdersPageInner() {
                   </div>
                   <span
                     className={`inline-flex self-start rounded-full px-3 py-1 text-sm font-medium ${
-                      order.status === "DELIVERED"
+                      badgeStatus === "DELIVERED"
                         ? "bg-emerald-500/20 text-emerald-300"
-                        : order.status === "PAYMENT_VERIFICATION_PENDING"
+                        : showVerificationMessage
                           ? "bg-sky-500/20 text-sky-200"
-                          : order.status === "AWAITING_PAYMENT"
+                          : badgeStatus === "AWAITING_PAYMENT"
                             ? "bg-amber-500/20 text-amber-200"
-                            : order.status === "CANCELLED" || order.status === "REFUNDED"
+                            : badgeStatus === "CANCELLED" || badgeStatus === "REFUNDED"
                               ? "bg-red-500/20 text-red-300"
                               : "bg-white/10 text-slate-300"
                     }`}

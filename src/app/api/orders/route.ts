@@ -47,7 +47,8 @@ export async function GET() {
       paymentProofSubmittedAt:
         o.status === "PAYMENT_VERIFICATION_PENDING" ? o.paymentProofSubmittedAt : null,
       paymentInstructions:
-        o.status === "AWAITING_PAYMENT"
+        o.status === "AWAITING_PAYMENT" ||
+        (o.status === "PAYMENT_VERIFICATION_PENDING" && !o.paymentProofSubmittedAt)
           ? {
               network: (o.paymentNetwork?.trim() || cryptoDefaults.network).trim(),
               address: (o.paymentWalletAddress?.trim() || cryptoDefaults.walletAddress).trim(),

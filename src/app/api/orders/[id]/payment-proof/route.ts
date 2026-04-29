@@ -39,7 +39,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  if (order.status !== "AWAITING_PAYMENT") {
+  const awaitingProofUpload =
+    order.status === "AWAITING_PAYMENT" ||
+    (order.status === "PAYMENT_VERIFICATION_PENDING" && !order.paymentProofUrl);
+
+  if (!awaitingProofUpload) {
     return NextResponse.json(
       { error: "Payment proof can only be submitted while awaiting payment", errorCode: "invalid_status" },
       { status: 400 }
