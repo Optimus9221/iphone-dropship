@@ -200,6 +200,75 @@ export async function sendPaymentProofSubmittedEmail(params: {
   }
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Internal/admin inbox — payment screenshot uploaded, verification needed.
+ * Requires ADMIN_NOTIFICATION_EMAIL (comma-separated allowed).
+ */
+export async function sendAdminPaymentProofReceivedNotification(params: {
+  orderNumber: string;
+  totalUsd: number;
+  submittedAt: Date;
+}) {
+  const raw = process.env.ADMIN_NOTIFICATION_EMAIL?.trim();
+  if (!raw || !resend) return;
+
+  const recipients = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  if (recipients.length === 0) return;
+
+  const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl().replace(/\/$/, "");
+  const adminOrdersUrl = `${siteUrl}/admin/orders`;
+  const num = escapeHtml(params.orderNumber);
+  const totalStr = params.totalUsd.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const whenStr = params.submittedAt.toLocaleString("ru-RU", {
+    dateStyle: "long",
+    timeStyle: "short",
+    timeZone: "Europe/Kyiv",
+  });
+
+  const subject = `[${SITE_NAME}] Заказ №${params.orderNumber} — поступило подтверждение оплаты`;
+
+  const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a; line-height: 1.55; font-size: 15px;">
+  <p style="margin: 0 0 18px;">Добрый день.</p>
+  <p style="margin: 0 0 18px;">
+    По заказу <strong>№${num}</strong> клиент приложил скриншот транзакции. Сумма заказа в системе: <strong>$${totalStr}&nbsp;USD</strong>.
+    Статус переведён в режим ожидания проверки платежа.
+  </p>
+  <p style="margin: 0 0 18px;"><strong>Необходимо:</strong> сверить данные перевода со скриншотом в карточке заказа и при успешной проверке установить статус «Оплачен».</p>
+  <p style="margin: 0 0 18px;">
+    Административная панель — заказы:<br />
+    <a href="${adminOrdersUrl}" style="color: #0f766e;">${adminOrdersUrl}</a>
+  </p>
+  <p style="margin: 0 0 24px; color: #525252; font-size: 13px;">Время загрузки скриншота (Киев): ${escapeHtml(whenStr)}</p>
+  <p style="margin: 0; color: #737373; font-size: 12px; border-top: 1px solid #e5e5e5; padding-top: 16px;">
+    Это автоматическое служебное уведомление. Ответ на это письмо не обрабатывается.
+  </p>
+</div>`;
+
+  for (const to of recipients) {
+    try {
+      await resend.emails.send({ from, to, subject, html });
+    } catch (e) {
+      logResendFailure("admin-payment-proof", e);
+    }
+  }
+}
+
 export async function sendOrderStatusUpdate(params: {
   to: string;
   orderNumber: string;

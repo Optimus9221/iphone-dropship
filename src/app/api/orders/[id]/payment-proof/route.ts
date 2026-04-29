@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { sendPaymentProofSubmittedEmail } from "@/lib/email";
+import { sendPaymentProofSubmittedEmail, sendAdminPaymentProofReceivedNotification } from "@/lib/email";
 
 const MAX_BYTES = 2 * 1024 * 1024; // 2 MiB
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -30,6 +30,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       paymentProofUrl: true,
       orderNumber: true,
       shippingEmail: true,
+      total: true,
       user: { select: { email: true } },
     },
   });
@@ -107,6 +108,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       locale: localeFromRequest(req),
     });
   }
+
+  await sendAdminPaymentProofReceivedNotification({
+    orderNumber: updated.orderNumber,
+    totalUsd: Number(order.total),
+    submittedAt: updated.paymentProofSubmittedAt ?? now,
+  });
 
   return NextResponse.json({
     id: updated.id,
