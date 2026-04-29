@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { getPublicSiteUrl } from "@/lib/public-url";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       data: { userId: user.id, token, expiresAt },
     });
     const locale = (body.locale as string) || "en";
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    const baseUrl = getPublicSiteUrl(req);
     const resetLink = `${baseUrl}/reset-password?token=${token}`;
     await sendPasswordResetEmail({ to: email, resetLink, locale });
     return NextResponse.json({ message: "ok" });

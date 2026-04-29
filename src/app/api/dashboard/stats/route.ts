@@ -4,8 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount, getLastFreeiPhoneDeliveredAt } from "@/lib/referral";
 import { processAvailableCashback } from "@/lib/cashback";
+import { getPublicSiteUrl } from "@/lib/public-url";
 
-export async function GET() {
+export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -30,7 +31,7 @@ export async function GET() {
     getLastFreeiPhoneDeliveredAt(userId),
   ]);
 
-  const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const baseUrl = getPublicSiteUrl(req);
   const referralUrl = `${baseUrl}/ref/${code}`;
 
   return NextResponse.json({

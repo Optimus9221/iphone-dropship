@@ -4,12 +4,12 @@
  */
 
 import { Resend } from "resend";
+import { getPublicSiteUrl } from "@/lib/public-url";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "PhoneFree";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /** Trims accidental whitespace from Vercel — Resend rejects malformed `from`. */
 function getResendFrom(): string {
@@ -116,6 +116,7 @@ export async function sendOrderConfirmation(params: {
 }) {
   if (!resend) return;
   const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl();
   try {
     await resend.emails.send({
       from,
@@ -128,7 +129,7 @@ export async function sendOrderConfirmation(params: {
           <p><strong>Order #${params.orderNumber}</strong></p>
           <p>Items: ${params.items}</p>
           <p>Total: $${params.total}</p>
-          <p>You can track your order status in your <a href="${SITE_URL}/dashboard/orders">dashboard</a>.</p>
+          <p>You can track your order status in your <a href="${siteUrl}/dashboard/orders">dashboard</a>.</p>
           <p>— ${SITE_NAME}</p>
         </div>
       `,
@@ -147,6 +148,7 @@ export async function sendOrderStatusUpdate(params: {
 }) {
   if (!resend) return;
   const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl();
   try {
     const statusLabels: Record<string, string> = {
       NEW: "New",
@@ -167,7 +169,7 @@ export async function sendOrderStatusUpdate(params: {
     if (params.imei) {
       body += `<p>IMEI: ${params.imei}</p>`;
     }
-    body += `<p><a href="${SITE_URL}/dashboard/orders">View order</a></p>`;
+    body += `<p><a href="${siteUrl}/dashboard/orders">View order</a></p>`;
     body += `<p>— ${SITE_NAME}</p>`;
 
     await resend.emails.send({
