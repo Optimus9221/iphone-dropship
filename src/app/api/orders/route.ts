@@ -44,6 +44,8 @@ export async function GET() {
       imei: o.imei,
       createdAt: o.createdAt,
       deliveredAt: o.deliveredAt,
+      paymentProofSubmittedAt:
+        o.status === "PAYMENT_VERIFICATION_PENDING" ? o.paymentProofSubmittedAt : null,
       paymentInstructions:
         o.status === "AWAITING_PAYMENT"
           ? {

@@ -10,6 +10,7 @@ import type { OrderStatus } from "@prisma/client";
 const STATUS_VALUES = [
   "NEW",
   "AWAITING_PAYMENT",
+  "PAYMENT_VERIFICATION_PENDING",
   "PAID",
   "PROCESSING",
   "SHIPPED",
@@ -62,6 +63,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
+  const clearingRejectedProof =
+    parsed.data.status === "AWAITING_PAYMENT" && order.status === "PAYMENT_VERIFICATION_PENDING";
+
   const updateData: {
     status: OrderStatus;
     trackingNumber?: string | null;
@@ -70,9 +74,16 @@ export async function PATCH(
     deliveredAt?: Date;
     paymentWalletAddress?: string | null;
     paymentNetwork?: string | null;
+    paymentProofUrl?: string | null;
+    paymentProofSubmittedAt?: Date | null;
   } = {
     status: parsed.data.status as OrderStatus,
   };
+
+  if (clearingRejectedProof) {
+    updateData.paymentProofUrl = null;
+    updateData.paymentProofSubmittedAt = null;
+  }
 
   if (parsed.data.trackingNumber !== undefined) {
     updateData.trackingNumber = parsed.data.trackingNumber || null;
@@ -96,7 +107,9 @@ export async function PATCH(
   }
 
   const enteredAwaitingPayment =
-    parsed.data.status === "AWAITING_PAYMENT" && order.status !== "AWAITING_PAYMENT";
+    parsed.data.status === "AWAITING_PAYMENT" &&
+    order.status !== "AWAITING_PAYMENT" &&
+    order.status !== "PAYMENT_VERIFICATION_PENDING";
 
   const updated = await prisma.order.update({
     where: { id },
@@ -123,7 +136,7 @@ export async function PATCH(
     (parsed.data.trackingNumber !== undefined && (order.trackingNumber ?? "") !== (parsed.data.trackingNumber ?? "")) ||
     (parsed.data.imei !== undefined && (order.imei ?? "") !== (parsed.data.imei ?? ""));
 
-  if (hasChanges && notifyTo && !enteredAwaitingPayment) {
+  if (hasChanges && notifyTo && !enteredAwaitingPayment && !clearingRejectedProof) {
     await sendOrderStatusUpdate({
       to: notifyTo,
       orderNumber: updated.orderNumber,
@@ -141,5 +154,7 @@ export async function PATCH(
     deliveredAt: updated.deliveredAt,
     paymentWalletAddress: updated.paymentWalletAddress,
     paymentNetwork: updated.paymentNetwork,
+    paymentProofUrl: updated.paymentProofUrl,
+    paymentProofSubmittedAt: updated.paymentProofSubmittedAt,
   });
 }

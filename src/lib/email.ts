@@ -159,14 +159,44 @@ export async function sendAwaitingPaymentEmail(params: {
         : `Complete payment for order #${params.orderNumber} — ${SITE_NAME}`;
   const html =
     loc === "ru"
-      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Заказ <strong>#${params.orderNumber}</strong> подтверждён. Перейдите в личный кабинет, чтобы увидеть адрес кошелька и сеть для оплаты в криптовалюте.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Заказ <strong>#${params.orderNumber}</strong> подтверждён. Перейдите в личный кабинет, чтобы увидеть адрес кошелька и сеть для оплаты в криптовалюте.</p><p>После перевода прикрепите скрин транзакции и нажмите «Оплатил» — мы проверим платёж и подтвердим заказ.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
       : loc === "uk"
-        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Перейдіть у особистий кабінет, щоб побачити адресу гаманця та мережу для оплати криптовалютою.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
-        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Sign in to your account to see the crypto wallet address and network for payment.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
+        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Перейдіть у особистий кабінет, щоб побачити адресу гаманця та мережу для оплати криптовалютою.</p><p>Після переказу додайте скрін транзакції та натисніть «Оплатив» — ми перевіримо платіж і підтвердимо замовлення.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Sign in to your account to see the crypto wallet address and network for payment.</p><p>After you send the transfer, upload a screenshot of the transaction and click “Paid” — we will verify it and confirm your order.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
   try {
     await resend.emails.send({ from, to: params.to, subject, html });
   } catch (e) {
     logResendFailure("awaiting-payment", e);
+  }
+}
+
+/** Customer confirmation after uploading transaction screenshot */
+export async function sendPaymentProofSubmittedEmail(params: {
+  to: string;
+  orderNumber: string;
+  locale?: string;
+}) {
+  if (!resend) return;
+  const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl();
+  const ordersUrl = `${siteUrl}/dashboard/orders`;
+  const loc = params.locale ?? "en";
+  const subject =
+    loc === "ru"
+      ? `Платёж получен на проверку — заказ #${params.orderNumber} — ${SITE_NAME}`
+      : loc === "uk"
+        ? `Платіж на перевірці — замовлення #${params.orderNumber} — ${SITE_NAME}`
+        : `Payment proof received — order #${params.orderNumber} — ${SITE_NAME}`;
+  const html =
+    loc === "ru"
+      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Мы получили скрин транзакции по заказу <strong>#${params.orderNumber}</strong>. После проверки статус обновится — следите в личном кабинете.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+      : loc === "uk"
+        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Ми отримали скрін транзакції для замовлення <strong>#${params.orderNumber}</strong>. Після перевірки статус оновиться — слідкуйте в особистому кабінеті.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+        : `<div style="font-family: sans-serif; max-width: 480px;"><p>We received your transaction screenshot for order <strong>#${params.orderNumber}</strong>. We will verify it and update your order status — check your dashboard.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
+  try {
+    await resend.emails.send({ from, to: params.to, subject, html });
+  } catch (e) {
+    logResendFailure("payment-proof-submitted", e);
   }
 }
 
@@ -184,6 +214,7 @@ export async function sendOrderStatusUpdate(params: {
     const statusLabels: Record<string, string> = {
       NEW: "New",
       AWAITING_PAYMENT: "Awaiting payment",
+      PAYMENT_VERIFICATION_PENDING: "Payment verification pending",
       PAID: "Paid",
       PROCESSING: "Processing",
       SHIPPED: "Shipped",

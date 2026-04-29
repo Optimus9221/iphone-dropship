@@ -168,6 +168,10 @@ model Order {
   paymentWalletAddress String? @map("payment_wallet_address")
   paymentNetwork       String? @map("payment_network")
 
+  // Customer-uploaded payment screenshot (PNG/JPEG/WebP). Stored as data URL or HTTPS URL.
+  paymentProofUrl         String?   @db.Text @map("payment_proof_url")
+  paymentProofSubmittedAt DateTime? @map("payment_proof_submitted_at")
+
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
@@ -198,6 +202,7 @@ model OrderItem {
 enum OrderStatus {
   NEW
   AWAITING_PAYMENT // Admin confirmed; customer pays crypto — details on site
+  PAYMENT_VERIFICATION_PENDING // Customer uploaded proof — awaiting admin to mark PAID
   PAID
   PROCESSING
   SHIPPED

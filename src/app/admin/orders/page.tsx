@@ -20,6 +20,8 @@ type Order = {
   comment: string | null;
   paymentWalletAddress: string | null;
   paymentNetwork: string | null;
+  paymentProofUrl: string | null;
+  paymentProofSubmittedAt: string | null;
   user: { email: string | null; name: string | null; phone: string | null };
   items: Array<{ productName: string; quantity: number; price: number }>;
 };
@@ -27,6 +29,7 @@ type Order = {
 const STATUS_OPTIONS = [
   "NEW",
   "AWAITING_PAYMENT",
+  "PAYMENT_VERIFICATION_PENDING",
   "PAID",
   "PROCESSING",
   "SHIPPED",
@@ -38,6 +41,7 @@ const STATUS_OPTIONS = [
 const STATUS_KEYS: Record<string, string> = {
   NEW: "status_NEW",
   AWAITING_PAYMENT: "status_AWAITING_PAYMENT",
+  PAYMENT_VERIFICATION_PENDING: "status_PAYMENT_VERIFICATION_PENDING",
   PAID: "status_PAID",
   PROCESSING: "status_PROCESSING",
   SHIPPED: "status_SHIPPED",
@@ -98,6 +102,12 @@ export default function AdminOrdersPage() {
                   imei: updated.imei ?? o.imei,
                   paymentWalletAddress: updated.paymentWalletAddress ?? o.paymentWalletAddress,
                   paymentNetwork: updated.paymentNetwork ?? o.paymentNetwork,
+                  paymentProofUrl:
+                    updated.paymentProofUrl !== undefined ? updated.paymentProofUrl : o.paymentProofUrl,
+                  paymentProofSubmittedAt:
+                    updated.paymentProofSubmittedAt != null
+                      ? new Date(updated.paymentProofSubmittedAt).toISOString()
+                      : null,
                   deliveredAt: updated.deliveredAt ? new Date(updated.deliveredAt).toISOString() : o.deliveredAt,
                 }
               : o
@@ -294,6 +304,23 @@ export default function AdminOrdersPage() {
                                 </label>
                               </div>
                             </div>
+                            {o.paymentProofUrl && (
+                              <div className="sm:col-span-2 mt-4 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900/80">
+                                <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{t("adminPaymentProof")}</p>
+                                <p className="mt-1 text-xs text-zinc-500">{t("adminPaymentProofHint")}</p>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={o.paymentProofUrl}
+                                  alt=""
+                                  className="mt-3 max-h-96 max-w-full rounded-md border border-zinc-200 dark:border-zinc-600"
+                                />
+                                {o.paymentProofSubmittedAt && (
+                                  <p className="mt-2 text-xs text-zinc-500">
+                                    {new Date(o.paymentProofSubmittedAt).toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>

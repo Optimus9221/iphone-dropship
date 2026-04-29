@@ -43,6 +43,8 @@ export async function GET() {
       comment: o.comment,
       paymentWalletAddress: o.paymentWalletAddress,
       paymentNetwork: o.paymentNetwork,
+      paymentProofUrl: o.paymentProofUrl,
+      paymentProofSubmittedAt: o.paymentProofSubmittedAt,
       user: o.user,
       items: o.items.map((i) => ({
         productName: i.product.name,
