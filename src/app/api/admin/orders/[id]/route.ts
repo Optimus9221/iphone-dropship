@@ -3,15 +3,35 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { accrueCashbackOnDelivery } from "@/lib/orders";
-import { sendOrderStatusUpdate } from "@/lib/email";
+import { sendOrderStatusUpdate, sendAwaitingPaymentEmail } from "@/lib/email";
 import { z } from "zod";
 import type { OrderStatus } from "@prisma/client";
 
+const STATUS_VALUES = [
+  "NEW",
+  "AWAITING_PAYMENT",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+  "REFUNDED",
+] as const;
+
 const updateSchema = z.object({
-  status: z.enum(["NEW", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"]),
+  status: z.enum(STATUS_VALUES),
   trackingNumber: z.string().optional(),
   imei: z.string().optional(),
+  paymentWalletAddress: z.string().optional(),
+  paymentNetwork: z.string().optional(),
 });
+
+function localeFromRequest(req: Request): string | undefined {
+  const raw = req.headers.get("accept-language")?.split(",")[0]?.trim().toLowerCase() ?? "";
+  if (raw.startsWith("uk")) return "uk";
+  if (raw.startsWith("ru")) return "ru";
+  return "en";
+}
 
 export async function PATCH(
   req: Request,
@@ -48,6 +68,8 @@ export async function PATCH(
     imei?: string | null;
     shippedAt?: Date;
     deliveredAt?: Date;
+    paymentWalletAddress?: string | null;
+    paymentNetwork?: string | null;
   } = {
     status: parsed.data.status as OrderStatus,
   };
@@ -58,6 +80,12 @@ export async function PATCH(
   if (parsed.data.imei !== undefined) {
     updateData.imei = parsed.data.imei || null;
   }
+  if (parsed.data.paymentWalletAddress !== undefined) {
+    updateData.paymentWalletAddress = parsed.data.paymentWalletAddress.trim() || null;
+  }
+  if (parsed.data.paymentNetwork !== undefined) {
+    updateData.paymentNetwork = parsed.data.paymentNetwork.trim() || null;
+  }
 
   if (parsed.data.status === "SHIPPED" && !order.shippedAt) {
     updateData.shippedAt = new Date();
@@ -66,6 +94,9 @@ export async function PATCH(
   if (parsed.data.status === "DELIVERED") {
     updateData.deliveredAt = order.deliveredAt ?? new Date();
   }
+
+  const enteredAwaitingPayment =
+    parsed.data.status === "AWAITING_PAYMENT" && order.status !== "AWAITING_PAYMENT";
 
   const updated = await prisma.order.update({
     where: { id },
@@ -77,12 +108,22 @@ export async function PATCH(
     await accrueCashbackOnDelivery(id, updated.deliveredAt);
   }
 
-  // Send email notification on status/tracking/IMEI update
-  const hasChanges = order.status !== parsed.data.status ||
+  const notifyTo = updated.user?.email ?? updated.shippingEmail;
+
+  if (enteredAwaitingPayment && notifyTo) {
+    await sendAwaitingPaymentEmail({
+      to: notifyTo,
+      orderNumber: updated.orderNumber,
+      locale: localeFromRequest(req),
+    });
+  }
+
+  const hasChanges =
+    order.status !== parsed.data.status ||
     (parsed.data.trackingNumber !== undefined && (order.trackingNumber ?? "") !== (parsed.data.trackingNumber ?? "")) ||
     (parsed.data.imei !== undefined && (order.imei ?? "") !== (parsed.data.imei ?? ""));
-  const notifyTo = updated.user?.email ?? updated.shippingEmail;
-  if (hasChanges && notifyTo) {
+
+  if (hasChanges && notifyTo && !enteredAwaitingPayment) {
     await sendOrderStatusUpdate({
       to: notifyTo,
       orderNumber: updated.orderNumber,
@@ -98,5 +139,7 @@ export async function PATCH(
     trackingNumber: updated.trackingNumber,
     imei: updated.imei,
     deliveredAt: updated.deliveredAt,
+    paymentWalletAddress: updated.paymentWalletAddress,
+    paymentNetwork: updated.paymentNetwork,
   });
 }

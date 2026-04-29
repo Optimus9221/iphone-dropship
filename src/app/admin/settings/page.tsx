@@ -11,6 +11,8 @@ type Settings = {
   telegram_link: string;
   privacy_policy: string;
   terms_of_service: string;
+  crypto_wallet_address: string;
+  crypto_network: string;
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -20,6 +22,8 @@ const DEFAULT_SETTINGS: Settings = {
   telegram_link: "https://t.me/iphone_store_ua",
   privacy_policy: "",
   terms_of_service: "",
+  crypto_wallet_address: "",
+  crypto_network: "",
 };
 
 export default function AdminSettingsPage() {
@@ -116,6 +120,44 @@ export default function AdminSettingsPage() {
                 onChange={(e) => setSettings((s) => (s ? { ...s, telegram_link: e.target.value } : { ...DEFAULT_SETTINGS, telegram_link: e.target.value }))}
                 className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
                 placeholder="https://t.me/username або @username"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <h3 className="mb-4 font-medium">{t("adminCryptoSection")}</h3>
+          <p className="mb-4 text-sm text-zinc-500">{t("adminCryptoHint")}</p>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium">{t("adminCryptoWallet")}</label>
+              <input
+                type="text"
+                value={settings?.crypto_wallet_address ?? ""}
+                onChange={(e) =>
+                  setSettings((s) =>
+                    s
+                      ? { ...s, crypto_wallet_address: e.target.value }
+                      : { ...DEFAULT_SETTINGS, crypto_wallet_address: e.target.value }
+                  )
+                }
+                className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 font-mono text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="TXyz..."
+                autoComplete="off"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">{t("adminCryptoNetwork")}</label>
+              <input
+                type="text"
+                value={settings?.crypto_network ?? ""}
+                onChange={(e) =>
+                  setSettings((s) =>
+                    s ? { ...s, crypto_network: e.target.value } : { ...DEFAULT_SETTINGS, crypto_network: e.target.value }
+                  )
+                }
+                className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
+                placeholder="USDT TRC20"
+                autoComplete="off"
               />
             </div>
           </div>

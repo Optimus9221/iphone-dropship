@@ -129,13 +129,44 @@ export async function sendOrderConfirmation(params: {
           <p><strong>Order #${params.orderNumber}</strong></p>
           <p>Items: ${params.items}</p>
           <p>Total: $${params.total}</p>
-          <p>You can track your order status in your <a href="${siteUrl}/dashboard/orders">dashboard</a>.</p>
+          <p>After we review your order, we will send an email with instructions to pay in cryptocurrency. You will find the wallet address and network in your account under Orders.</p>
+          <p>You can track your order in your <a href="${siteUrl}/dashboard/orders">dashboard</a>.</p>
           <p>— ${SITE_NAME}</p>
         </div>
       `,
     });
   } catch (e) {
     logResendFailure("order-confirmation", e);
+  }
+}
+
+/** Sent when admin sets order to AWAITING_PAYMENT — asks customer to open site for crypto details */
+export async function sendAwaitingPaymentEmail(params: {
+  to: string;
+  orderNumber: string;
+  locale?: string;
+}) {
+  if (!resend) return;
+  const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl();
+  const dashboardUrl = `${siteUrl}/dashboard/orders`;
+  const loc = params.locale ?? "en";
+  const subject =
+    loc === "ru"
+      ? `Оплатите заказ #${params.orderNumber} — ${SITE_NAME}`
+      : loc === "uk"
+        ? `Оплатіть замовлення #${params.orderNumber} — ${SITE_NAME}`
+        : `Complete payment for order #${params.orderNumber} — ${SITE_NAME}`;
+  const html =
+    loc === "ru"
+      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Заказ <strong>#${params.orderNumber}</strong> подтверждён. Перейдите в личный кабинет, чтобы увидеть адрес кошелька и сеть для оплаты в криптовалюте.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+      : loc === "uk"
+        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Перейдіть у особистий кабінет, щоб побачити адресу гаманця та мережу для оплати криптовалютою.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Sign in to your account to see the crypto wallet address and network for payment.</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
+  try {
+    await resend.emails.send({ from, to: params.to, subject, html });
+  } catch (e) {
+    logResendFailure("awaiting-payment", e);
   }
 }
 
@@ -152,6 +183,7 @@ export async function sendOrderStatusUpdate(params: {
   try {
     const statusLabels: Record<string, string> = {
       NEW: "New",
+      AWAITING_PAYMENT: "Awaiting payment",
       PAID: "Paid",
       PROCESSING: "Processing",
       SHIPPED: "Shipped",

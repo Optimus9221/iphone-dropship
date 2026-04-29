@@ -173,6 +173,16 @@ A16 Bionic
     update: { value: "https://t.me/iphone_store_ua" },
     create: { key: "telegram_link", value: "https://t.me/iphone_store_ua" },
   });
+  await prisma.systemSetting.upsert({
+    where: { key: "crypto_wallet_address" },
+    update: { value: "" },
+    create: { key: "crypto_wallet_address", value: "" },
+  });
+  await prisma.systemSetting.upsert({
+    where: { key: "crypto_network" },
+    update: { value: "" },
+    create: { key: "crypto_network", value: "" },
+  });
 
   console.log("Seed complete");
 }

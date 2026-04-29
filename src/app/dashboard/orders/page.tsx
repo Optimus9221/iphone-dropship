@@ -16,11 +16,13 @@ type Order = {
   imei: string | null;
   createdAt: string;
   deliveredAt: string | null;
+  paymentInstructions: { network: string; address: string } | null;
   items: Array<{ productName: string; productSlug: string; quantity: number; price: number }>;
 };
 
 const STATUS_KEYS: Record<string, string> = {
   NEW: "status_NEW",
+  AWAITING_PAYMENT: "status_AWAITING_PAYMENT",
   PAID: "status_PAID",
   PROCESSING: "status_PROCESSING",
   SHIPPED: "status_SHIPPED",
@@ -31,7 +33,7 @@ const STATUS_KEYS: Record<string, string> = {
 
 export default function OrdersPage() {
   const { t } = useI18n();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -137,12 +139,33 @@ export default function OrdersPage() {
                       IMEI: {order.imei}
                     </p>
                   )}
+                  {order.status === "AWAITING_PAYMENT" && order.paymentInstructions && (
+                    <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-950/40 p-4">
+                      <p className="text-sm font-semibold text-amber-100">{t("paymentCryptoTitle")}</p>
+                      {!order.paymentInstructions.address && !order.paymentInstructions.network ? (
+                        <p className="mt-2 text-sm text-amber-200/90">{t("paymentCryptoMissing")}</p>
+                      ) : (
+                        <dl className="mt-3 space-y-2 text-sm">
+                          <div>
+                            <dt className="text-slate-500">{t("paymentCryptoNetwork")}</dt>
+                            <dd className="font-medium text-white">{order.paymentInstructions.network || "—"}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-slate-500">{t("paymentCryptoAddress")}</dt>
+                            <dd className="break-all font-mono text-xs text-emerald-300">{order.paymentInstructions.address || "—"}</dd>
+                          </div>
+                        </dl>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <span
                   className={`inline-flex self-start rounded-full px-3 py-1 text-sm font-medium ${
                     order.status === "DELIVERED"
                       ? "bg-emerald-500/20 text-emerald-300"
-                      : order.status === "CANCELLED" || order.status === "REFUNDED"
+                      : order.status === "AWAITING_PAYMENT"
+                        ? "bg-amber-500/20 text-amber-200"
+                        : order.status === "CANCELLED" || order.status === "REFUNDED"
                         ? "bg-red-500/20 text-red-300"
                         : "bg-white/10 text-slate-300"
                   }`}

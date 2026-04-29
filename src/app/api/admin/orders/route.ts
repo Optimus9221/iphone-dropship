@@ -41,6 +41,8 @@ export async function GET() {
       shippingPhone: o.shippingPhone,
       shippingEmail: o.shippingEmail,
       comment: o.comment,
+      paymentWalletAddress: o.paymentWalletAddress,
+      paymentNetwork: o.paymentNetwork,
       user: o.user,
       items: o.items.map((i) => ({
         productName: i.product.name,

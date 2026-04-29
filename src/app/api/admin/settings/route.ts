@@ -17,7 +17,7 @@ async function requireAdmin() {
 export async function GET() {
   try {
     await requireAdmin();
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -31,6 +31,8 @@ export async function GET() {
           "telegram_link",
           "privacy_policy",
           "terms_of_service",
+          "crypto_wallet_address",
+          "crypto_network",
         ],
       },
     },
@@ -46,6 +48,8 @@ export async function GET() {
     telegram_link: map.telegram_link ?? "https://t.me/iphone_store_ua",
     privacy_policy: map.privacy_policy ?? "",
     terms_of_service: map.terms_of_service ?? "",
+    crypto_wallet_address: map.crypto_wallet_address ?? "",
+    crypto_network: map.crypto_network ?? "",
   });
 }
 
@@ -56,12 +60,14 @@ const updateSchema = z.object({
   telegram_link: z.string().optional(),
   privacy_policy: z.string().optional(),
   terms_of_service: z.string().optional(),
+  crypto_wallet_address: z.string().optional(),
+  crypto_network: z.string().optional(),
 });
 
 export async function PATCH(req: Request) {
   try {
     await requireAdmin();
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

@@ -164,6 +164,10 @@ model Order {
   // Free iPhone bonus (20 referrals)
   isFreeiPhoneBonus Boolean  @default(false) @map("is_free_iphone_bonus")
 
+  // Crypto payment (optional per-order override; defaults from SystemSetting)
+  paymentWalletAddress String? @map("payment_wallet_address")
+  paymentNetwork       String? @map("payment_network")
+
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
@@ -193,6 +197,7 @@ model OrderItem {
 
 enum OrderStatus {
   NEW
+  AWAITING_PAYMENT // Admin confirmed; customer pays crypto — details on site
   PAID
   PROCESSING
   SHIPPED

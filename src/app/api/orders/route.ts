@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { createOrder } from "@/lib/orders";
 import { sendOrderConfirmation } from "@/lib/email";
+import { getCryptoPaymentDefaults } from "@/lib/payment-settings";
 import { z } from "zod";
 
 const createSchema = z.object({
@@ -22,13 +23,16 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const orders = await prisma.order.findMany({
-    where: { userId: session.user.id },
-    include: {
-      items: { include: { product: { select: { name: true, slug: true } } } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [orders, cryptoDefaults] = await Promise.all([
+    prisma.order.findMany({
+      where: { userId: session.user.id },
+      include: {
+        items: { include: { product: { select: { name: true, slug: true } } } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    getCryptoPaymentDefaults(),
+  ]);
 
   return NextResponse.json(
     orders.map((o) => ({
@@ -40,6 +44,13 @@ export async function GET() {
       imei: o.imei,
       createdAt: o.createdAt,
       deliveredAt: o.deliveredAt,
+      paymentInstructions:
+        o.status === "AWAITING_PAYMENT"
+          ? {
+              network: (o.paymentNetwork?.trim() || cryptoDefaults.network).trim(),
+              address: (o.paymentWalletAddress?.trim() || cryptoDefaults.walletAddress).trim(),
+            }
+          : null,
       items: o.items.map((i) => ({
         productName: i.product.name,
         productSlug: i.product.slug,

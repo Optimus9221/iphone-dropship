@@ -18,14 +18,26 @@ type Order = {
   shippingPhone: string;
   shippingEmail: string;
   comment: string | null;
+  paymentWalletAddress: string | null;
+  paymentNetwork: string | null;
   user: { email: string | null; name: string | null; phone: string | null };
   items: Array<{ productName: string; quantity: number; price: number }>;
 };
 
-const STATUS_OPTIONS = ["NEW", "PAID", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"] as const;
+const STATUS_OPTIONS = [
+  "NEW",
+  "AWAITING_PAYMENT",
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+  "CANCELLED",
+  "REFUNDED",
+] as const;
 
 const STATUS_KEYS: Record<string, string> = {
   NEW: "status_NEW",
+  AWAITING_PAYMENT: "status_AWAITING_PAYMENT",
   PAID: "status_PAID",
   PROCESSING: "status_PROCESSING",
   SHIPPED: "status_SHIPPED",
@@ -39,7 +51,15 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-  const [editing, setEditing] = useState<Record<string, { status: string; trackingNumber: string; imei: string }>>({});
+  const [editing, setEditing] = useState<
+    Record<string, {
+      status: string;
+      trackingNumber: string;
+      imei: string;
+      paymentWalletAddress: string;
+      paymentNetwork: string;
+    }>
+  >({});
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,6 +82,8 @@ export default function AdminOrdersPage() {
           status: ed.status,
           trackingNumber: ed.trackingNumber || undefined,
           imei: ed.imei || undefined,
+          paymentWalletAddress: ed.paymentWalletAddress.trim() || undefined,
+          paymentNetwork: ed.paymentNetwork.trim() || undefined,
         }),
       });
       if (res.ok) {
@@ -74,6 +96,8 @@ export default function AdminOrdersPage() {
                   status: updated.status,
                   trackingNumber: updated.trackingNumber ?? o.trackingNumber,
                   imei: updated.imei ?? o.imei,
+                  paymentWalletAddress: updated.paymentWalletAddress ?? o.paymentWalletAddress,
+                  paymentNetwork: updated.paymentNetwork ?? o.paymentNetwork,
                   deliveredAt: updated.deliveredAt ? new Date(updated.deliveredAt).toISOString() : o.deliveredAt,
                 }
               : o
@@ -90,7 +114,11 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const setEdit = (orderId: string, field: "status" | "trackingNumber" | "imei", value: string) => {
+  const setEdit = (
+    orderId: string,
+    field: "status" | "trackingNumber" | "imei" | "paymentWalletAddress" | "paymentNetwork",
+    value: string
+  ) => {
     const order = orders.find((o) => o.id === orderId);
     setEditing((prev) => ({
       ...prev,
@@ -98,6 +126,8 @@ export default function AdminOrdersPage() {
         status: prev[orderId]?.status ?? order?.status ?? "NEW",
         trackingNumber: prev[orderId]?.trackingNumber ?? order?.trackingNumber ?? "",
         imei: prev[orderId]?.imei ?? order?.imei ?? "",
+        paymentWalletAddress: prev[orderId]?.paymentWalletAddress ?? order?.paymentWalletAddress ?? "",
+        paymentNetwork: prev[orderId]?.paymentNetwork ?? order?.paymentNetwork ?? "",
         [field]: value,
       },
     }));
@@ -142,11 +172,15 @@ export default function AdminOrdersPage() {
                   status: o.status,
                   trackingNumber: o.trackingNumber ?? "",
                   imei: o.imei ?? "",
+                  paymentWalletAddress: o.paymentWalletAddress ?? "",
+                  paymentNetwork: o.paymentNetwork ?? "",
                 };
                 const hasChanges =
                   ed.status !== o.status ||
                   (ed.trackingNumber || "") !== (o.trackingNumber ?? "") ||
-                  (ed.imei || "") !== (o.imei ?? "");
+                  (ed.imei || "") !== (o.imei ?? "") ||
+                  (ed.paymentWalletAddress || "") !== (o.paymentWalletAddress ?? "") ||
+                  (ed.paymentNetwork || "") !== (o.paymentNetwork ?? "");
                 return (
                   <Fragment key={o.id}>
                     <tr className="border-b border-zinc-100 dark:border-zinc-800">
@@ -232,6 +266,34 @@ export default function AdminOrdersPage() {
                             {o.comment && (
                               <p className="sm:col-span-2"><span className="text-zinc-500">{t("comment")}:</span> {o.comment}</p>
                             )}
+                            <div className="sm:col-span-2 mt-3 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                              <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{t("adminCryptoSection")}</p>
+                              <p className="mt-2 text-xs text-zinc-500">{t("adminCryptoHint")}</p>
+                              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                                <label className="block">
+                                  <span className="text-xs text-zinc-500">{t("adminCryptoWallet")}</span>
+                                  <input
+                                    type="text"
+                                    value={ed.paymentWalletAddress}
+                                    onChange={(e) => setEdit(o.id, "paymentWalletAddress", e.target.value)}
+                                    className="mt-0.5 w-full rounded border border-zinc-300 bg-white px-2 py-1 text-sm font-mono dark:border-zinc-600 dark:bg-zinc-900"
+                                    placeholder="TXyz..."
+                                    autoComplete="off"
+                                  />
+                                </label>
+                                <label className="block">
+                                  <span className="text-xs text-zinc-500">{t("adminCryptoNetwork")}</span>
+                                  <input
+                                    type="text"
+                                    value={ed.paymentNetwork}
+                                    onChange={(e) => setEdit(o.id, "paymentNetwork", e.target.value)}
+                                    className="mt-0.5 w-full rounded border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-900"
+                                    placeholder="USDT TRC20"
+                                    autoComplete="off"
+                                  />
+                                </label>
+                              </div>
+                            </div>
                           </div>
                         </td>
                       </tr>
