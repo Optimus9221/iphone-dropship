@@ -121,7 +121,7 @@ export default function AdminUsersPage() {
         <p className="mt-8 text-zinc-500">{t("adminNoUsers")}</p>
       ) : (
         <div className="mt-8 overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full min-w-[960px] border-collapse">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-700">
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserEmail")}</th>
@@ -131,7 +131,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserOrders")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium min-w-[140px]">{t("adminUserProgress")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserJoined")}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">{t("adminActions")}</th>
+                <th className="min-w-[10rem] px-4 py-3 text-left text-sm font-medium">{t("adminActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -189,12 +189,12 @@ export default function AdminUsersPage() {
                   <td className="px-4 py-3 text-sm text-zinc-500">
                     {new Date(u.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
+                  <td className="min-w-[10rem] px-4 py-3 align-top">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1">
                       <button
                         type="button"
                         onClick={() => openEdit(u)}
-                        className="text-sm text-emerald-600 hover:underline"
+                        className="shrink-0 whitespace-nowrap text-sm text-emerald-600 hover:underline"
                       >
                         {t("adminEdit")}
                       </button>
@@ -202,7 +202,7 @@ export default function AdminUsersPage() {
                         <button
                           type="button"
                           onClick={() => handleBlock(u.id, !u.isBlocked)}
-                          className={`text-sm hover:underline ${
+                          className={`shrink-0 whitespace-nowrap text-sm hover:underline ${
                             u.isBlocked ? "text-emerald-600" : "text-red-600"
                           }`}
                         >
@@ -214,7 +214,7 @@ export default function AdminUsersPage() {
                           type="button"
                           disabled={deletingId === u.id}
                           onClick={() => handleDeleteUser(u)}
-                          className="text-sm text-red-700 hover:underline disabled:opacity-50 dark:text-red-400"
+                          className="shrink-0 whitespace-nowrap text-sm text-red-700 hover:underline disabled:opacity-50 dark:text-red-400"
                         >
                           {deletingId === u.id ? "…" : t("adminUserDelete")}
                         </button>
