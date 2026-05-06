@@ -28,6 +28,7 @@ export default function AdminUsersPage() {
   const [editing, setEditing] = useState<User | null>(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "", role: "USER" as "USER" | "ADMIN" });
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = () => {
     fetch("/api/admin/users")
@@ -73,6 +74,34 @@ export default function AdminUsersPage() {
       body: JSON.stringify({ isBlocked }),
     });
     if (res.ok) load();
+  };
+
+  const handleDeleteUser = async (u: User) => {
+    if (u.emailVerified || u.role === "ADMIN") return;
+    const emailLabel = u.email ?? "";
+    if (!confirm(t("adminDeleteUserConfirm", { email: emailLabel }))) return;
+
+    setDeletingId(u.id);
+    try {
+      const res = await fetch(`/api/admin/users/${u.id}`, { method: "DELETE" });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (res.ok) {
+        toast(t("adminUserDeleted"));
+        load();
+        return;
+      }
+      const code = typeof data.error === "string" ? data.error : "";
+      const messages: Record<string, string> = {
+        ONLY_UNVERIFIED: t("adminErrDeleteOnlyUnverified"),
+        CANNOT_DELETE_ADMIN: t("adminErrDeleteAdmin"),
+        CANNOT_DELETE_SELF: t("adminErrDeleteSelf"),
+        DELETE_FAILED: t("adminErrDeleteFailed"),
+        NOT_FOUND: t("adminErrDeleteFailed"),
+      };
+      toast(messages[code] ?? t("adminErrDeleteFailed"));
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   if (loading) {
@@ -178,6 +207,16 @@ export default function AdminUsersPage() {
                           }`}
                         >
                           {u.isBlocked ? t("adminUnblock") : t("adminBlock")}
+                        </button>
+                      )}
+                      {!u.emailVerified && u.role !== "ADMIN" && (
+                        <button
+                          type="button"
+                          disabled={deletingId === u.id}
+                          onClick={() => handleDeleteUser(u)}
+                          className="text-sm text-red-700 hover:underline disabled:opacity-50 dark:text-red-400"
+                        >
+                          {deletingId === u.id ? "…" : t("adminUserDelete")}
                         </button>
                       )}
                     </div>

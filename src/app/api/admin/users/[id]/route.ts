@@ -2,17 +2,8 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { deleteUserCompletely } from "@/lib/delete-user-completely";
 import { z } from "zod";
-
-async function requireAdmin() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) throw new Error("Unauthorized");
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
-  if (user?.role !== "ADMIN") throw new Error("Forbidden");
-}
 
 const updateSchema = z.object({
   isBlocked: z.boolean().optional(),
@@ -83,6 +74,53 @@ export async function PATCH(
     where: { id },
     data,
   });
+
+  return NextResponse.json({ ok: true });
+}
+
+/** Only unverified non-admin users (not yourself). Cascades orders and related data. */
+export async function DELETE(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const adminUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+  if (adminUser?.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await params;
+  if (id === session.user.id) {
+    return NextResponse.json({ error: "CANNOT_DELETE_SELF" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { emailVerified: true, role: true },
+  });
+  if (!user) {
+    return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  }
+  if (user.role === "ADMIN") {
+    return NextResponse.json({ error: "CANNOT_DELETE_ADMIN" }, { status: 400 });
+  }
+  if (user.emailVerified) {
+    return NextResponse.json({ error: "ONLY_UNVERIFIED" }, { status: 400 });
+  }
+
+  try {
+    await deleteUserCompletely(prisma, id);
+  } catch (e) {
+    console.error("admin delete user:", e);
+    return NextResponse.json({ error: "DELETE_FAILED" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }
