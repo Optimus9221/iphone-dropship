@@ -13,6 +13,7 @@ type User = {
   phone: string | null;
   role: string;
   isBlocked: boolean;
+  emailVerified: boolean;
   createdAt: string;
   ordersCount: number;
   qualifiedReferrals: number;
@@ -97,6 +98,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserEmail")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserName")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserRole")}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserVerified")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserOrders")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium min-w-[140px]">{t("adminUserProgress")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserJoined")}</th>
@@ -115,6 +117,17 @@ export default function AdminUsersPage() {
                       }`}
                     >
                       {u.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs ${
+                        u.emailVerified
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-500/15 text-amber-800 dark:text-amber-400"
+                      }`}
+                    >
+                      {u.emailVerified ? t("adminEmailVerifiedYes") : t("adminEmailVerifiedNo")}
                     </span>
                   </td>
                   <td className="px-4 py-3">{u.ordersCount}</td>

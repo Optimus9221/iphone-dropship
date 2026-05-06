@@ -3,7 +3,7 @@
  * Set RESEND_API_KEY and (on production) EMAIL_FROM to an address on a domain verified in Resend.
  */
 
-import { Resend } from "resend";
+import { Resend, type CreateEmailOptions } from "resend";
 import { getPublicSiteUrl } from "@/lib/public-url";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
@@ -47,7 +47,26 @@ function logResendFailure(op: string, err: unknown): void {
   }
 }
 
-/** @returns true if the message was handed to Resend */
+/**
+ * Resend's client resolves with `{ data, error }` — it does not throw on HTTP/API errors.
+ * Without checking `error`, callers falsely assume the email was sent.
+ */
+async function resendSend(op: string, payload: CreateEmailOptions): Promise<boolean> {
+  if (!resend) return false;
+  try {
+    const result = await resend.emails.send(payload);
+    if (result.error) {
+      logResendFailure(op, result.error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    logResendFailure(op, e);
+    return false;
+  }
+}
+
+/** @returns true if Resend accepted the message */
 export async function sendEmailVerificationCode(params: {
   to: string;
   code: string;
@@ -67,18 +86,12 @@ export async function sendEmailVerificationCode(params: {
       : params.locale === "uk"
         ? `<p>Ваш код підтвердження email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>Код дійсний 30 хвилин. Якщо ви не реєструвалися, ігноруйте лист.</p>`
         : `<p>Your email verification code:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>This code expires in 30 minutes. If you did not sign up, ignore this email.</p>`;
-  try {
-    await resend.emails.send({
-      from,
-      to: params.to,
-      subject,
-      html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
-    });
-    return true;
-  } catch (e) {
-    logResendFailure("verification", e);
-    return false;
-  }
+  return resendSend("verification", {
+    from,
+    to: params.to,
+    subject,
+    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+  });
 }
 
 export async function sendPasswordResetEmail(params: { to: string; resetLink: string; locale?: string }) {
@@ -96,16 +109,12 @@ export async function sendPasswordResetEmail(params: { to: string; resetLink: st
       : params.locale === "uk"
         ? `<p>Перейдіть за посиланням, щоб встановити новий пароль:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Посилання дійсне 1 годину.</p>`
         : `<p>Click the link to set a new password:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Link expires in 1 hour.</p>`;
-  try {
-    await resend.emails.send({
-      from,
-      to: params.to,
-      subject,
-      html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
-    });
-  } catch (e) {
-    logResendFailure("password-reset", e);
-  }
+  await resendSend("password-reset", {
+    from,
+    to: params.to,
+    subject,
+    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+  });
 }
 
 export async function sendOrderConfirmation(params: {
@@ -117,12 +126,11 @@ export async function sendOrderConfirmation(params: {
   if (!resend) return;
   const from = getResendFrom();
   const siteUrl = getPublicSiteUrl();
-  try {
-    await resend.emails.send({
-      from,
-      to: params.to,
-      subject: `Order #${params.orderNumber} confirmed — ${SITE_NAME}`,
-      html: `
+  await resendSend("order-confirmation", {
+    from,
+    to: params.to,
+    subject: `Order #${params.orderNumber} confirmed — ${SITE_NAME}`,
+    html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2>Order confirmed</h2>
           <p>Thank you for your order!</p>
@@ -134,10 +142,7 @@ export async function sendOrderConfirmation(params: {
           <p>— ${SITE_NAME}</p>
         </div>
       `,
-    });
-  } catch (e) {
-    logResendFailure("order-confirmation", e);
-  }
+  });
 }
 
 /** Sent when admin sets order to AWAITING_PAYMENT — asks customer to open site for crypto details */
@@ -171,11 +176,7 @@ export async function sendAwaitingPaymentEmail(params: {
       : loc === "uk"
         ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Натисніть кнопку нижче — відкриється сторінка з адресою гаманця, мережею та формою для скрина переказу.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">Якщо кнопка не працює, скопіюйте посилання:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>Після переказу додайте скрін та натисніть «Оплатив».</p><p>— ${SITE_NAME}</p></div>`
         : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Use the button below to open the payment page — wallet address, network, and the upload form for your transaction screenshot.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">If the button does not work, copy this link:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>After you send the transfer, upload a screenshot and click “Paid”.</p><p>— ${SITE_NAME}</p></div>`;
-  try {
-    await resend.emails.send({ from, to: params.to, subject, html });
-  } catch (e) {
-    logResendFailure("awaiting-payment", e);
-  }
+  await resendSend("awaiting-payment", { from, to: params.to, subject, html });
 }
 
 /** Customer confirmation after uploading transaction screenshot */
@@ -202,11 +203,7 @@ export async function sendPaymentProofSubmittedEmail(params: {
       : loc === "uk"
         ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Ми отримали скрін транзакції для замовлення <strong>#${params.orderNumber}</strong>. Після перевірки статус оновиться — слідкуйте в особистому кабінеті.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`
         : `<div style="font-family: sans-serif; max-width: 480px;"><p>We received your transaction screenshot for order <strong>#${params.orderNumber}</strong>. We will verify it and update your order status — check your dashboard.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
-  try {
-    await resend.emails.send({ from, to: params.to, subject, html });
-  } catch (e) {
-    logResendFailure("payment-proof-submitted", e);
-  }
+  await resendSend("payment-proof-submitted", { from, to: params.to, subject, html });
 }
 
 function escapeHtml(s: string): string {
@@ -270,11 +267,7 @@ export async function sendAdminPaymentProofReceivedNotification(params: {
 </div>`;
 
   for (const to of recipients) {
-    try {
-      await resend.emails.send({ from, to, subject, html });
-    } catch (e) {
-      logResendFailure("admin-payment-proof", e);
-    }
+    await resendSend("admin-payment-proof", { from, to, subject, html });
   }
 }
 
@@ -345,11 +338,7 @@ export async function sendOrderStatusUpdate(params: {
           <p style="margin-top:16px;">— ${SITE_NAME}</p>
         </div>`;
     }
-    try {
-      await resend.emails.send({ from, to: params.to, subject, html });
-    } catch (e) {
-      logResendFailure("order-status", e);
-    }
+    await resendSend("order-status", { from, to: params.to, subject, html });
     return;
   }
 
@@ -415,19 +404,15 @@ export async function sendOrderStatusUpdate(params: {
   const body =
     `<p>${line}</p>${trackingHtml}${imeiHtml}<p><a href="${ordersLink}">${linkLabel}</a></p><p>— ${SITE_NAME}</p>`;
 
-  try {
-    await resend.emails.send({
-      from,
-      to: params.to,
-      subject,
-      html: `
+  await resendSend("order-status", {
+    from,
+    to: params.to,
+    subject,
+    html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2>${heading}</h2>
           ${body}
         </div>
       `,
-    });
-  } catch (e) {
-    logResendFailure("order-status", e);
-  }
+  });
 }

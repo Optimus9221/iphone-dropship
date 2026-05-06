@@ -38,6 +38,7 @@ export async function GET() {
         phone: u.phone,
         role: u.role,
         isBlocked: u.isBlocked,
+        emailVerified: u.emailVerified,
         createdAt: u.createdAt,
         ordersCount: u._count.orders,
         qualifiedReferrals,
