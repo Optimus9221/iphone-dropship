@@ -1,6 +1,7 @@
 /**
  * Email notifications using Resend
- * Set RESEND_API_KEY and (on production) EMAIL_FROM to an address on a domain verified in Resend.
+ * Set RESEND_API_KEY and EMAIL_FROM to an address on a domain verified in Resend.
+ * On production, EMAIL_FROM must be set — onboarding@resend.dev triggers 403 for most recipients.
  */
 
 import { Resend, type CreateEmailOptions } from "resend";
@@ -11,10 +12,21 @@ const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "PhoneFree";
 
+let warnedMissingEmailFrom = false;
+
 /** Trims accidental whitespace from Vercel — Resend rejects malformed `from`. */
 function getResendFrom(): string {
   const raw = process.env.EMAIL_FROM?.trim();
-  return raw && raw.length > 0 ? raw : "onboarding@resend.dev";
+  if (raw && raw.length > 0) return raw;
+
+  if (process.env.NODE_ENV === "production" && !warnedMissingEmailFrom) {
+    warnedMissingEmailFrom = true;
+    console.error(
+      "[email] EMAIL_FROM is unset in production. Resend test sender onboarding@resend.dev usually returns 403 for arbitrary recipients. Set EMAIL_FROM to an address on your verified domain (e.g. PhoneFree <noreply@phonefree.uk>)."
+    );
+  }
+
+  return "onboarding@resend.dev";
 }
 
 /** Helps debug failed sends in Vercel Logs (domain not verified, invalid from, bad API key). */

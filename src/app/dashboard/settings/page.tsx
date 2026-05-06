@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/context";
 import { useToast } from "@/components/toast/toast-provider";
-import { KeyRound } from "lucide-react";
+import { KeyRound, Trash2 } from "lucide-react";
 
 export default function SettingsPage() {
   const { t } = useI18n();
@@ -17,6 +17,12 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteAgreed, setDeleteAgreed] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +65,44 @@ export default function SettingsPage() {
       setError(t("errorOccurred"));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const userRole = session?.user?.role;
+  const isAdmin = userRole === "ADMIN";
+
+  const handleDeleteAccount = async () => {
+    setDeleteError(null);
+    if (!deleteAgreed || deletePassword.length === 0) return;
+
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/dashboard/account/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: deletePassword }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+
+      if (res.ok) {
+        setShowDeleteModal(false);
+        await signOut({ callbackUrl: "/", redirect: true });
+        return;
+      }
+
+      const msg =
+        data.error === "ADMIN_CANNOT_SELF_DELETE"
+          ? t("deleteProfileAdminBlocked")
+          : data.error === "WRONG_PASSWORD"
+            ? t("deleteProfileWrongPassword")
+            : data.error === "NO_PASSWORD"
+              ? t("deleteProfileNoPassword")
+              : t("deleteProfileFailed");
+      setDeleteError(msg);
+    } catch {
+      setDeleteError(t("deleteProfileFailed"));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -157,6 +201,100 @@ export default function SettingsPage() {
           </button>
         </form>
       </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="mt-8 rounded-2xl border border-red-500/25 bg-red-500/5 p-6 backdrop-blur-md"
+      >
+        <div className="flex items-center gap-2">
+          <Trash2 className="h-5 w-5 text-red-400" />
+          <h2 className="font-semibold text-white">{t("deleteProfileTitle")}</h2>
+        </div>
+        <p className="mt-2 text-sm text-slate-400">{t("deleteProfileDesc")}</p>
+
+        {isAdmin ? (
+          <p className="mt-4 text-sm text-amber-300/90">{t("deleteProfileAdminBlocked")}</p>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setDeletePassword("");
+              setDeleteAgreed(false);
+              setDeleteError(null);
+              setShowDeleteModal(true);
+            }}
+            className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 transition hover:bg-red-500/20"
+          >
+            {t("deleteProfileButton")}
+          </button>
+        )}
+      </motion.div>
+
+      {showDeleteModal && !isAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-profile-title"
+            className="w-full max-w-md rounded-2xl border border-white/15 bg-slate-950 p-6 shadow-xl"
+          >
+            <h3 id="delete-profile-title" className="text-lg font-semibold text-white">
+              {t("deleteProfileModalTitle")}
+            </h3>
+            <p className="mt-2 text-sm text-slate-400">{t("deleteProfileModalIntro")}</p>
+
+            {deleteError && (
+              <p className="mt-3 rounded-lg bg-red-500/15 px-3 py-2 text-sm text-red-300">{deleteError}</p>
+            )}
+
+            <div className="mt-4">
+              <label htmlFor="delete-password" className="block text-sm font-medium text-slate-300">
+                {t("currentPassword")}
+              </label>
+              <input
+                id="delete-password"
+                type="password"
+                autoComplete="current-password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-red-500/50 focus:outline-none"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-slate-300">
+              <input
+                type="checkbox"
+                checked={deleteAgreed}
+                onChange={(e) => setDeleteAgreed(e.target.checked)}
+                className="mt-1 rounded border-white/30 bg-white/10 text-red-600 focus:ring-red-500"
+              />
+              <span>{t("deleteProfileUnderstand")}</span>
+            </label>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={deleting || !deleteAgreed || deletePassword.length === 0}
+                onClick={() => handleDeleteAccount()}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-40"
+              >
+                {deleting ? t("deleteProfileWorking") : t("deleteProfileConfirm")}
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => setShowDeleteModal(false)}
+                className="rounded-lg border border-white/20 px-4 py-2 text-sm text-slate-200 hover:bg-white/5 disabled:opacity-40"
+              >
+                {t("deleteProfileCancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

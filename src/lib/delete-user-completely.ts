@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 /**
- * Removes a user and dependent rows. Caller must enforce auth/business rules (admin-only, etc.).
+ * Removes a user and dependent rows. Caller must enforce auth (admin delete or self-delete, role checks, password).
  * Expects caller to have ensured orders can be removed or absent — this deletes the user's orders first if any.
  */
 export async function deleteUserCompletely(prisma: PrismaClient, userId: string): Promise<void> {
