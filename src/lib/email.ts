@@ -55,7 +55,8 @@ async function resendSend(op: string, payload: CreateEmailOptions): Promise<bool
   if (!resend) return false;
   try {
     const result = await resend.emails.send(payload);
-    if (result.error) {
+    /** Treat any present error payload as failure (SDK uses `null` on success). */
+    if (result.error != null) {
       logResendFailure(op, result.error);
       return false;
     }

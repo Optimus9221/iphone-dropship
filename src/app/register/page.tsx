@@ -56,7 +56,12 @@ function RegisterForm() {
       }),
     });
 
-    const data = await res.json().catch(() => ({}));
+    const data = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      details?: unknown;
+      code?: string;
+      readyToLogin?: boolean;
+    };
 
     if (res.status === 400 && data.details) {
       setError(t("validationError"));
@@ -65,7 +70,7 @@ function RegisterForm() {
     }
 
     if (!res.ok || data.ok !== true) {
-      setError(t("registrationFailed"));
+      setError(data.code === "EMAIL_SEND_FAILED" ? t("emailSendFailed") : t("registrationFailed"));
       setLoading(false);
       return;
     }

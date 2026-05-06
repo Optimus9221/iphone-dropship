@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { issueEmailVerificationCode } from "@/lib/email-verification";
 import type { Locale } from "@/lib/i18n/translations";
@@ -44,16 +45,24 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        name: name.trim(),
-        phone: null,
-        referredById,
-        emailVerified: false,
-      },
-    });
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          email,
+          passwordHash,
+          name: name.trim(),
+          phone: null,
+          referredById,
+          emailVerified: false,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+        return NextResponse.json({ ok: true });
+      }
+      throw e;
+    }
 
     const skipVerification =
       process.env.NODE_ENV !== "production" && !process.env.RESEND_API_KEY;
@@ -67,9 +76,12 @@ export async function POST(req: Request) {
     }
 
     const issued = await issueEmailVerificationCode(user.id, email, locale as Locale | undefined);
+    if (!issued.ok && issued.error === "COOLDOWN") {
+      return NextResponse.json({ ok: true });
+    }
     if (!issued.ok && issued.error === "EMAIL_FAILED") {
       await prisma.user.delete({ where: { id: user.id } });
-      return NextResponse.json({ ok: false }, { status: 503 });
+      return NextResponse.json({ ok: false, code: "EMAIL_SEND_FAILED" }, { status: 503 });
     }
 
     return NextResponse.json({ ok: true });

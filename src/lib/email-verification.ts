@@ -28,8 +28,16 @@ export async function issueEmailVerificationCode(
     return { ok: false, error: "COOLDOWN" };
   }
 
-  await prisma.emailVerificationToken.deleteMany({ where: { userId } });
   const code = generateSixDigitCode();
+  const sent = await sendEmailVerificationCode({ to: email, code, locale });
+  if (!sent) {
+    if (process.env.NODE_ENV === "production") {
+      return { ok: false, error: "EMAIL_FAILED" };
+    }
+    console.info(`[dev] Email verification code for ${email}: ${code}`);
+  }
+
+  await prisma.emailVerificationToken.deleteMany({ where: { userId } });
   const codeHash = await bcrypt.hash(code, 10);
   await prisma.emailVerificationToken.create({
     data: {
@@ -39,13 +47,5 @@ export async function issueEmailVerificationCode(
     },
   });
 
-  const sent = await sendEmailVerificationCode({ to: email, code, locale });
-  if (!sent) {
-    if (process.env.NODE_ENV === "production") {
-      await prisma.emailVerificationToken.deleteMany({ where: { userId } });
-      return { ok: false, error: "EMAIL_FAILED" };
-    }
-    console.info(`[dev] Email verification code for ${email}: ${code}`);
-  }
   return { ok: true };
 }
