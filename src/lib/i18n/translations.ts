@@ -160,6 +160,11 @@ export const translations = {
     viewReferrals: "View referrals",
     cashbackHistory: "Cashback history",
     myOrders: "My orders",
+    ordersLoginRequiredTitle: "Sign in required",
+    ordersLoginRequiredHint:
+      "You are not signed in. Sign in with the email used for your account to view orders and payment details.",
+    ordersLoginPaymentLinkHint:
+      "You opened an order or payment link from email. Sign in with the same email you used when placing the order — then you will see payment instructions and can upload a screenshot.",
     dashboardSettings: "Settings",
     dashboardSettingsDesc: "Account and security settings",
     changePassword: "Change password",
@@ -612,6 +617,11 @@ export const translations = {
     viewReferrals: "Мои рефералы",
     cashbackHistory: "История кэшбэка",
     myOrders: "Мои заказы",
+    ordersLoginRequiredTitle: "Нужен вход",
+    ordersLoginRequiredHint:
+      "Вы не вошли в аккаунт. Войдите с тем email, который использовали при регистрации, чтобы видеть заказы и реквизиты оплаты.",
+    ordersLoginPaymentLinkHint:
+      "Вы перешли по ссылке из письма. Войдите с тем же email, что при оформлении заказа — откроются реквизиты оплаты и форма для скриншота перевода.",
     dashboardSettings: "Настройки",
     dashboardSettingsDesc: "Настройки аккаунта и безопасности",
     changePassword: "Сменить пароль",
@@ -1060,6 +1070,11 @@ export const translations = {
     viewReferrals: "Мої реферали",
     cashbackHistory: "Історія кешбеку",
     myOrders: "Мої замовлення",
+    ordersLoginRequiredTitle: "Потрібно увійти",
+    ordersLoginRequiredHint:
+      "Ви не увійшли в акаунт. Увійдіть з тим email, який використовували при реєстрації, щоб бачити замовлення та реквізити оплати.",
+    ordersLoginPaymentLinkHint:
+      "Ви перейшли за посиланням з листа. Увійдіть з тим же email, що й при оформленні замовлення — з’являться реквізити оплати та форма для скрина переказу.",
     dashboardSettings: "Налаштування",
     dashboardSettingsDesc: "Налаштування облікового запису та безпеки",
     changePassword: "Змінити пароль",

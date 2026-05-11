@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Package } from "lucide-react";
@@ -123,6 +123,7 @@ function OrdersLoadingFallback() {
 function OrdersPageInner() {
   const { t } = useI18n();
   const { status } = useSession();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const payOrderId = searchParams.get("pay");
   const [orders, setOrders] = useState<Order[]>([]);
@@ -131,18 +132,37 @@ function OrdersPageInner() {
   const reloadOrders = useCallback(() => {
     fetch("/api/orders")
       .then((r) => r.json())
-      .then(setOrders)
+      .then((raw) => {
+        setOrders(Array.isArray(raw) ? raw : []);
+      })
       .catch(() => []);
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetch("/api/orders")
-        .then((r) => r.json())
-        .then(setOrders)
-        .catch(() => [])
-        .finally(() => setLoading(false));
+    if (status === "loading") return;
+
+    if (status === "unauthenticated") {
+      setLoading(false);
+      return;
     }
+
+    let cancelled = false;
+    setLoading(true);
+    fetch("/api/orders")
+      .then((r) => r.json())
+      .then((raw) => {
+        if (!cancelled) setOrders(Array.isArray(raw) ? raw : []);
+      })
+      .catch(() => {
+        if (!cancelled) setOrders([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [status]);
 
   useEffect(() => {
@@ -156,31 +176,64 @@ function OrdersPageInner() {
     return () => window.clearTimeout(tid);
   }, [payOrderId, loading, orders]);
 
-  if (status === "loading" || loading) {
+  const ordersSkeleton = (
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+        {t("backToDashboard")}
+      </Link>
+      <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
+      <div className="mt-8 space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 animate-pulse rounded-2xl bg-white/5" />
+        ))}
+      </div>
+    </div>
+  );
+
+  if (status === "loading") {
+    return ordersSkeleton;
+  }
+
+  if (status !== "authenticated") {
+    const qs = searchParams.toString();
+    const returnPath = `${pathname}${qs ? `?${qs}` : ""}`;
+    const loginHref = `/login?callbackUrl=${encodeURIComponent(returnPath)}`;
+
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
           {t("backToDashboard")}
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
-        <div className="mt-8 space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl bg-white/5" />
-          ))}
-        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-8 rounded-2xl border border-amber-500/30 bg-amber-950/25 p-6 backdrop-blur-md sm:p-8"
+        >
+          <p className="text-lg font-semibold text-amber-50">{t("ordersLoginRequiredTitle")}</p>
+          <p className="mt-3 text-sm leading-relaxed text-amber-100/90">
+            {payOrderId ? t("ordersLoginPaymentLinkHint") : t("ordersLoginRequiredHint")}
+          </p>
+          <Link
+            href={loginHref}
+            className="mt-6 inline-flex rounded-full bg-white px-6 py-3 font-semibold text-slate-900 shadow-lg shadow-emerald-500/10 transition hover:bg-slate-100"
+          >
+            {t("signIn")}
+          </Link>
+          <p className="mt-4 text-xs text-slate-500">
+            {t("dontHaveAccount")}{" "}
+            <Link href="/register" className="text-emerald-400 hover:underline">
+              {t("signUp")}
+            </Link>
+          </p>
+        </motion.div>
       </div>
     );
   }
 
-  if (status !== "authenticated") {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-8 text-center sm:px-6 lg:px-8">
-        <p className="text-slate-400">{t("pleaseSignIn")}</p>
-        <Link href="/login" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
-          {t("signIn")}
-        </Link>
-      </div>
-    );
+  if (loading) {
+    return ordersSkeleton;
   }
 
   return (

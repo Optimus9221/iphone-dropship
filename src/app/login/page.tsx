@@ -8,11 +8,19 @@ import { useI18n } from "@/lib/i18n/context";
 import { PhoneBackground } from "@/components/phone-background";
 import { LoadingButton } from "@/components/ui/loading-button";
 
+/** Relative in-app paths only — avoids open redirects via callbackUrl. */
+function sanitizeCallbackUrl(raw: string | null): string {
+  if (!raw || typeof raw !== "string") return "/";
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) return "/";
+  return trimmed;
+}
+
 function LoginForm() {
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const callbackUrl = sanitizeCallbackUrl(searchParams.get("callbackUrl"));
   const verifyError = searchParams.get("error");
   const pendingEmail = searchParams.get("email");
 
