@@ -4,7 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendPaymentProofSubmittedEmail, sendAdminPaymentProofReceivedNotification } from "@/lib/email";
 
-const MAX_BYTES = 2 * 1024 * 1024; // 2 MiB
+const MAX_BYTES = 15 * 1024 * 1024; // 15 MiB
+/** Base64 expands ~4/3; plus `data:<mime>;base64,` prefix */
+const MAX_DATA_URL_LENGTH = 4 * Math.ceil(MAX_BYTES / 3) + 64;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function localeFromRequest(req: Request): string | undefined {
@@ -70,7 +72,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "Image must be at most 2 MB", errorCode: "file_too_large" }, { status: 400 });
+    return NextResponse.json({ error: "Image must be at most 15 MB", errorCode: "file_too_large" }, { status: 400 });
   }
 
   const mime = file.type || "application/octet-stream";
@@ -83,7 +85,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const buf = Buffer.from(await file.arrayBuffer());
   const dataUrl = `data:${mime};base64,${buf.toString("base64")}`;
-  if (dataUrl.length > 3_000_000) {
+  if (dataUrl.length > MAX_DATA_URL_LENGTH) {
     return NextResponse.json({ error: "Image is too large after encoding", errorCode: "file_too_large" }, { status: 400 });
   }
 

@@ -316,7 +316,7 @@ export const translations = {
     paymentCryptoAddress: "Wallet address",
     paymentCryptoMissing: "Payment details are not set yet. Please contact support.",
     paymentProofHint:
-      "After sending crypto, attach a screenshot of the transaction (JPEG, PNG or WebP, max 2 MB) and tap “Paid”.",
+      "After sending crypto, attach a screenshot of the transaction (JPEG, PNG or WebP, max 15 MB) and tap “Paid”.",
     paymentProofScreenshotLabel: "Transaction screenshot",
     paymentPaidButton: "Paid",
     paymentProofSubmitting: "Sending…",
@@ -770,7 +770,7 @@ export const translations = {
     paymentCryptoAddress: "Адрес кошелька",
     paymentCryptoMissing: "Реквизиты ещё не настроены. Свяжитесь с поддержкой.",
     paymentProofHint:
-      "После перевода прикрепите скрин транзакции (JPEG, PNG или WebP, до 2 МБ) и нажмите «Оплатил».",
+      "После перевода прикрепите скрин транзакции (JPEG, PNG или WebP, до 15 МБ) и нажмите «Оплатил».",
     paymentProofScreenshotLabel: "Скрин транзакции",
     paymentPaidButton: "Оплатил",
     paymentProofSubmitting: "Отправка…",
@@ -1223,7 +1223,7 @@ export const translations = {
     paymentCryptoAddress: "Адреса гаманця",
     paymentCryptoMissing: "Реквізити ще не налаштовані. Зв'яжіться з підтримкою.",
     paymentProofHint:
-      "Після переказу додайте скрін транзакції (JPEG, PNG або WebP, до 2 МБ) і натисніть «Оплатив».",
+      "Після переказу додайте скрін транзакції (JPEG, PNG або WebP, до 15 МБ) і натисніть «Оплатив».",
     paymentProofScreenshotLabel: "Скрін транзакції",
     paymentPaidButton: "Оплатив",
     paymentProofSubmitting: "Надсилання…",
