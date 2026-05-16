@@ -70,7 +70,7 @@ export const translations = {
     homePartnerBullet3: "That way, the partnership gives you long-term, stable income.",
     faq1Q: "How does cashback work?",
     faq1A:
-      "You get 3–5% on purchases and 2–5% on referrals. Cashback adds up in your account. You can withdraw accumulated cashback 14 days after your referral buys an iPhone. If you don't withdraw it, you can get a free iPhone.",
+      "You get 3–5% on your own purchases and 5% when your referrals buy (defaults; admins can set different rates per product). Cashback adds up in your account. You can withdraw accumulated cashback 14 days after your referral buys an iPhone. If you don't withdraw it, you can get a free iPhone.",
     faq2Q: "How do I get a free iPhone?",
     faq2A: "Invite 20 friends who buy an iPhone. Each year you can get a free iPhone.",
     faq3Q: "What counts as an active referral?",
@@ -547,7 +547,7 @@ export const translations = {
     homePartnerBullet3: "Таким образом, сотрудничество обеспечивает вам долгосрочный и стабильный доход.",
     faq1Q: "Как работает кэшбэк?",
     faq1A:
-      "Вы получаете 3–5% с покупок и 2–5% с рефералов. Кэшбэк накапливается на счёте. Вывод накопленного кэшбэка доступен через 14 дней после покупки iPhone вашим рефералом. Если не выводите кэшбэк — можете получить бесплатный iPhone.",
+      "Вы получаете 3–5% с собственных покупок и 5% с покупок ваших рефералов (значения по умолчанию; в админке можно задать другие проценты по товару). Кэшбэк накапливается на счёте. Вывод накопленного кэшбэка доступен через 14 дней после покупки iPhone вашим рефералом. Если не выводите кэшбэк — можете получить бесплатный iPhone.",
     faq2Q: "Как получить бесплатный iPhone?",
     faq2A: "Пригласите 20 друзей, которые купят айфон. Каждый год можно получить бесплатный айфон.",
     faq3Q: "Что считается активным рефералом?",
@@ -1016,7 +1016,7 @@ export const translations = {
     homePartnerBullet3: "Таким чином співпраця забезпечує вам довгостроковий і стабільний дохід.",
     faq1Q: "Як працює кешбек?",
     faq1A:
-      "Ви отримуєте 3–5% з покупок та 2–5% з рефералів. Кешбек накопичується на рахунку. Виведення накопиченого кешбеку доступне через 14 днів після покупки iPhone вашим рефералом. Якщо не виводите кешбек — можете отримати безкоштовний iPhone.",
+      "Ви отримуєте 3–5% з власних покупок та 5% з покупок ваших рефералів (за замовчуванням; у адмінці можна інші відсотки на товар). Кешбек накопичується на рахунку. Виведення накопиченого кешбеку доступне через 14 днів після покупки iPhone вашим рефералом. Якщо не виводите кешбек — можете отримати безкоштовний iPhone.",
     faq2Q: "Як отримати безкоштовний iPhone?",
     faq2A: "Запросіть 20 друзів, які куплять айфон. Щороку можна отримати безкоштовний айфон.",
     faq3Q: "Що вважається активним рефералом?",

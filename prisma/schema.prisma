@@ -158,7 +158,7 @@ model ProductCashbackRate {
   id              String   @id @default(cuid())
   productId       String   @map("product_id")
   ownPurchasePercent   Decimal @map("own_purchase_percent") @db.Decimal(5, 2) // 3-5%
-  referralPercent Decimal @map("referral_percent") @db.Decimal(5, 2) // 2-5%
+  referralPercent Decimal @map("referral_percent") @db.Decimal(5, 2) // default 5%; per-product override
   validFrom       DateTime @map("valid_from")
   validTo         DateTime? @map("valid_to") // null = no end
 

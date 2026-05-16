@@ -7,7 +7,7 @@ import { prisma } from "./db";
 
 const CASHBACK_HOLD_DAYS = 14;
 const DEFAULT_OWN_PERCENT = 5;
-const DEFAULT_REFERRAL_PERCENT = 3;
+const DEFAULT_REFERRAL_PERCENT = 5;
 const MIN_WITHDRAWAL = 10;
 
 export async function getCashbackRates(productId: string) {

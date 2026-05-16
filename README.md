@@ -127,7 +127,7 @@ src/
 
 **Free iPhone (20 refs):** Manual verification in admin. User must have 20 referrals who purchased (DELIVERED order) within the last 12 months. Admin reviews list and grants free iPhone (creates $0 order).
 
-Cashback: 3-5% own purchase, 2-5% referral purchase (configurable in admin).
+Cashback: 3-5% own purchase, 5% referral purchase by default (configurable per product in admin).
 
 ## License
 
