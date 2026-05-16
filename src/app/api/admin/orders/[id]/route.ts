@@ -129,6 +129,7 @@ export async function PATCH(
       orderNumber: updated.orderNumber,
       orderId: updated.id,
       locale: localeFromRequest(req),
+      request: req,
     });
   }
 
@@ -146,6 +147,7 @@ export async function PATCH(
       imei: updated.imei,
       orderId: updated.id,
       locale: localeFromRequest(req),
+      request: req,
     });
   }
 

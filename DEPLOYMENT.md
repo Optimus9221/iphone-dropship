@@ -33,6 +33,8 @@
 | **DATABASE_URL** | Подключение к PostgreSQL. Без неё сайт не работает — нет БД. | `postgresql://user:pass@host:5432/db?sslmode=require` |
 | **NEXTAUTH_SECRET** | Секрет для подписи JWT-сессий. Без него авторизация ненадёжна. | Сгенерировать: `openssl rand -base64 32` |
 | **NEXTAUTH_URL** | URL продакшн-сайта. NextAuth использует его для callbacks. | `https://yourdomain.com` |
+| **NEXT_PUBLIC_SITE_URL** | Тот же канонический URL сайта для **ссылок в письмах** (оплата, заказы и т.д.). Если не задать, на Vercel подставится `https://….vercel.app`. | `https://phonefree.uk` |
+| **NEXT_PUBLIC_SITE_URL** | Публичный URL сайта в **ссылках в письмах** (оплата, заказы, сброс пароля). Если не задать, на Vercel в письма попадёт `https://xxx.vercel.app`. Должен совпадать с основным доменом (например `https://phonefree.uk`). | `https://phonefree.uk` |
 | **ADMIN_PASSWORD** | Пароль админа при `npm run db:seed`. Мин. 12 символов. | `YourStr0ng!Pass123` |
 
 ### Почта (для продакшена фактически обязательны)
@@ -41,7 +43,7 @@
 |------------|----------|
 | **RESEND_API_KEY** | Регистрация с подтверждением email (код), сброс пароля, письма по заказам. Без ключа регистрация на проде не завершится отправкой кода. |
 | **EMAIL_FROM** | Адрес отправителя; на проде лучше свой домен, верифицированный в Resend. Локально по умолчанию может использоваться `onboarding@resend.dev`. |
-| **NEXT_PUBLIC_SITE_NAME** | Название сайта в письмах. По умолчанию "PhoneFree". |
+| **NEXT_PUBLIC_SITE_NAME** | Название сайта в письмах. По умолчанию "iPhree". |
 | **NEXT_PUBLIC_SITE_URL** | URL в ссылках писем. По умолчанию localhost. |
 
 ---
@@ -52,9 +54,10 @@
 2. [ ] Добавить `DATABASE_URL` в переменные хостинга
 3. [ ] Сгенерировать и добавить `NEXTAUTH_SECRET`
 4. [ ] Установить `NEXTAUTH_URL` = `https://твой-домен.com`
-5. [ ] Добавить `ADMIN_PASSWORD` (надёжный пароль)
-6. [ ] (Опционально) Добавить `RESEND_API_KEY` для email
-7. [ ] После деплоя: выполнить миграции и seed (см. ниже)
+5. [ ] Установить `NEXT_PUBLIC_SITE_URL` = тот же публичный URL (чтобы в письмах не был `*.vercel.app`)
+6. [ ] Добавить `ADMIN_PASSWORD` (надёжный пароль)
+7. [ ] (Опционально) Добавить `RESEND_API_KEY` для email
+8. [ ] После деплоя: выполнить миграции и seed (см. ниже)
 
 ---
 
@@ -75,3 +78,9 @@
    Убедись, что `ADMIN_PASSWORD` и `DATABASE_URL` заданы в окружении.
 
 Можно вызывать seed из Vercel → Deployments → ... → Redeploy с нужным Build Command, либо локально с `DATABASE_URL` продакшн-БД.
+
+---
+
+## Копия продовой БД на ПК для разработки
+
+Пошагово: **[docs/LOCAL-PROD-DB-DUMP.md](docs/LOCAL-PROD-DB-DUMP.md)** — дамп через `pg_dump`, восстановление в локальный PostgreSQL, скрипты `scripts/pg-dump-prod.ps1` и `scripts/pg-restore-local.ps1`.

@@ -42,8 +42,41 @@ model User {
   reviews        Review[]
   passwordResetTokens PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+  freeIphoneRewardElection FreeIphoneRewardElection?
+  freeIphoneCashWalletVerification FreeIphoneCashWalletVerification?
 
   @@map("users")
+}
+
+// User choice for 20-referral reward: physical iPhone or cash payout (wallet after email verify).
+model FreeIphoneRewardElection {
+  userId              String    @id @map("user_id")
+  iphoneRequestedAt   DateTime? @map("iphone_requested_at")
+  cashWalletAddress   String?   @map("cash_wallet_address")
+  cashWalletNetwork   String?   @map("cash_wallet_network")
+  cashWalletSavedAt   DateTime? @map("cash_wallet_saved_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("free_iphone_reward_elections")
+}
+
+// Pending wallet + email code; election row updated only after successful verification.
+model FreeIphoneCashWalletVerification {
+  id                   String   @id @default(cuid())
+  userId               String   @unique @map("user_id")
+  codeHash             String   @map("code_hash")
+  expiresAt            DateTime @map("expires_at")
+  pendingWalletAddress String   @map("pending_wallet_address")
+  pendingWalletNetwork String   @map("pending_wallet_network")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+  @@map("free_iphone_cash_wallet_verifications")
 }
 
 model EmailVerificationToken {
@@ -164,14 +197,6 @@ model Order {
   // Free iPhone bonus (20 referrals)
   isFreeiPhoneBonus Boolean  @default(false) @map("is_free_iphone_bonus")
 
-  // Crypto payment (optional per-order override; defaults from SystemSetting)
-  paymentWalletAddress String? @map("payment_wallet_address")
-  paymentNetwork       String? @map("payment_network")
-
-  // Customer-uploaded payment screenshot (PNG/JPEG/WebP). Stored as data URL or HTTPS URL.
-  paymentProofUrl         String?   @db.Text @map("payment_proof_url")
-  paymentProofSubmittedAt DateTime? @map("payment_proof_submitted_at")
-
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
@@ -201,8 +226,6 @@ model OrderItem {
 
 enum OrderStatus {
   NEW
-  AWAITING_PAYMENT // Admin confirmed; customer pays crypto — details on site
-  PAYMENT_VERIFICATION_PENDING // Customer uploaded proof — awaiting admin to mark PAID
   PAID
   PROCESSING
   SHIPPED

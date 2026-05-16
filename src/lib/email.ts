@@ -165,10 +165,11 @@ export async function sendAwaitingPaymentEmail(params: {
   /** Opens dashboard orders scrolled to this order (?pay=) */
   orderId: string;
   locale?: string;
+  request?: Request;
 }) {
   if (!resend) return;
   const from = getResendFrom();
-  const siteUrl = getPublicSiteUrl();
+  const siteUrl = getPublicSiteUrl(params.request);
   const paymentPageUrl = `${siteUrl}/dashboard/orders?pay=${encodeURIComponent(params.orderId)}`;
   const loc = params.locale ?? "en";
   const linkLabel =
@@ -198,10 +199,11 @@ export async function sendPaymentProofSubmittedEmail(params: {
   orderNumber: string;
   orderId: string;
   locale?: string;
+  request?: Request;
 }) {
   if (!resend) return;
   const from = getResendFrom();
-  const siteUrl = getPublicSiteUrl();
+  const siteUrl = getPublicSiteUrl(params.request);
   const ordersUrl = `${siteUrl}/dashboard/orders?pay=${encodeURIComponent(params.orderId)}`;
   const loc = params.locale ?? "en";
   const subject =
@@ -293,10 +295,11 @@ export async function sendOrderStatusUpdate(params: {
   /** Used for dashboard deep-link (?pay=) */
   orderId?: string;
   locale?: string;
+  request?: Request;
 }) {
   if (!resend) return;
   const from = getResendFrom();
-  const siteUrl = getPublicSiteUrl().replace(/\/$/, "");
+  const siteUrl = getPublicSiteUrl(params.request).replace(/\/$/, "");
   const ordersLink = params.orderId
     ? `${siteUrl}/dashboard/orders?pay=${encodeURIComponent(params.orderId)}`
     : `${siteUrl}/dashboard/orders`;
@@ -428,4 +431,108 @@ export async function sendOrderStatusUpdate(params: {
         </div>
       `,
   });
+}
+
+function getAdminNotificationRecipients(): string[] {
+  const raw = process.env.ADMIN_NOTIFICATION_EMAIL?.trim();
+  if (!raw || !resend) return [];
+  return raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+/** Customer: 6-digit code to confirm saving crypto wallet for cash alternative to free iPhone. */
+export async function sendFreeIphoneCashWalletVerificationEmail(params: {
+  to: string;
+  code: string;
+  locale: "en" | "ru" | "uk";
+}) {
+  if (!resend) return false;
+  const from = getResendFrom();
+  const loc = params.locale;
+  const subject =
+    loc === "ru"
+      ? `Код подтверждения кошелька — бонус за рефералов — ${SITE_NAME}`
+      : loc === "uk"
+        ? `Код підтвердження гаманця — бонус за рефералів — ${SITE_NAME}`
+        : `Wallet confirmation code — referral bonus — ${SITE_NAME}`;
+  const body =
+    loc === "ru"
+      ? `<p>Введите этот код на сайте, чтобы мы сохранили адрес кошелька для выплаты вместо бесплатного iPhone:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${escapeHtml(params.code)}</p><p>Код действителен 30 минут. Если вы не запрашивали выплату, проигнорируйте письмо.</p>`
+      : loc === "uk"
+        ? `<p>Введіть цей код на сайті, щоб ми зберегли адресу гаманця для виплати замість безкоштовного iPhone:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${escapeHtml(params.code)}</p><p>Код дійсний 30 хвилин. Якщо ви не запитували виплату, ігноруйте лист.</p>`
+        : `<p>Enter this code on the site so we can save your wallet address for the payout instead of a free iPhone:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${escapeHtml(params.code)}</p><p>Code expires in 30 minutes. If you did not request this, ignore this email.</p>`;
+  return resendSend("free-iphone-cash-verify", {
+    from,
+    to: params.to,
+    subject,
+    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+  });
+}
+
+export async function sendAdminFreeIphoneDeviceRequested(params: {
+  userId: string;
+  userEmail: string | null;
+  userName: string | null;
+  referralCode: string;
+  qualifiedReferrals: number;
+}) {
+  const recipients = getAdminNotificationRecipients();
+  if (recipients.length === 0) return;
+  const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl().replace(/\/$/, "");
+  const adminFreeIphoneUrl = `${siteUrl}/admin/free-iphone`;
+  const email = escapeHtml(params.userEmail ?? "—");
+  const name = escapeHtml(params.userName ?? "—");
+  const code = escapeHtml(params.referralCode);
+  const subject = `[${SITE_NAME}] Бесплатный iPhone — пользователь нажал «Получить iPhone»`;
+  const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; line-height: 1.55;">
+  <p>Пользователь подтвердил желание получить бесплатный iPhone по программе 20 рефералов.</p>
+  <ul>
+    <li><strong>User ID:</strong> ${escapeHtml(params.userId)}</li>
+    <li><strong>Email:</strong> ${email}</li>
+    <li><strong>Имя:</strong> ${name}</li>
+    <li><strong>Реферальный код:</strong> ${code}</li>
+    <li><strong>Квалифицированных рефералов (год):</strong> ${params.qualifiedReferrals}</li>
+  </ul>
+  <p><a href="${adminFreeIphoneUrl}">${adminFreeIphoneUrl}</a></p>
+  <p style="color:#737373;font-size:12px;">Автоуведомление.</p>
+</div>`;
+  for (const to of recipients) {
+    await resendSend("admin-free-iphone-device", { from, to, subject, html });
+  }
+}
+
+export async function sendAdminFreeIphoneCashPayoutWalletSaved(params: {
+  userId: string;
+  userEmail: string | null;
+  userName: string | null;
+  walletAddress: string;
+  walletNetwork: string;
+}) {
+  const recipients = getAdminNotificationRecipients();
+  if (recipients.length === 0) return;
+  const from = getResendFrom();
+  const email = escapeHtml(params.userEmail ?? "—");
+  const name = escapeHtml(params.userName ?? "—");
+  const addr = escapeHtml(params.walletAddress);
+  const net = escapeHtml(params.walletNetwork);
+  const subject = `[${SITE_NAME}] Выплата вместо iPhone — кошелёк подтверждён по email`;
+  const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; line-height: 1.55;">
+  <p>Пользователь отказался от бесплатного iPhone и подтвердил по коду на почте адрес для выплаты.</p>
+  <ul>
+    <li><strong>User ID:</strong> ${escapeHtml(params.userId)}</li>
+    <li><strong>Email:</strong> ${email}</li>
+    <li><strong>Имя:</strong> ${name}</li>
+    <li><strong>Сеть:</strong> ${net}</li>
+    <li><strong>Адрес кошелька:</strong> ${addr}</li>
+  </ul>
+  <p style="color:#737373;font-size:12px;">Автоуведомление.</p>
+</div>`;
+  for (const to of recipients) {
+    await resendSend("admin-free-iphone-cash", { from, to, subject, html });
+  }
 }

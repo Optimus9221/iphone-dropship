@@ -5,6 +5,11 @@ import { prisma } from "@/lib/db";
 import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount, getLastFreeiPhoneDeliveredAt } from "@/lib/referral";
 import { processAvailableCashback } from "@/lib/cashback";
 import { getPublicSiteUrl } from "@/lib/public-url";
+import {
+  getFreeIphoneClaimUiState,
+  canRequestFreeIphoneDevice,
+  canStartCashAlternative,
+} from "@/lib/free-iphone-reward";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -16,20 +21,28 @@ export async function GET(req: Request) {
 
   await processAvailableCashback();
 
-  const [referralStats, code, cashbackAgg, available, qualifiedForFreeiPhone, lastFreeiPhoneAt] = await Promise.all([
-    getReferralStats(userId),
-    getOrCreateReferralCode(userId),
-    prisma.cashbackEntry.aggregate({
-      where: { userId },
-      _sum: { amount: true },
-    }),
-    prisma.cashbackEntry.aggregate({
-      where: { userId, status: "AVAILABLE" },
-      _sum: { amount: true },
-    }),
-    getFreeiPhoneQualifiedReferralsCount(userId),
-    getLastFreeiPhoneDeliveredAt(userId),
-  ]);
+  const [referralStats, code, cashbackAgg, available, qualifiedForFreeiPhone, lastFreeiPhoneAt, claimState, userFlags] =
+    await Promise.all([
+      getReferralStats(userId),
+      getOrCreateReferralCode(userId),
+      prisma.cashbackEntry.aggregate({
+        where: { userId },
+        _sum: { amount: true },
+      }),
+      prisma.cashbackEntry.aggregate({
+        where: { userId, status: "AVAILABLE" },
+        _sum: { amount: true },
+      }),
+      getFreeiPhoneQualifiedReferralsCount(userId),
+      getLastFreeiPhoneDeliveredAt(userId),
+      getFreeIphoneClaimUiState(userId),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { emailVerified: true, email: true },
+      }),
+    ]);
+
+  const canClaimFreeIphone = claimState.canClaim;
 
   const baseUrl = getPublicSiteUrl(req);
   const referralUrl = `${baseUrl}/ref/${code}`;
@@ -42,5 +55,13 @@ export async function GET(req: Request) {
     referralUrl,
     qualifiedForFreeiPhone,
     lastFreeiPhoneAt: lastFreeiPhoneAt?.toISOString() ?? null,
+    canClaimFreeIphone,
+    freeIphone: {
+      ...claimState,
+      canRequestDevice: canRequestFreeIphoneDevice(claimState),
+      canStartCash: canStartCashAlternative(claimState),
+    },
+    emailVerified: userFlags?.emailVerified ?? false,
+    hasEmail: Boolean(userFlags?.email),
   });
 }

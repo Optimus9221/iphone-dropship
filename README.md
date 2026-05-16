@@ -19,6 +19,7 @@ E-commerce platform for selling iPhone 15-17 with official warranty. Features re
 
 - **[docs/PROJECT-OVERVIEW.md](docs/PROJECT-OVERVIEW.md)** — единая картина: Vercel + Neon + Resend, админка, auth, требования.
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** — переменные окружения и чеклист перед продом.
+- **[docs/LOCAL-PROD-DB-DUMP.md](docs/LOCAL-PROD-DB-DUMP.md)** — дамп прода на ПК и работа с копией локально.
 
 ## Quick Start
 
