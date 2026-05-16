@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getFreeIphoneClaimUiState, canStartCashAlternative } from "@/lib/free-iphone-reward";
 import { sendAdminFreeIphoneCashPayoutWalletSaved } from "@/lib/email";
+import { Prisma } from "@prisma/client";
+import { getFreeIphoneCashPayoutAmount } from "@/lib/payout";
 
 const bodySchema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, "Invalid code"),
@@ -47,6 +49,7 @@ export async function POST(req: Request) {
   }
 
   const now = new Date();
+  const payoutAmount = await getFreeIphoneCashPayoutAmount();
   await prisma.freeIphoneRewardElection.upsert({
     where: { userId },
     create: {
@@ -54,11 +57,17 @@ export async function POST(req: Request) {
       cashWalletAddress: pending.pendingWalletAddress,
       cashWalletNetwork: pending.pendingWalletNetwork,
       cashWalletSavedAt: now,
+      cashPayoutStatus: "PENDING",
+      cashPayoutAmount: new Prisma.Decimal(payoutAmount),
     },
     update: {
       cashWalletAddress: pending.pendingWalletAddress,
       cashWalletNetwork: pending.pendingWalletNetwork,
       cashWalletSavedAt: now,
+      cashPayoutStatus: "PENDING",
+      cashPayoutAmount: new Prisma.Decimal(payoutAmount),
+      cashPayoutProcessedAt: null,
+      cashPayoutRejectReason: null,
     },
   });
 

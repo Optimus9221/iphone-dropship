@@ -34,10 +34,11 @@ export async function GET(
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  const [qualifiedCount, referrals, canReceive] = await Promise.all([
+  const [qualifiedCount, referrals, canReceive, election] = await Promise.all([
     getFreeiPhoneQualifiedReferralsCount(userId),
     getFreeiPhoneQualifiedReferrals(userId),
     canReceiveFreeiPhone(userId),
+    prisma.freeIphoneRewardElection.findUnique({ where: { userId } }),
   ]);
 
   return NextResponse.json({
@@ -45,5 +46,15 @@ export async function GET(
     qualifiedReferralsCount: qualifiedCount,
     qualifiedReferrals: referrals,
     canReceive,
+    election: election
+      ? {
+          iphoneRequestedAt: election.iphoneRequestedAt?.toISOString() ?? null,
+          cashWalletAddress: election.cashWalletAddress,
+          cashWalletNetwork: election.cashWalletNetwork,
+          cashWalletSavedAt: election.cashWalletSavedAt?.toISOString() ?? null,
+          cashPayoutStatus: election.cashPayoutStatus,
+          cashPayoutAmount: election.cashPayoutAmount ? Number(election.cashPayoutAmount) : null,
+        }
+      : null,
   });
 }

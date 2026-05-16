@@ -5,6 +5,7 @@
  */
 
 import { prisma } from "./db";
+import { hasActiveFreeIphoneCashChoice, hasCompletedFreeIphoneCashPayout } from "./payout";
 
 const REFERRAL_COOKIE_DAYS = 30;
 
@@ -166,7 +167,8 @@ export async function hasReceivedFreeiPhoneBonus(userId: string): Promise<boolea
   const count = await prisma.order.count({
     where: { userId, isFreeiPhoneBonus: true },
   });
-  return count > 0;
+  if (count > 0) return true;
+  return hasCompletedFreeIphoneCashPayout(userId);
 }
 
 /** Last delivered free iPhone order date (for "every year" eligibility) */
@@ -179,16 +181,34 @@ export async function getLastFreeiPhoneDeliveredAt(userId: string): Promise<Date
   return order?.deliveredAt ?? null;
 }
 
+/** Last free-iPhone reward (device delivered or cash payout completed). */
+export async function getLastFreeiPhoneRewardAt(userId: string): Promise<Date | null> {
+  const [orderDate, election] = await Promise.all([
+    getLastFreeiPhoneDeliveredAt(userId),
+    prisma.freeIphoneRewardElection.findUnique({
+      where: { userId },
+      select: { cashPayoutProcessedAt: true, cashPayoutStatus: true },
+    }),
+  ]);
+  const cashDate =
+    election?.cashPayoutStatus === "COMPLETED" ? election.cashPayoutProcessedAt : null;
+  if (!orderDate) return cashDate;
+  if (!cashDate) return orderDate;
+  return orderDate > cashDate ? orderDate : cashDate;
+}
+
 /** Can receive free iPhone: 20+ qualified refs AND (never received OR last received > 1 year ago) */
 export async function canReceiveFreeiPhone(userId: string): Promise<boolean> {
-  const [count, lastDelivered] = await Promise.all([
+  if (await hasActiveFreeIphoneCashChoice(userId)) return false;
+
+  const [count, lastReward] = await Promise.all([
     getFreeiPhoneQualifiedReferralsCount(userId),
-    getLastFreeiPhoneDeliveredAt(userId),
+    getLastFreeiPhoneRewardAt(userId),
   ]);
   if (count < FREE_IPHONE_REQUIRED_COUNT) return false;
-  if (!lastDelivered) return true;
+  if (!lastReward) return true;
   const oneYearAgo = new Date(Date.now() - FREE_IPHONE_REFERRAL_WINDOW_MS);
-  return lastDelivered < oneYearAgo;
+  return lastReward < oneYearAgo;
 }
 
 /**
@@ -222,7 +242,8 @@ export async function getFreeiPhoneCandidates() {
     const count = await getFreeiPhoneQualifiedReferralsCount(u.id);
     if (count >= FREE_IPHONE_REQUIRED_COUNT) {
       const eligible = await canReceiveFreeiPhone(u.id);
-      if (eligible) {
+      const cashPending = await hasActiveFreeIphoneCashChoice(u.id);
+      if (eligible && !cashPending) {
         candidates.push({
           id: u.id,
           email: u.email,

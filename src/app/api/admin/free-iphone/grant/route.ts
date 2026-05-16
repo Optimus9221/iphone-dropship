@@ -8,6 +8,7 @@ import {
   getFreeiPhoneQualifiedReferralsCount,
   canReceiveFreeiPhone,
 } from "@/lib/referral";
+import { hasActiveFreeIphoneCashChoice } from "@/lib/payout";
 
 const grantSchema = z.object({
   userId: z.string().min(1),
@@ -36,7 +37,14 @@ export async function POST(req: Request) {
 
   const { userId, productId } = parsed.data;
 
-    const [qualifiedCount, eligible] = await Promise.all([
+  if (await hasActiveFreeIphoneCashChoice(userId)) {
+    return NextResponse.json(
+      { error: "User chose cash payout — complete or reject that request first" },
+      { status: 400 }
+    );
+  }
+
+  const [qualifiedCount, eligible] = await Promise.all([
     getFreeiPhoneQualifiedReferralsCount(userId),
     canReceiveFreeiPhone(userId),
   ]);

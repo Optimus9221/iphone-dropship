@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount, getLastFreeiPhoneDeliveredAt } from "@/lib/referral";
+import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount, getLastFreeiPhoneRewardAt } from "@/lib/referral";
 import { processAvailableCashback } from "@/lib/cashback";
 import { getPublicSiteUrl } from "@/lib/public-url";
 import {
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
         _sum: { amount: true },
       }),
       getFreeiPhoneQualifiedReferralsCount(userId),
-      getLastFreeiPhoneDeliveredAt(userId),
+      getLastFreeiPhoneRewardAt(userId),
       getFreeIphoneClaimUiState(userId),
       prisma.user.findUnique({
         where: { id: userId },

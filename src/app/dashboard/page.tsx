@@ -19,6 +19,7 @@ type FreeIphoneStats = {
   cashWalletAddress: string | null;
   cashWalletNetwork: string | null;
   cashWalletSavedAt: string | null;
+  cashPayoutStatus: string | null;
   hasPendingCashVerification: boolean;
   canRequestDevice: boolean;
   canStartCash: boolean;
@@ -236,7 +237,15 @@ export default function DashboardPage() {
               {stats.freeIphone?.iphoneRequestedAt ? (
                 <p className="mt-2 text-emerald-300">{t("freeiPhoneRequestIphoneDone")}</p>
               ) : stats.freeIphone?.cashWalletSavedAt ? (
-                <p className="mt-2 text-emerald-300">{t("freeiPhoneCashWalletDone")}</p>
+                <p className="mt-2 text-emerald-300">
+                  {stats.freeIphone.cashPayoutStatus === "COMPLETED"
+                    ? t("freeiPhoneCashPayoutCompleted")
+                    : stats.freeIphone.cashPayoutStatus === "REJECTED"
+                      ? t("freeiPhoneCashPayoutRejected")
+                      : stats.freeIphone.cashPayoutStatus === "PROCESSING"
+                        ? t("freeiPhoneCashPayoutPending")
+                        : t("freeiPhoneCashWalletDone")}
+                </p>
               ) : stats.freeIphone?.hasPendingCashVerification ? (
                 <div className="mt-4 space-y-3">
                   <p className="text-sm text-slate-400">{t("freeiPhoneCashHint")}</p>

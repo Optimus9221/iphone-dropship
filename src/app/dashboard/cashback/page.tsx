@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Coins } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { LoadingButton } from "@/components/ui/loading-button";
 
 type Entry = {
   id: string;
@@ -16,6 +17,21 @@ type Entry = {
   referralId: string | null;
   availableAt: string;
   createdAt: string;
+};
+
+type PayoutInfo = {
+  available: number;
+  minWithdrawal: number;
+  hasActivePayout: boolean;
+  requests: Array<{
+    id: string;
+    amount: number;
+    status: string;
+    walletAddress: string;
+    walletNetwork: string;
+    rejectReason: string | null;
+    createdAt: string;
+  }>;
 };
 
 const TYPE_KEYS: Record<string, string> = {
@@ -34,19 +50,73 @@ const STATUS_KEYS: Record<string, string> = {
 
 export default function CashbackPage() {
   const { t } = useI18n();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [payoutInfo, setPayoutInfo] = useState<PayoutInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [walletAddress, setWalletAddress] = useState("");
+  const [walletNetwork, setWalletNetwork] = useState("");
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawError, setWithdrawError] = useState("");
+
+  const load = useCallback(() => {
+    if (status !== "authenticated") return;
+    setLoading(true);
+    Promise.all([
+      fetch("/api/dashboard/cashback").then((r) => r.json()),
+      fetch("/api/dashboard/payouts").then((r) => r.json()),
+    ])
+      .then(([hist, payouts]) => {
+        setEntries(Array.isArray(hist) ? hist : []);
+        setPayoutInfo(payouts?.available != null ? payouts : null);
+      })
+      .catch(() => {
+        setEntries([]);
+        setPayoutInfo(null);
+      })
+      .finally(() => setLoading(false));
+  }, [status]);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetch("/api/dashboard/cashback")
-        .then((r) => r.json())
-        .then(setEntries)
-        .catch(() => [])
-        .finally(() => setLoading(false));
+    load();
+  }, [load]);
+
+  const handleWithdraw = async () => {
+    setWithdrawError("");
+    setWithdrawing(true);
+    try {
+      const res = await fetch("/api/dashboard/payouts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          walletAddress: walletAddress.trim(),
+          walletNetwork: walletNetwork.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.errorCode === "email_required") {
+          setWithdrawError(t("cashbackWithdrawEmailRequired"));
+        } else if (data.errorCode === "below_minimum") {
+          setWithdrawError(
+            t("cashbackWithdrawBelowMin").replace("${min}", String(payoutInfo?.minWithdrawal ?? 10))
+          );
+        } else if (data.errorCode === "active_payout_exists") {
+          setWithdrawError(t("cashbackWithdrawActive"));
+        } else {
+          setWithdrawError(t("freeiPhoneGenericError"));
+        }
+        return;
+      }
+      setWalletAddress("");
+      setWalletNetwork("");
+      load();
+    } catch {
+      setWithdrawError(t("freeiPhoneGenericError"));
+    } finally {
+      setWithdrawing(false);
     }
-  }, [status]);
+  };
 
   if (status === "loading" || loading) {
     return (
@@ -75,12 +145,78 @@ export default function CashbackPage() {
     );
   }
 
+  const min = payoutInfo?.minWithdrawal ?? 10;
+  const available = payoutInfo?.available ?? 0;
+  const canWithdraw =
+    available >= min && !payoutInfo?.hasActivePayout && walletAddress.trim().length >= 10 && walletNetwork.trim().length >= 2;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("cashbackHistory")}</h1>
+
+      {payoutInfo && (
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md">
+          <h2 className="font-semibold text-white">{t("cashbackWithdrawTitle")}</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            {t("cashbackWithdrawDesc").replace("${min}", String(min))}
+          </p>
+          <p className="mt-3 text-lg font-medium text-emerald-300">
+            ${available.toFixed(2)} {t("cashbackStatus_AVAILABLE").toLowerCase()}
+          </p>
+
+          {payoutInfo.hasActivePayout ? (
+            <p className="mt-3 text-sm text-amber-200/90">{t("cashbackWithdrawActive")}</p>
+          ) : available < min ? (
+            <p className="mt-3 text-sm text-slate-500">
+              {t("cashbackWithdrawBelowMin").replace("${min}", String(min))}
+            </p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              <label className="block text-sm text-slate-400">{t("freeiPhoneWalletLabel")}</label>
+              <input
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white"
+                autoComplete="off"
+              />
+              <label className="block text-sm text-slate-400">{t("freeiPhoneNetworkLabel")}</label>
+              <input
+                value={walletNetwork}
+                onChange={(e) => setWalletNetwork(e.target.value)}
+                placeholder="USDT TRC20"
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white"
+              />
+              {withdrawError && <p className="text-sm text-red-300">{withdrawError}</p>}
+              <LoadingButton
+                type="button"
+                loading={withdrawing}
+                disabled={!canWithdraw || withdrawing}
+                onClick={handleWithdraw}
+                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
+              >
+                {t("cashbackWithdrawSubmit")}
+              </LoadingButton>
+            </div>
+          )}
+
+          {payoutInfo.requests.length > 0 && (
+            <div className="mt-6 border-t border-white/10 pt-4">
+              <p className="text-sm font-medium text-slate-300">{t("adminPayouts")}</p>
+              <ul className="mt-2 space-y-2 text-sm text-slate-400">
+                {payoutInfo.requests.slice(0, 5).map((r) => (
+                  <li key={r.id}>
+                    ${r.amount.toFixed(2)} · {t(`payoutStatus_${r.status}` as "payoutStatus_PENDING")} ·{" "}
+                    {new Date(r.createdAt).toLocaleDateString()}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {entries.length === 0 ? (
         <motion.div

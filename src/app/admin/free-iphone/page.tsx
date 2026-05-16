@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 import { Gift, ChevronDown, ChevronUp } from "lucide-react";
 
@@ -29,6 +30,12 @@ type UserDetail = {
   qualifiedReferralsCount: number;
   qualifiedReferrals: QualifiedReferral[];
   canReceive: boolean;
+  election: {
+    cashWalletAddress: string | null;
+    cashWalletNetwork: string | null;
+    cashPayoutStatus: string | null;
+    cashPayoutAmount: number | null;
+  } | null;
 };
 
 type Product = { id: string; name: string; slug: string; stock: number };
@@ -171,6 +178,30 @@ export default function AdminFreeiPhonePage() {
                     </p>
                   ) : detail ? (
                     <>
+                      {detail.election?.cashWalletAddress && (
+                        <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
+                          <p className="font-medium text-amber-800 dark:text-amber-300">
+                            {t("adminFreeiPhoneCashElection")}
+                          </p>
+                          <p className="mt-1 text-amber-900/80 dark:text-amber-200/80">
+                            {detail.election.cashWalletNetwork}: {detail.election.cashWalletAddress}
+                          </p>
+                          <p className="mt-1 text-xs text-amber-800/70 dark:text-amber-300/70">
+                            {t(`payoutStatus_${detail.election.cashPayoutStatus ?? "PENDING"}` as "payoutStatus_PENDING")}
+                            {detail.election.cashPayoutAmount != null &&
+                              ` · $${detail.election.cashPayoutAmount.toFixed(2)}`}
+                          </p>
+                          <p className="mt-2 text-xs text-amber-800 dark:text-amber-300">
+                            {t("adminFreeiPhoneChoseCash")}
+                          </p>
+                          <Link
+                            href="/admin/payouts"
+                            className="mt-2 inline-block text-xs font-medium text-amber-900 underline dark:text-amber-200"
+                          >
+                            {t("adminPayouts")} →
+                          </Link>
+                        </div>
+                      )}
                       <h3 className="mb-3 font-medium">{t("adminFreeiPhoneReferralsList")}</h3>
                       <div className="max-h-48 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
                         <table className="w-full text-sm">
@@ -216,7 +247,11 @@ export default function AdminFreeiPhonePage() {
                         </div>
                         <button
                           type="button"
-                          disabled={granting || products.length === 0}
+                          disabled={
+                            granting ||
+                            products.length === 0 ||
+                            Boolean(detail.election?.cashWalletAddress)
+                          }
                           onClick={() => handleGrant(c.id)}
                           className="mt-6 rounded-lg bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
                         >

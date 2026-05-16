@@ -48,18 +48,30 @@ model User {
   @@map("users")
 }
 
+enum FreeIphoneCashPayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
 // User choice for 20-referral reward: physical iPhone or cash payout (wallet after email verify).
 model FreeIphoneRewardElection {
-  userId              String    @id @map("user_id")
-  iphoneRequestedAt   DateTime? @map("iphone_requested_at")
-  cashWalletAddress   String?   @map("cash_wallet_address")
-  cashWalletNetwork   String?   @map("cash_wallet_network")
-  cashWalletSavedAt   DateTime? @map("cash_wallet_saved_at")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  userId                 String                      @id @map("user_id")
+  iphoneRequestedAt      DateTime?                   @map("iphone_requested_at")
+  cashWalletAddress      String?                     @map("cash_wallet_address")
+  cashWalletNetwork      String?                     @map("cash_wallet_network")
+  cashWalletSavedAt      DateTime?                   @map("cash_wallet_saved_at")
+  cashPayoutStatus       FreeIphoneCashPayoutStatus? @map("cash_payout_status")
+  cashPayoutAmount       Decimal?                    @map("cash_payout_amount") @db.Decimal(10, 2)
+  cashPayoutProcessedAt DateTime?                  @map("cash_payout_processed_at")
+  cashPayoutRejectReason String?                    @map("cash_payout_reject_reason")
+  createdAt              DateTime                    @default(now()) @map("created_at")
+  updatedAt              DateTime                    @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([cashPayoutStatus])
   @@map("free_iphone_reward_elections")
 }
 
@@ -193,6 +205,12 @@ model Order {
   
   // Anti-fraud: IMEI for verification
   imei            String?     // filled when shipped
+
+  // Crypto payment (per-order wallet + proof screenshot)
+  paymentWalletAddress    String?   @map("payment_wallet_address")
+  paymentNetwork          String?   @map("payment_network")
+  paymentProofUrl         String?   @map("payment_proof_url")
+  paymentProofSubmittedAt DateTime? @map("payment_proof_submitted_at")
   
   // Free iPhone bonus (20 referrals)
   isFreeiPhoneBonus Boolean  @default(false) @map("is_free_iphone_bonus")
@@ -226,6 +244,8 @@ model OrderItem {
 
 enum OrderStatus {
   NEW
+  AWAITING_PAYMENT
+  PAYMENT_VERIFICATION_PENDING
   PAID
   PROCESSING
   SHIPPED
@@ -299,16 +319,18 @@ enum PayoutMethodType {
 }
 
 model PayoutRequest {
-  id          String        @id @default(cuid())
-  userId      String        @map("user_id")
-  amount      Decimal       @db.Decimal(10, 2)
-  status      PayoutStatus  @default(PENDING)
-  methodData  String?       @map("method_data") // encrypted snapshot
-  processedAt DateTime?     @map("processed_at")
-  rejectReason String?      @map("reject_reason")
-  createdAt   DateTime      @default(now()) @map("created_at")
+  id            String        @id @default(cuid())
+  userId        String        @map("user_id")
+  amount        Decimal       @db.Decimal(10, 2)
+  status        PayoutStatus  @default(PENDING)
+  walletAddress String?       @map("wallet_address")
+  walletNetwork String?       @map("wallet_network")
+  methodData    String?       @map("method_data") // optional snapshot JSON
+  processedAt   DateTime?     @map("processed_at")
+  rejectReason  String?       @map("reject_reason")
+  createdAt     DateTime      @default(now()) @map("created_at")
 
-  user        User          @relation(fields: [userId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
   cashbackEntries CashbackEntry[]
 
   @@index([userId])

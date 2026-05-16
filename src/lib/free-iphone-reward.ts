@@ -8,6 +8,7 @@ export type FreeIphoneClaimUiState = {
   cashWalletAddress: string | null;
   cashWalletNetwork: string | null;
   cashWalletSavedAt: string | null;
+  cashPayoutStatus: string | null;
   hasPendingCashVerification: boolean;
 };
 
@@ -29,6 +30,7 @@ export async function getFreeIphoneClaimUiState(userId: string): Promise<FreeIph
     cashWalletAddress: election?.cashWalletAddress ?? null,
     cashWalletNetwork: election?.cashWalletNetwork ?? null,
     cashWalletSavedAt: election?.cashWalletSavedAt?.toISOString() ?? null,
+    cashPayoutStatus: election?.cashPayoutStatus ?? null,
     hasPendingCashVerification: !!pending,
   };
 }
@@ -46,6 +48,6 @@ export function canRequestFreeIphoneDevice(state: FreeIphoneClaimUiState): boole
 export function canStartCashAlternative(state: FreeIphoneClaimUiState): boolean {
   if (!state.canClaim) return false;
   if (state.iphoneRequestedAt) return false;
-  if (state.cashWalletSavedAt) return false;
+  if (state.cashWalletSavedAt && state.cashPayoutStatus !== "REJECTED") return false;
   return true;
 }
