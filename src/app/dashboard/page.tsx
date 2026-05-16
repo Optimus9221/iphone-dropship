@@ -43,6 +43,8 @@ export default function DashboardPage() {
   const toast = useToast();
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState<string | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
   const [walletNetwork, setWalletNetwork] = useState("");
   const [cashCode, setCashCode] = useState("");
@@ -53,10 +55,31 @@ export default function DashboardPage() {
 
   const loadStats = useCallback(() => {
     if (status !== "authenticated" || !session?.user?.id) return;
-    fetch("/api/dashboard/stats")
-      .then((r) => r.json())
-      .then(setStats)
-      .catch(() => {});
+    setStatsLoading(true);
+    setStatsError(null);
+    fetch("/api/dashboard/stats", { credentials: "include" })
+      .then(async (r) => {
+        let data: unknown = {};
+        try {
+          data = await r.json();
+        } catch {
+          data = {};
+        }
+        const body = data as Stats & { error?: string };
+        if (!r.ok) {
+          setStats(null);
+          setStatsError(body.error ?? `HTTP ${r.status}`);
+          return;
+        }
+        setStats(body);
+      })
+      .catch((err: unknown) => {
+        setStats(null);
+        setStatsError(err instanceof Error ? err.message : "Network error");
+      })
+      .finally(() => {
+        setStatsLoading(false);
+      });
   }, [session, status]);
 
   useEffect(() => {
@@ -183,18 +206,32 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {stats && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 backdrop-blur-md"
-        >
-          <div className="flex items-center gap-2">
-            <Gift className="h-6 w-6 text-emerald-400" />
-            <h2 className="font-semibold text-white">{t("freeiPhoneProgress")}</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+        className="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 backdrop-blur-md"
+      >
+        <div className="flex items-center gap-2">
+          <Gift className="h-6 w-6 text-emerald-400" />
+          <h2 className="font-semibold text-white">{t("freeiPhoneProgress")}</h2>
+        </div>
+        {statsError ? (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm text-amber-200/90">{t("freeiPhoneStatsLoadError")}</p>
+            <button
+              type="button"
+              onClick={() => loadStats()}
+              className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100"
+            >
+              {t("freeiPhoneRetryStats")}
+            </button>
           </div>
-          {(stats.canClaimFreeIphone ?? false) === true ? (
+        ) : statsLoading && !stats ? (
+          <p className="mt-3 text-sm text-slate-400">{t("freeiPhoneLoadingStats")}</p>
+        ) : stats ? (
+          <>
+          {stats.canClaimFreeIphone ? (
             <>
               {stats.freeIphone?.iphoneRequestedAt ? (
                 <p className="mt-2 text-emerald-300">{t("freeiPhoneRequestIphoneDone")}</p>
@@ -309,10 +346,14 @@ export default function DashboardPage() {
                   }}
                 />
               </div>
+              {(stats.qualifiedForFreeiPhone ?? 0) < FREE_IPHONE_REQUIRED && (
+                <p className="mt-3 text-xs text-slate-500">{t("freeiPhoneButtonAppearsHint")}</p>
+              )}
             </>
           )}
-        </motion.div>
-      )}
+          </>
+        ) : null}
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 10 }}

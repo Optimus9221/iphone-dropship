@@ -219,6 +219,11 @@ export const translations = {
     freeiPhoneCooldown: "Wait a minute before requesting another code.",
     freeiPhoneInvalidCode: "Invalid or expired code.",
     freeiPhoneGenericError: "Something went wrong. Try again.",
+    freeiPhoneStatsLoadError: "Could not load your free-iPhone status. Check your connection or try again.",
+    freeiPhoneRetryStats: "Try again",
+    freeiPhoneLoadingStats: "Loading…",
+    freeiPhoneButtonAppearsHint:
+      "The «Get iPhone» button appears when you have 20 qualifying referrals (each with a delivered order in the last 12 months) and you are eligible for this year's reward.",
 
     // Auth (Login / Register)
     createAccount: "Create account",
@@ -693,6 +698,11 @@ export const translations = {
     freeiPhoneCooldown: "Подождите минуту перед повторной отправкой кода.",
     freeiPhoneInvalidCode: "Неверный или просроченный код.",
     freeiPhoneGenericError: "Не получилось. Попробуйте снова.",
+    freeiPhoneStatsLoadError: "Не удалось загрузить статус бесплатного iPhone. Проверьте сеть или попробуйте снова.",
+    freeiPhoneRetryStats: "Повторить",
+    freeiPhoneLoadingStats: "Загрузка…",
+    freeiPhoneButtonAppearsHint:
+      "Кнопка «Получить iPhone» появится, когда будет 20 квалифицированных рефералов (у каждого — доставленный заказ за последние 12 месяцев) и вы сможете получить награду в этом году.",
 
     createAccount: "Создать аккаунт",
     alreadyHaveAccount: "Уже есть аккаунт?",
@@ -1162,6 +1172,11 @@ export const translations = {
     freeiPhoneCooldown: "Зачекайте хвилину перед повторним надсиланням коду.",
     freeiPhoneInvalidCode: "Невірний або прострочений код.",
     freeiPhoneGenericError: "Не вдалося. Спробуйте ще раз.",
+    freeiPhoneStatsLoadError: "Не вдалося завантажити статус безкоштовного iPhone. Перевірте з'єднання або спробуйте ще раз.",
+    freeiPhoneRetryStats: "Спробувати знову",
+    freeiPhoneLoadingStats: "Завантаження…",
+    freeiPhoneButtonAppearsHint:
+      "Кнопка «Отримати iPhone» з’явиться, коли буде 20 кваліфікованих рефералів (у кожного — доставлене замовлення за останні 12 місяців) і ви зможете отримати нагороду цього року.",
 
     createAccount: "Створити акаунт",
     alreadyHaveAccount: "Вже є акаунт?",

@@ -8,7 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="relative min-h-[calc(100vh-4rem)] overflow-x-hidden">
       <PhoneBackground patternId="phones-dashboard" />
       <div className="relative">{children}</div>
     </div>
