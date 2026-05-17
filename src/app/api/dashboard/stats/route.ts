@@ -10,6 +10,7 @@ import {
   canRequestFreeIphoneDevice,
   canStartCashAlternative,
 } from "@/lib/free-iphone-reward";
+import { getFreeIphoneCashPayoutAmount, getMinWithdrawalAmount } from "@/lib/payout";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -21,8 +22,18 @@ export async function GET(req: Request) {
 
   await processAvailableCashback();
 
-  const [referralStats, code, cashbackAgg, available, qualifiedForFreeiPhone, lastFreeiPhoneAt, claimState, userFlags] =
-    await Promise.all([
+  const [
+    referralStats,
+    code,
+    cashbackAgg,
+    available,
+    qualifiedForFreeiPhone,
+    lastFreeiPhoneAt,
+    claimState,
+    userFlags,
+    freeIphoneCashPayoutUsd,
+    minWithdrawal,
+  ] = await Promise.all([
       getReferralStats(userId),
       getOrCreateReferralCode(userId),
       prisma.cashbackEntry.aggregate({
@@ -40,6 +51,8 @@ export async function GET(req: Request) {
         where: { id: userId },
         select: { emailVerified: true, email: true },
       }),
+      getFreeIphoneCashPayoutAmount(),
+      getMinWithdrawalAmount(),
     ]);
 
   const canClaimFreeIphone = claimState.canClaim;
@@ -63,5 +76,7 @@ export async function GET(req: Request) {
     },
     emailVerified: userFlags?.emailVerified ?? false,
     hasEmail: Boolean(userFlags?.email),
+    freeIphoneCashPayoutUsd,
+    minWithdrawal,
   });
 }

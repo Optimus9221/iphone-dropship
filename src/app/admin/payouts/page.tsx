@@ -185,6 +185,7 @@ export default function AdminPayoutsPage() {
               key: p.id,
               name: p.name,
               email: p.email,
+              typeLabel: t("adminPayoutsCashback"),
               amount: `$${p.amount.toFixed(2)}`,
               wallet: p.walletAddress,
               network: p.walletNetwork,
@@ -202,6 +203,7 @@ export default function AdminPayoutsPage() {
             key: p.userId,
             name: p.name,
             email: p.email,
+            typeLabel: t("adminPayoutsFreeIphoneBonus"),
             amount: p.amount != null ? `$${p.amount.toFixed(2)}` : "—",
             wallet: p.walletAddress ?? "—",
             network: p.walletNetwork ?? "",
@@ -223,6 +225,7 @@ function PayoutTable({
     key: string;
     name: string | null;
     email: string | null;
+    typeLabel: string;
     amount: string;
     wallet: string;
     network: string;
@@ -237,6 +240,7 @@ function PayoutTable({
         <thead>
           <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
             <th className="px-3 py-2 text-left">{t("adminUserEmail")}</th>
+            <th className="px-3 py-2 text-left">{t("adminPayoutType")}</th>
             <th className="px-3 py-2 text-left">{t("adminPayoutAmount")}</th>
             <th className="px-3 py-2 text-left">{t("freeiPhoneWalletLabel")}</th>
             <th className="px-3 py-2 text-left">{t("orderStatus")}</th>
@@ -250,6 +254,7 @@ function PayoutTable({
                 <p>{r.name ?? r.email ?? "—"}</p>
                 <p className="text-xs text-zinc-500">{r.email}</p>
               </td>
+              <td className="px-3 py-2 text-xs text-zinc-600 dark:text-zinc-400">{r.typeLabel}</td>
               <td className="px-3 py-2">{r.amount}</td>
               <td className="max-w-xs px-3 py-2">
                 <p className="truncate font-mono text-xs" title={r.wallet}>

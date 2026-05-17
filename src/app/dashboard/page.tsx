@@ -29,6 +29,8 @@ type Stats = {
   totalReferrals: number;
   activeReferrals: number;
   availableCashback: number;
+  minWithdrawal?: number;
+  freeIphoneCashPayoutUsd?: number;
   totalEarned: number;
   referralUrl: string;
   qualifiedForFreeiPhone?: number;
@@ -189,8 +191,16 @@ export default function DashboardPage() {
       >
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5">
           <p className="text-sm text-slate-500">{t("availableCashback")}</p>
-          <p className="mt-1 text-2xl font-bold text-white">${stats?.availableCashback ?? 0}</p>
-          <p className="mt-1 text-xs text-slate-500">{t("availableAfter14")}</p>
+          <p className="mt-1 text-2xl font-bold text-white">${(stats?.availableCashback ?? 0).toFixed(2)}</p>
+          <p className="mt-1 text-xs text-slate-500">{t("availableCashbackWithdrawHint")}</p>
+          {(stats?.availableCashback ?? 0) >= (stats?.minWithdrawal ?? 10) && (
+            <Link
+              href="/dashboard/cashback"
+              className="mt-3 inline-block text-sm font-medium text-emerald-400 hover:underline"
+            >
+              {t("cashbackWithdrawLink")} →
+            </Link>
+          )}
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md transition hover:border-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/5">
           <p className="text-sm text-slate-500">{t("totalEarned")}</p>
@@ -248,6 +258,9 @@ export default function DashboardPage() {
                 </p>
               ) : stats.freeIphone?.hasPendingCashVerification ? (
                 <div className="mt-4 space-y-3">
+                  <p className="text-sm font-medium text-amber-200/90">
+                    {t("freeiPhoneCashBonusNotice", { amount: stats.freeIphoneCashPayoutUsd ?? 999 })}
+                  </p>
                   <p className="text-sm text-slate-400">{t("freeiPhoneCashHint")}</p>
                   <label className="block text-sm text-slate-400">{t("freeiPhoneConfirmCodeLabel")}</label>
                   <input
@@ -292,9 +305,12 @@ export default function DashboardPage() {
                       <button
                         type="button"
                         onClick={() => setCashPanelOpen(true)}
-                        className="rounded-lg border border-white/30 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+                        className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-100 hover:bg-amber-500/20"
+                        title={t("freeiPhoneChooseCashHint")}
                       >
-                        {t("freeiPhoneChooseCash")}
+                        {t("freeiPhoneChooseCash", {
+                          amount: stats.freeIphoneCashPayoutUsd ?? 999,
+                        })}
                       </button>
                     )}
                   </div>
@@ -302,8 +318,11 @@ export default function DashboardPage() {
                     <p className="mt-3 text-sm text-amber-200/90">{t("freeiPhoneEmailVerifyCash")}</p>
                   )}
                   {stats.freeIphone?.canStartCash && stats.emailVerified && stats.hasEmail && cashPanelOpen && (
-                    <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-                      <p className="text-sm text-slate-400">{t("freeiPhoneCashHint")}</p>
+                    <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+                      <p className="text-sm font-medium text-amber-200/90">
+                        {t("freeiPhoneCashBonusNotice", { amount: stats.freeIphoneCashPayoutUsd ?? 999 })}
+                      </p>
+                      <p className="mt-2 text-sm text-slate-400">{t("freeiPhoneCashHint")}</p>
                       <label className="mt-3 block text-sm text-slate-400">{t("freeiPhoneWalletLabel")}</label>
                       <input
                         value={walletAddress}
