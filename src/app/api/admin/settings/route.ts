@@ -43,7 +43,7 @@ export async function GET() {
 
   return NextResponse.json({
     min_withdrawal: map.min_withdrawal ?? "10",
-    cashback_hold_days: map.cashback_hold_days ?? "14",
+    cashback_hold_days: map.cashback_hold_days ?? "1",
     whatsapp_phone: map.whatsapp_phone ?? "+380501234567",
     telegram_link: map.telegram_link ?? "https://t.me/iphone_store_ua",
     privacy_policy: map.privacy_policy ?? "",

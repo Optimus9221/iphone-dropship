@@ -231,7 +231,7 @@ export default function CashbackPage() {
         >
           <Coins className="h-16 w-16 text-slate-500" />
           <p className="mt-4 text-slate-400">{t("noCashback")}</p>
-          <p className="mt-2 text-sm text-slate-500">{t("availableAfter14")}</p>
+          <p className="mt-2 text-sm text-slate-500">{t("cashbackHoldHint")}</p>
         </motion.div>
       ) : (
         <div className="mt-8 space-y-3">
@@ -250,7 +250,12 @@ export default function CashbackPage() {
                 <p className="text-sm text-slate-500">
                   {new Date(e.createdAt).toLocaleDateString()}
                   {e.status === "PENDING" && e.availableAt && (
-                    <> · {t("cashbackStatus_PENDING")} until {new Date(e.availableAt).toLocaleDateString()}</>
+                    <>
+                      {" · "}
+                      {t("cashbackPendingDetail", {
+                        date: new Date(e.availableAt).toLocaleDateString(),
+                      })}
+                    </>
                   )}
                 </p>
               </div>

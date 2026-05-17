@@ -166,8 +166,8 @@ A16 Bionic
   });
   await prisma.systemSetting.upsert({
     where: { key: "cashback_hold_days" },
-    update: { value: "14" },
-    create: { key: "cashback_hold_days", value: "14" },
+    update: { value: "1" },
+    create: { key: "cashback_hold_days", value: "1" },
   });
   await prisma.systemSetting.upsert({
     where: { key: "whatsapp_phone" },

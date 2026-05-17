@@ -17,7 +17,7 @@ type Settings = {
 
 const DEFAULT_SETTINGS: Settings = {
   min_withdrawal: "10",
-  cashback_hold_days: "14",
+  cashback_hold_days: "1",
   whatsapp_phone: "+380501234567",
   telegram_link: "https://t.me/iphone_store_ua",
   privacy_policy: "",
@@ -92,7 +92,7 @@ export default function AdminSettingsPage() {
           <label className="block text-sm font-medium">{t("adminCashbackHoldDays")}</label>
           <input
             type="text"
-            value={settings?.cashback_hold_days ?? "14"}
+            value={settings?.cashback_hold_days ?? "1"}
             onChange={(e) =>
               setSettings((s) => (s ? { ...s, cashback_hold_days: e.target.value } : { ...DEFAULT_SETTINGS, cashback_hold_days: e.target.value }))
             }
