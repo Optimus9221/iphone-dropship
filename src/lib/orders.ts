@@ -4,6 +4,8 @@
 
 import { prisma } from "./db";
 import { getCashbackRates, calculateCashback, createCashbackEntry } from "./cashback";
+import { processAvailableCashback } from "./cashback";
+import { redeemCashbackForOrder, userHasActiveCashbackPayout } from "./payout";
 
 export function generateOrderNumber(): string {
   return `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -17,6 +19,7 @@ export async function createOrder(params: {
   shippingPhone: string;
   shippingEmail: string;
   comment?: string;
+  payWithCashback?: boolean;
 }) {
   const orderNumber = generateOrderNumber();
   const subtotal = params.items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -31,12 +34,19 @@ export async function createOrder(params: {
     if (!product) throw new Error("Product not found");
   }
 
+  if (params.payWithCashback) {
+    await processAvailableCashback();
+    if (await userHasActiveCashbackPayout(params.userId)) {
+      throw new Error("active_payout_exists");
+    }
+  }
+
   const order = await prisma.$transaction(async (tx) => {
     const ord = await tx.order.create({
       data: {
         orderNumber,
         userId: params.userId,
-        status: "NEW",
+        status: params.payWithCashback ? "PAID" : "NEW",
         shippingName: params.shippingName,
         shippingAddress: params.shippingAddress,
         shippingPhone: params.shippingPhone,
@@ -45,6 +55,8 @@ export async function createOrder(params: {
         subtotal,
         shippingCost,
         total,
+        paidWithCashback: Boolean(params.payWithCashback),
+        cashbackRedeemedAmount: params.payWithCashback ? total : null,
       },
     });
 
@@ -66,6 +78,17 @@ export async function createOrder(params: {
         where: { id: item.productId },
         data: { stock: newStock },
       });
+    }
+
+    if (params.payWithCashback) {
+      await redeemCashbackForOrder(
+        {
+          userId: params.userId,
+          orderId: ord.id,
+          amount: total,
+        },
+        tx
+      );
     }
 
     return ord;
@@ -153,6 +176,7 @@ export async function accrueCashbackOnDelivery(orderId: string, deliveredAt: Dat
   });
 
   if (!order) throw new Error("Order not found");
+  if (order.paidWithCashback) return;
 
   const buyerId = order.userId;
   const referrerId = order.user.referredById;

@@ -40,6 +40,7 @@ const TYPE_KEYS: Record<string, string> = {
   BONUS_10_REFERRALS: "cashbackType_BONUS_10_REFERRALS",
   BONUS_15_REFERRALS: "cashbackType_BONUS_15_REFERRALS",
   BONUS_20_REFERRALS: "cashbackType_BONUS_20_REFERRALS",
+  ADJUSTMENT: "cashbackType_ADJUSTMENT",
 };
 
 const STATUS_KEYS: Record<string, string> = {
@@ -163,6 +164,10 @@ export default function CashbackPage() {
           <p className="mt-1 text-sm text-slate-400">
             {t("cashbackWithdrawDesc").replace("${min}", String(min))}
           </p>
+          <p className="mt-2 text-sm text-slate-500">{t("cashbackSpendHint", { min })}</p>
+          <Link href="/catalog" className="mt-2 inline-block text-sm text-emerald-400 hover:underline">
+            {t("catalog")}
+          </Link>
           <p className="mt-3 text-lg font-medium text-emerald-300">
             ${available.toFixed(2)} {t("cashbackStatus_AVAILABLE").toLowerCase()}
           </p>

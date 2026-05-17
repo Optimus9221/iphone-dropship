@@ -1,5 +1,7 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 import { prisma } from "./db";
+
+type DbClient = PrismaClient | Prisma.TransactionClient;
 import { processAvailableCashback } from "./cashback";
 
 const DEFAULT_MIN_WITHDRAWAL = 10;
@@ -28,6 +30,72 @@ export async function getAvailableCashbackBalance(userId: string): Promise<numbe
     _sum: { amount: true },
   });
   return agg._sum.amount ? Number(agg._sum.amount) : 0;
+}
+
+/**
+ * Spend available cashback on an order (FIFO whole entries).
+ * Requires balance >= amount. Returns surplus credited back as AVAILABLE ADJUSTMENT.
+ */
+export async function redeemCashbackForOrder(
+  params: {
+    userId: string;
+    orderId: string;
+    amount: number;
+  },
+  db: DbClient = prisma
+) {
+  const amount = Math.round(params.amount * 100) / 100;
+  if (amount <= 0) throw new Error("invalid_amount");
+
+  const entries = await db.cashbackEntry.findMany({
+    where: {
+      userId: params.userId,
+      status: "AVAILABLE",
+      payoutRequestId: null,
+    },
+    orderBy: { availableAt: "asc" },
+  });
+
+  const available = entries.reduce((s, e) => s + Number(e.amount), 0);
+  const roundedAvailable = Math.round(available * 100) / 100;
+
+  if (roundedAvailable < amount) {
+    throw new Error("insufficient_cashback");
+  }
+
+  let remaining = amount;
+  const toRedeem: string[] = [];
+
+  for (const entry of entries) {
+    if (remaining <= 0) break;
+    const entryAmount = Number(entry.amount);
+    toRedeem.push(entry.id);
+    remaining = Math.round((remaining - entryAmount) * 100) / 100;
+  }
+
+  const surplus = remaining < 0 ? Math.round(-remaining * 100) / 100 : 0;
+
+  await db.cashbackEntry.updateMany({
+    where: { id: { in: toRedeem } },
+    data: {
+      status: "PAID_OUT",
+      redeemedForOrderId: params.orderId,
+    },
+  });
+
+  if (surplus > 0) {
+    await db.cashbackEntry.create({
+      data: {
+        userId: params.userId,
+        amount: surplus,
+        type: "ADJUSTMENT",
+        status: "AVAILABLE",
+        availableAt: new Date(),
+      },
+    });
+  }
+
+  return { redeemed: amount, surplus };
 }
 
 export async function userHasActiveCashbackPayout(userId: string): Promise<boolean> {

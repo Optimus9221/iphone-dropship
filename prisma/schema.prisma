@@ -215,12 +215,17 @@ model Order {
   // Free iPhone bonus (20 referrals)
   isFreeiPhoneBonus Boolean  @default(false) @map("is_free_iphone_bonus")
 
+  // Paid fully with accumulated cashback (no crypto payment)
+  paidWithCashback       Boolean  @default(false) @map("paid_with_cashback")
+  cashbackRedeemedAmount Decimal? @map("cashback_redeemed_amount") @db.Decimal(10, 2)
+
   createdAt       DateTime    @default(now()) @map("created_at")
   updatedAt       DateTime    @updatedAt @map("updated_at")
 
   user            User        @relation(fields: [userId], references: [id])
   items           OrderItem[]
-  cashbackEntries CashbackEntry[]
+  cashbackEntries CashbackEntry[] @relation("CashbackAccrual")
+  cashbackRedemptions CashbackEntry[] @relation("CashbackRedemption")
 
   @@index([userId])
   @@index([status])
@@ -270,14 +275,18 @@ model CashbackEntry {
   availableAt DateTime        @map("available_at") // when becomes withdrawable
   createdAt   DateTime        @default(now()) @map("created_at")
 
+  redeemedForOrderId String?  @map("redeemed_for_order_id")
+
   user        User            @relation(fields: [userId], references: [id])
-  order       Order?          @relation(fields: [orderId], references: [id])
+  order       Order?          @relation("CashbackAccrual", fields: [orderId], references: [id])
+  redeemedForOrder Order?     @relation("CashbackRedemption", fields: [redeemedForOrderId], references: [id])
   payoutRequest PayoutRequest? @relation(fields: [payoutRequestId], references: [id])
   payoutRequestId String?     @map("payout_request_id")
 
   @@index([userId])
   @@index([status])
   @@index([availableAt])
+  @@index([redeemedForOrderId])
   @@map("cashback_entries")
 }
 
@@ -287,12 +296,13 @@ enum CashbackType {
   BONUS_10_REFERRALS   // $50
   BONUS_15_REFERRALS   // $100
   BONUS_20_REFERRALS   // Free iPhone
+  ADJUSTMENT           // surplus after partial redemption for order
 }
 
 enum CashbackStatus {
   PENDING    // awaiting 14 days / order delivery
-  AVAILABLE  // can be withdrawn
-  PAID_OUT   // withdrawn
+  AVAILABLE  // can be withdrawn or spent on order
+  PAID_OUT   // withdrawn or spent on order
   CANCELLED  // order refunded
 }
 

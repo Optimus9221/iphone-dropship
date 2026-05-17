@@ -18,6 +18,7 @@ type Order = {
   createdAt: string;
   deliveredAt: string | null;
   paymentProofSubmittedAt: string | null;
+  paidWithCashback: boolean;
   paymentInstructions: { network: string; address: string } | null;
   items: Array<{ productName: string; productSlug: string; quantity: number; price: number }>;
 };
@@ -296,6 +297,9 @@ function OrdersPageInner() {
                     </p>
                     <p className="text-sm text-slate-400">
                       {new Date(order.createdAt).toLocaleDateString()} · ${order.total}
+                      {order.paidWithCashback && (
+                        <span className="ml-2 text-emerald-400">· {t("orderPaidWithCashback")}</span>
+                      )}
                     </p>
                     <div className="mt-1 flex flex-wrap gap-2">
                       {order.items.map((item) => (

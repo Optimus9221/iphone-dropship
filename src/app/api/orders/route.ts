@@ -15,6 +15,7 @@ const createSchema = z.object({
   shippingPhone: z.string().min(1, "Phone is required"),
   shippingEmail: z.string().email("Invalid email"),
   comment: z.string().optional(),
+  payWithCashback: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -46,9 +47,11 @@ export async function GET() {
       deliveredAt: o.deliveredAt,
       paymentProofSubmittedAt:
         o.status === "PAYMENT_VERIFICATION_PENDING" ? o.paymentProofSubmittedAt : null,
+      paidWithCashback: o.paidWithCashback,
       paymentInstructions:
-        o.status === "AWAITING_PAYMENT" ||
-        (o.status === "PAYMENT_VERIFICATION_PENDING" && !o.paymentProofSubmittedAt)
+        !o.paidWithCashback &&
+        (o.status === "AWAITING_PAYMENT" ||
+          (o.status === "PAYMENT_VERIFICATION_PENDING" && !o.paymentProofSubmittedAt))
           ? {
               network: (o.paymentNetwork?.trim() || cryptoDefaults.network).trim(),
               address: (o.paymentWalletAddress?.trim() || cryptoDefaults.walletAddress).trim(),
@@ -80,8 +83,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const { productId, quantity, shippingName, shippingAddress, shippingPhone, shippingEmail, comment } =
-      parsed.data;
+    const {
+      productId,
+      quantity,
+      shippingName,
+      shippingAddress,
+      shippingPhone,
+      shippingEmail,
+      comment,
+      payWithCashback,
+    } = parsed.data;
 
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -100,6 +111,7 @@ export async function POST(req: Request) {
       shippingPhone,
       shippingEmail,
       comment,
+      payWithCashback: payWithCashback === true,
     });
 
     const fullOrder = await prisma.order.findUnique({
@@ -125,7 +137,11 @@ export async function POST(req: Request) {
       total: Number(order.total),
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Failed to create order";
-    return NextResponse.json({ error: msg, errorCode: "failed" }, { status: 400 });
+    const code = e instanceof Error ? e.message : "failed";
+    const known = ["insufficient_cashback", "active_payout_exists"];
+    return NextResponse.json(
+      { error: code, errorCode: known.includes(code) ? code : "failed" },
+      { status: 400 }
+    );
   }
 }

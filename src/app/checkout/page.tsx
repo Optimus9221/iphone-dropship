@@ -29,6 +29,13 @@ function CheckoutContent() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [paymentMethod, setPaymentMethod] = useState<"crypto" | "cashback">("crypto");
+  const [cashbackPreview, setCashbackPreview] = useState<{
+    orderTotal: number;
+    availableCashback: number;
+    canPayWithCashback: boolean;
+    hasActivePayout: boolean;
+  } | null>(null);
   const [form, setForm] = useState({
     deliveryMethod: "nova_poshta" as "nova_poshta" | "courier",
     shippingName: "",
@@ -57,6 +64,17 @@ function CheckoutContent() {
       setForm((f) => ({ ...f, shippingEmail: session.user?.email ?? f.shippingEmail }));
     }
   }, [session?.user?.email]);
+
+  useEffect(() => {
+    if (status === "authenticated" && productId) {
+      fetch(`/api/checkout/cashback-preview?productId=${productId}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.orderTotal != null) setCashbackPreview(data);
+        })
+        .catch(() => setCashbackPreview(null));
+    }
+  }, [status, productId]);
 
   if (status === "loading" || loading) {
     return (
@@ -109,9 +127,18 @@ function CheckoutContent() {
   const cashback = Math.round(product.price * 0.05);
 
   const getOrderErrorMessage = (errorCode: string) => {
-    const keys: Record<string, "orderError_product_not_found" | "orderError_product_not_available" | "orderError_failed"> = {
+    const keys: Record<
+      string,
+      | "orderError_product_not_found"
+      | "orderError_product_not_available"
+      | "orderError_failed"
+      | "checkoutInsufficientCashback"
+      | "cashbackWithdrawActive"
+    > = {
       product_not_found: "orderError_product_not_found",
       product_not_available: "orderError_product_not_available",
+      insufficient_cashback: "checkoutInsufficientCashback",
+      active_payout_exists: "cashbackWithdrawActive",
       failed: "orderError_failed",
     };
     return t(keys[errorCode] ?? "orderError_failed");
@@ -138,6 +165,7 @@ function CheckoutContent() {
           shippingPhone: form.shippingPhone,
           shippingEmail: form.shippingEmail,
           comment: form.comment || undefined,
+          payWithCashback: paymentMethod === "cashback",
         }),
       });
       const data = await res.json();
@@ -353,12 +381,64 @@ function CheckoutContent() {
               className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
             />
           </div>
+
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+            <h3 className="font-medium text-white">{t("checkoutPaymentMethod")}</h3>
+            <div className="mt-3 space-y-3">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "crypto"}
+                  onChange={() => setPaymentMethod("crypto")}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block text-white">{t("checkoutPayCrypto")}</span>
+                  <span className="text-sm text-slate-400">{t("checkoutPayCryptoHint")}</span>
+                </span>
+              </label>
+              <label
+                className={`flex items-start gap-3 ${
+                  cashbackPreview?.canPayWithCashback ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === "cashback"}
+                  disabled={!cashbackPreview?.canPayWithCashback}
+                  onChange={() => setPaymentMethod("cashback")}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block text-white">{t("checkoutPayCashback")}</span>
+                  <span className="text-sm text-slate-400">
+                    {cashbackPreview
+                      ? t("checkoutPayCashbackBalance", {
+                          available: cashbackPreview.availableCashback.toFixed(2),
+                          total: cashbackPreview.orderTotal.toFixed(2),
+                        })
+                      : "…"}
+                  </span>
+                  {cashbackPreview && !cashbackPreview.canPayWithCashback && (
+                    <span className="mt-1 block text-sm text-amber-300/90">
+                      {cashbackPreview.hasActivePayout
+                        ? t("cashbackWithdrawActive")
+                        : t("checkoutInsufficientCashback")}
+                    </span>
+                  )}
+                </span>
+              </label>
+            </div>
+          </div>
+
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || (paymentMethod === "cashback" && !cashbackPreview?.canPayWithCashback)}
             className="w-full rounded-full bg-white py-4 font-semibold text-slate-900 transition hover:bg-slate-100 disabled:opacity-50"
           >
-            {submitting ? "..." : t("placeOrder")}
+            {submitting ? "..." : paymentMethod === "cashback" ? t("checkoutPlaceOrderCashback") : t("placeOrder")}
           </button>
         </motion.form>
       </div>
