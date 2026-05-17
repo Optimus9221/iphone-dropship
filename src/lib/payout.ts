@@ -5,18 +5,11 @@ type DbClient = PrismaClient | Prisma.TransactionClient;
 import { processAvailableCashback } from "./cashback";
 
 const DEFAULT_MIN_WITHDRAWAL = 10;
-const DEFAULT_FREE_IPHONE_CASH_USD = 999;
 
 export async function getMinWithdrawalAmount(): Promise<number> {
   const row = await prisma.systemSetting.findUnique({ where: { key: "min_withdrawal" } });
   const n = row ? Number(row.value) : DEFAULT_MIN_WITHDRAWAL;
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_MIN_WITHDRAWAL;
-}
-
-export async function getFreeIphoneCashPayoutAmount(): Promise<number> {
-  const row = await prisma.systemSetting.findUnique({ where: { key: "free_iphone_cash_payout_usd" } });
-  const n = row ? Number(row.value) : DEFAULT_FREE_IPHONE_CASH_USD;
-  return Number.isFinite(n) && n > 0 ? n : DEFAULT_FREE_IPHONE_CASH_USD;
 }
 
 export async function getAvailableCashbackBalance(userId: string): Promise<number> {
@@ -202,63 +195,6 @@ export async function updateCashbackPayoutStatus(params: {
           rejectReason: params.rejectReason?.trim() || null,
         },
       });
-    });
-  }
-
-  throw new Error("invalid_status");
-}
-
-export async function hasActiveFreeIphoneCashChoice(userId: string): Promise<boolean> {
-  const election = await prisma.freeIphoneRewardElection.findUnique({ where: { userId } });
-  if (!election?.cashWalletSavedAt) return false;
-  if (!election.cashPayoutStatus) return true;
-  return election.cashPayoutStatus === "PENDING" || election.cashPayoutStatus === "PROCESSING";
-}
-
-export async function hasCompletedFreeIphoneCashPayout(userId: string): Promise<boolean> {
-  const election = await prisma.freeIphoneRewardElection.findUnique({ where: { userId } });
-  return election?.cashPayoutStatus === "COMPLETED";
-}
-
-export async function updateFreeIphoneCashPayoutStatus(params: {
-  userId: string;
-  status: "PROCESSING" | "COMPLETED" | "REJECTED";
-  rejectReason?: string;
-  amount?: number;
-}) {
-  const election = await prisma.freeIphoneRewardElection.findUnique({
-    where: { userId: params.userId },
-  });
-  if (!election?.cashWalletSavedAt) throw new Error("no_cash_request");
-
-  if (params.status === "PROCESSING") {
-    return prisma.freeIphoneRewardElection.update({
-      where: { userId: params.userId },
-      data: { cashPayoutStatus: "PROCESSING" },
-    });
-  }
-
-  if (params.status === "COMPLETED") {
-    const amount = params.amount ?? (await getFreeIphoneCashPayoutAmount());
-    return prisma.freeIphoneRewardElection.update({
-      where: { userId: params.userId },
-      data: {
-        cashPayoutStatus: "COMPLETED",
-        cashPayoutProcessedAt: new Date(),
-        cashPayoutRejectReason: null,
-        cashPayoutAmount: new Prisma.Decimal(amount),
-      },
-    });
-  }
-
-  if (params.status === "REJECTED") {
-    return prisma.freeIphoneRewardElection.update({
-      where: { userId: params.userId },
-      data: {
-        cashPayoutStatus: "REJECTED",
-        cashPayoutProcessedAt: new Date(),
-        cashPayoutRejectReason: params.rejectReason?.trim() || null,
-      },
     });
   }
 

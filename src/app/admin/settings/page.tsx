@@ -13,7 +13,6 @@ type Settings = {
   terms_of_service: string;
   crypto_wallet_address: string;
   crypto_network: string;
-  free_iphone_cash_payout_usd: string;
 };
 
 const DEFAULT_SETTINGS: Settings = {
@@ -25,7 +24,6 @@ const DEFAULT_SETTINGS: Settings = {
   terms_of_service: "",
   crypto_wallet_address: "",
   crypto_network: "",
-  free_iphone_cash_payout_usd: "999",
 };
 
 export default function AdminSettingsPage() {
@@ -97,21 +95,6 @@ export default function AdminSettingsPage() {
             value={settings?.cashback_hold_days ?? "14"}
             onChange={(e) =>
               setSettings((s) => (s ? { ...s, cashback_hold_days: e.target.value } : { ...DEFAULT_SETTINGS, cashback_hold_days: e.target.value }))
-            }
-            className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">{t("adminFreeIphoneCashPayoutUsd")}</label>
-          <input
-            type="text"
-            value={settings?.free_iphone_cash_payout_usd ?? "999"}
-            onChange={(e) =>
-              setSettings((s) =>
-                s
-                  ? { ...s, free_iphone_cash_payout_usd: e.target.value }
-                  : { ...DEFAULT_SETTINGS, free_iphone_cash_payout_usd: e.target.value }
-              )
             }
             className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
           />

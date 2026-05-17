@@ -129,7 +129,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserRole")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserVerified")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserOrders")}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium min-w-[140px]">{t("adminUserProgress")}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium min-w-[140px]">{t("adminUserReferralProgress")}</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">{t("adminUserJoined")}</th>
                 <th className="min-w-[10rem] px-4 py-3 text-left text-sm font-medium">{t("adminActions")}</th>
               </tr>

@@ -5,7 +5,6 @@
  */
 
 import { prisma } from "./db";
-import { hasActiveFreeIphoneCashChoice, hasCompletedFreeIphoneCashPayout } from "./payout";
 
 const REFERRAL_COOKIE_DAYS = 30;
 
@@ -98,11 +97,10 @@ export async function getReferralStats(userId: string) {
   return { total, active, inactive: total - active, referrals };
 }
 
-// Бонусы: 10=$50, 15=$100, 20=бесплатный iPhone
+// Milestone bonuses (USD) at referral counts
 export const REFERRAL_BONUSES = {
   10: 50,
   15: 100,
-  20: "free_iphone" as const,
 };
 
 /** 1 year in ms - referrals must have purchased within this period */
@@ -125,136 +123,4 @@ export async function getFreeiPhoneQualifiedReferralsCount(userId: string): Prom
       },
     },
   });
-}
-
-/**
- * Get detailed list of referrals who purchased in the last year (for admin verification).
- */
-export async function getFreeiPhoneQualifiedReferrals(userId: string) {
-  const since = new Date(Date.now() - FREE_IPHONE_REFERRAL_WINDOW_MS);
-  const users = await prisma.user.findMany({
-    where: {
-      referredById: userId,
-      orders: {
-        some: {
-          status: "DELIVERED",
-          deliveredAt: { gte: since },
-        },
-      },
-    },
-    select: {
-      id: true,
-      email: true,
-      phone: true,
-      name: true,
-      createdAt: true,
-      orders: {
-        where: { status: "DELIVERED", deliveredAt: { gte: since } },
-        select: { orderNumber: true, total: true, deliveredAt: true },
-        orderBy: { deliveredAt: "desc" },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  return users.map((u) => ({
-    ...u,
-    firstPurchaseDeliveredAt: u.orders[0]?.deliveredAt,
-    orderCount: u.orders.length,
-  }));
-}
-
-export async function hasReceivedFreeiPhoneBonus(userId: string): Promise<boolean> {
-  const count = await prisma.order.count({
-    where: { userId, isFreeiPhoneBonus: true },
-  });
-  if (count > 0) return true;
-  return hasCompletedFreeIphoneCashPayout(userId);
-}
-
-/** Last delivered free iPhone order date (for "every year" eligibility) */
-export async function getLastFreeiPhoneDeliveredAt(userId: string): Promise<Date | null> {
-  const order = await prisma.order.findFirst({
-    where: { userId, isFreeiPhoneBonus: true, status: "DELIVERED", deliveredAt: { not: null } },
-    orderBy: { deliveredAt: "desc" },
-    select: { deliveredAt: true },
-  });
-  return order?.deliveredAt ?? null;
-}
-
-/** Last free-iPhone reward (device delivered or cash payout completed). */
-export async function getLastFreeiPhoneRewardAt(userId: string): Promise<Date | null> {
-  const [orderDate, election] = await Promise.all([
-    getLastFreeiPhoneDeliveredAt(userId),
-    prisma.freeIphoneRewardElection.findUnique({
-      where: { userId },
-      select: { cashPayoutProcessedAt: true, cashPayoutStatus: true },
-    }),
-  ]);
-  const cashDate =
-    election?.cashPayoutStatus === "COMPLETED" ? election.cashPayoutProcessedAt : null;
-  if (!orderDate) return cashDate;
-  if (!cashDate) return orderDate;
-  return orderDate > cashDate ? orderDate : cashDate;
-}
-
-/** Can receive free iPhone: 20+ qualified refs AND (never received OR last received > 1 year ago) */
-export async function canReceiveFreeiPhone(userId: string): Promise<boolean> {
-  if (await hasActiveFreeIphoneCashChoice(userId)) return false;
-
-  const [count, lastReward] = await Promise.all([
-    getFreeiPhoneQualifiedReferralsCount(userId),
-    getLastFreeiPhoneRewardAt(userId),
-  ]);
-  if (count < FREE_IPHONE_REQUIRED_COUNT) return false;
-  if (!lastReward) return true;
-  const oneYearAgo = new Date(Date.now() - FREE_IPHONE_REFERRAL_WINDOW_MS);
-  return lastReward < oneYearAgo;
-}
-
-/**
- * Users who have 20+ referrals with purchases in the last year and haven't received the bonus.
- */
-export async function getFreeiPhoneCandidates() {
-  const usersWithReferrals = await prisma.user.findMany({
-    where: {
-      role: "USER",
-      referrals: { some: {} },
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      phone: true,
-      referralCode: true,
-    },
-  });
-
-  const candidates: Array<{
-    id: string;
-    email: string | null;
-    name: string | null;
-    phone: string | null;
-    referralCode: string;
-    qualifiedReferralsCount: number;
-  }> = [];
-
-  for (const u of usersWithReferrals) {
-    const count = await getFreeiPhoneQualifiedReferralsCount(u.id);
-    if (count >= FREE_IPHONE_REQUIRED_COUNT) {
-      const eligible = await canReceiveFreeiPhone(u.id);
-      const cashPending = await hasActiveFreeIphoneCashChoice(u.id);
-      if (eligible && !cashPending) {
-        candidates.push({
-          id: u.id,
-          email: u.email,
-          name: u.name,
-          phone: u.phone,
-          referralCode: u.referralCode,
-          qualifiedReferralsCount: count,
-        });
-      }
-    }
-  }
-
-  return candidates.sort((a, b) => b.qualifiedReferralsCount - a.qualifiedReferralsCount);
 }

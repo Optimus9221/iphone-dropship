@@ -98,66 +98,6 @@ export async function createOrder(params: {
 }
 
 /**
- * Create a free iPhone bonus order (admin only).
- * User must have qualified (20 referrals with purchases in last year).
- */
-export async function createFreeiPhoneOrder(params: {
-  userId: string;
-  productId: string;
-}) {
-  const user = await prisma.user.findUnique({
-    where: { id: params.userId },
-    select: { email: true, name: true, phone: true },
-  });
-  if (!user) throw new Error("User not found");
-
-  const product = await prisma.product.findUnique({
-    where: { id: params.productId },
-  });
-  if (!product) throw new Error("Product not found");
-  if (product.stock < 1) throw new Error("Insufficient stock");
-
-  const orderNumber = generateOrderNumber();
-  const shippingName = user.name ?? user.email ?? user.phone ?? "Customer";
-  const shippingAddress = "Address to be provided by customer";
-  const shippingPhone = user.phone ?? "-";
-  const shippingEmail = user.email ?? `phone-${user.phone ?? "user"}@orders.internal`;
-  const comment = "Free iPhone — 20 referrals bonus";
-
-  return prisma.$transaction(async (tx) => {
-    const ord = await tx.order.create({
-      data: {
-        orderNumber,
-        userId: params.userId,
-        status: "NEW",
-        shippingName,
-        shippingAddress,
-        shippingPhone,
-        shippingEmail,
-        comment,
-        subtotal: 0,
-        shippingCost: 0,
-        total: 0,
-        isFreeiPhoneBonus: true,
-      },
-    });
-    await tx.orderItem.create({
-      data: {
-        orderId: ord.id,
-        productId: params.productId,
-        quantity: 1,
-        price: 0,
-      },
-    });
-    await tx.product.update({
-      where: { id: params.productId },
-      data: { stock: { decrement: 1 } },
-    });
-    return ord;
-  });
-}
-
-/**
  * Accrue cashback when order is delivered.
  * Called when admin sets status to DELIVERED.
  */

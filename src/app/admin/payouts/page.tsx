@@ -15,39 +15,19 @@ type CashbackPayout = {
   walletNetwork: string;
 };
 
-type FreeIphoneCash = {
-  userId: string;
-  email: string | null;
-  name: string | null;
-  walletAddress: string | null;
-  walletNetwork: string | null;
-  status: string;
-  amount: number | null;
-};
-
 export default function AdminPayoutsPage() {
   const { t } = useI18n();
   const toast = useToast();
-  const [tab, setTab] = useState<"cashback" | "freeIphone">("cashback");
   const [cashback, setCashback] = useState<CashbackPayout[]>([]);
-  const [freeIphone, setFreeIphone] = useState<FreeIphoneCash[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
-    Promise.all([
-      fetch("/api/admin/payouts").then((r) => r.json()),
-      fetch("/api/admin/free-iphone/cash-payouts").then((r) => r.json()),
-    ])
-      .then(([cb, fi]) => {
-        setCashback(Array.isArray(cb) ? cb : []);
-        setFreeIphone(Array.isArray(fi) ? fi : []);
-      })
-      .catch(() => {
-        setCashback([]);
-        setFreeIphone([]);
-      })
+    fetch("/api/admin/payouts")
+      .then((r) => r.json())
+      .then((cb) => setCashback(Array.isArray(cb) ? cb : []))
+      .catch(() => setCashback([]))
       .finally(() => setLoading(false));
   };
 
@@ -75,63 +55,39 @@ export default function AdminPayoutsPage() {
     }
   };
 
-  const updateFreeIphone = async (userId: string, status: "PROCESSING" | "COMPLETED" | "REJECTED") => {
-    let rejectReason: string | undefined;
-    if (status === "REJECTED") {
-      const reason = window.prompt(t("adminPayoutRejectReasonPrompt"));
-      if (reason === null) return;
-      rejectReason = reason;
-    }
-    setBusy(userId);
-    const res = await fetch("/api/admin/free-iphone/cash-payouts", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, status, rejectReason }),
-    });
-    setBusy(null);
-    if (res.ok) {
-      toast(t("adminSettingsSaved"));
-      load();
-    }
-  };
-
-  const renderActions = (
-    id: string,
-    status: string,
-    onUpdate: (id: string, s: "PROCESSING" | "COMPLETED" | "REJECTED") => void
-  ) => (
-      <div className="flex flex-wrap gap-1">
-        {status === "PENDING" && (
+  const renderActions = (id: string, status: string) => (
+    <div className="flex flex-wrap gap-1">
+      {status === "PENDING" && (
+        <button
+          type="button"
+          disabled={busy === id}
+          onClick={() => updateCashback(id, "PROCESSING")}
+          className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-600"
+        >
+          {t("adminPayoutMarkProcessing")}
+        </button>
+      )}
+      {(status === "PENDING" || status === "PROCESSING") && (
+        <>
           <button
             type="button"
             disabled={busy === id}
-            onClick={() => onUpdate(id, "PROCESSING")}
-            className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-600"
+            onClick={() => updateCashback(id, "COMPLETED")}
+            className="rounded bg-emerald-600 px-2 py-1 text-xs text-white"
           >
-            {t("adminPayoutMarkProcessing")}
+            {t("adminPayoutMarkCompleted")}
           </button>
-        )}
-        {(status === "PENDING" || status === "PROCESSING") && (
-          <>
-            <button
-              type="button"
-              disabled={busy === id}
-              onClick={() => onUpdate(id, "COMPLETED")}
-              className="rounded bg-emerald-600 px-2 py-1 text-xs text-white"
-            >
-              {t("adminPayoutMarkCompleted")}
-            </button>
-            <button
-              type="button"
-              disabled={busy === id}
-              onClick={() => onUpdate(id, "REJECTED")}
-              className="rounded bg-red-600/90 px-2 py-1 text-xs text-white"
-            >
-              {t("adminPayoutMarkRejected")}
-            </button>
-          </>
-        )}
-      </div>
+          <button
+            type="button"
+            disabled={busy === id}
+            onClick={() => updateCashback(id, "REJECTED")}
+            className="rounded bg-red-600/90 px-2 py-1 text-xs text-white"
+          >
+            {t("adminPayoutMarkRejected")}
+          </button>
+        </>
+      )}
+    </div>
   );
 
   if (loading) {
@@ -144,71 +100,28 @@ export default function AdminPayoutsPage() {
   }
 
   const pendingCashback = cashback.filter((p) => p.status === "PENDING" || p.status === "PROCESSING").length;
-  const pendingFree = freeIphone.filter((p) => p.status === "PENDING" || p.status === "PROCESSING").length;
 
   return (
     <div>
       <h1 className="text-2xl font-bold">{t("adminPayouts")}</h1>
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{t("adminPayoutsDesc")}</p>
+      <p className="mt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        {t("adminPayoutsCashback")} ({pendingCashback})
+      </p>
 
-      <div className="mt-6 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setTab("cashback")}
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${
-            tab === "cashback"
-              ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-              : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-          }`}
-        >
-          {t("adminPayoutsCashback")} ({pendingCashback})
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab("freeIphone")}
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${
-            tab === "freeIphone"
-              ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-              : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-          }`}
-        >
-          {t("adminPayoutsFreeIphone")} ({pendingFree})
-        </button>
-      </div>
-
-      {tab === "cashback" ? (
-        cashback.length === 0 ? (
-          <p className="mt-8 text-zinc-500">{t("adminPayoutsEmpty")}</p>
-        ) : (
-          <PayoutTable
-            rows={cashback.map((p) => ({
-              key: p.id,
-              name: p.name,
-              email: p.email,
-              typeLabel: t("adminPayoutsCashback"),
-              amount: `$${p.amount.toFixed(2)}`,
-              wallet: p.walletAddress,
-              network: p.walletNetwork,
-              status: p.status,
-              actions: renderActions(p.id, p.status, updateCashback),
-            }))}
-            t={t}
-          />
-        )
-      ) : freeIphone.length === 0 ? (
+      {cashback.length === 0 ? (
         <p className="mt-8 text-zinc-500">{t("adminPayoutsEmpty")}</p>
       ) : (
         <PayoutTable
-          rows={freeIphone.map((p) => ({
-            key: p.userId,
+          rows={cashback.map((p) => ({
+            key: p.id,
             name: p.name,
             email: p.email,
-            typeLabel: t("adminPayoutsFreeIphoneBonus"),
-            amount: p.amount != null ? `$${p.amount.toFixed(2)}` : "—",
-            wallet: p.walletAddress ?? "—",
-            network: p.walletNetwork ?? "",
+            amount: `$${p.amount.toFixed(2)}`,
+            wallet: p.walletAddress,
+            network: p.walletNetwork,
             status: p.status,
-            actions: renderActions(p.userId, p.status, updateFreeIphone),
+            actions: renderActions(p.id, p.status),
           }))}
           t={t}
         />
@@ -225,7 +138,6 @@ function PayoutTable({
     key: string;
     name: string | null;
     email: string | null;
-    typeLabel: string;
     amount: string;
     wallet: string;
     network: string;
@@ -240,9 +152,8 @@ function PayoutTable({
         <thead>
           <tr className="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
             <th className="px-3 py-2 text-left">{t("adminUserEmail")}</th>
-            <th className="px-3 py-2 text-left">{t("adminPayoutType")}</th>
             <th className="px-3 py-2 text-left">{t("adminPayoutAmount")}</th>
-            <th className="px-3 py-2 text-left">{t("freeiPhoneWalletLabel")}</th>
+            <th className="px-3 py-2 text-left">{t("cashbackWalletLabel")}</th>
             <th className="px-3 py-2 text-left">{t("orderStatus")}</th>
             <th className="px-3 py-2 text-left">{t("adminActions")}</th>
           </tr>
@@ -254,7 +165,6 @@ function PayoutTable({
                 <p>{r.name ?? r.email ?? "—"}</p>
                 <p className="text-xs text-zinc-500">{r.email}</p>
               </td>
-              <td className="px-3 py-2 text-xs text-zinc-600 dark:text-zinc-400">{r.typeLabel}</td>
               <td className="px-3 py-2">{r.amount}</td>
               <td className="max-w-xs px-3 py-2">
                 <p className="truncate font-mono text-xs" title={r.wallet}>
@@ -287,4 +197,3 @@ function StatusCell({ status, t }: { status: string; t: ReturnType<typeof useI18
     </span>
   );
 }
-

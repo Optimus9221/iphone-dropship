@@ -33,7 +33,6 @@ export async function GET() {
           "terms_of_service",
           "crypto_wallet_address",
           "crypto_network",
-          "free_iphone_cash_payout_usd",
         ],
       },
     },
@@ -51,7 +50,6 @@ export async function GET() {
     terms_of_service: map.terms_of_service ?? "",
     crypto_wallet_address: map.crypto_wallet_address ?? "",
     crypto_network: map.crypto_network ?? "",
-    free_iphone_cash_payout_usd: map.free_iphone_cash_payout_usd ?? "999",
   });
 }
 
@@ -64,7 +62,6 @@ const updateSchema = z.object({
   terms_of_service: z.string().optional(),
   crypto_wallet_address: z.string().optional(),
   crypto_network: z.string().optional(),
-  free_iphone_cash_payout_usd: z.string().regex(/^\d+$/).optional(),
 });
 
 export async function PATCH(req: Request) {

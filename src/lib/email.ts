@@ -1,7 +1,7 @@
-/**
+﻿/**
  * Email notifications using Resend
  * Set RESEND_API_KEY and EMAIL_FROM to an address on a domain verified in Resend.
- * On production, EMAIL_FROM must be set — onboarding@resend.dev triggers 403 for most recipients.
+ * On production, EMAIL_FROM must be set вЂ” onboarding@resend.dev triggers 403 for most recipients.
  */
 
 import { Resend, type CreateEmailOptions } from "resend";
@@ -14,7 +14,7 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? "PhoneFree";
 
 let warnedMissingEmailFrom = false;
 
-/** Trims accidental whitespace from Vercel — Resend rejects malformed `from`. */
+/** Trims accidental whitespace from Vercel вЂ” Resend rejects malformed `from`. */
 function getResendFrom(): string {
   const raw = process.env.EMAIL_FROM?.trim();
   if (raw && raw.length > 0) return raw;
@@ -60,7 +60,7 @@ function logResendFailure(op: string, err: unknown): void {
 }
 
 /**
- * Resend's client resolves with `{ data, error }` — it does not throw on HTTP/API errors.
+ * Resend's client resolves with `{ data, error }` вЂ” it does not throw on HTTP/API errors.
  * Without checking `error`, callers falsely assume the email was sent.
  */
 async function resendSend(op: string, payload: CreateEmailOptions): Promise<boolean> {
@@ -89,21 +89,21 @@ export async function sendEmailVerificationCode(params: {
   const from = getResendFrom();
   const subject =
     params.locale === "ru"
-      ? `Код подтверждения email — ${SITE_NAME}`
+      ? `РљРѕРґ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ email вЂ” ${SITE_NAME}`
       : params.locale === "uk"
-        ? `Код підтвердження email — ${SITE_NAME}`
-        : `Your email verification code — ${SITE_NAME}`;
+        ? `РљРѕРґ РїС–РґС‚РІРµСЂРґР¶РµРЅРЅСЏ email вЂ” ${SITE_NAME}`
+        : `Your email verification code вЂ” ${SITE_NAME}`;
   const body =
     params.locale === "ru"
-      ? `<p>Ваш код подтверждения email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>Код действителен 30 минут. Если вы не регистрировались, проигнорируйте письмо.</p>`
+      ? `<p>Р’Р°С€ РєРѕРґ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>РљРѕРґ РґРµР№СЃС‚РІРёС‚РµР»РµРЅ 30 РјРёРЅСѓС‚. Р•СЃР»Рё РІС‹ РЅРµ СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°Р»РёСЃСЊ, РїСЂРѕРёРіРЅРѕСЂРёСЂСѓР№С‚Рµ РїРёСЃСЊРјРѕ.</p>`
       : params.locale === "uk"
-        ? `<p>Ваш код підтвердження email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>Код дійсний 30 хвилин. Якщо ви не реєструвалися, ігноруйте лист.</p>`
+        ? `<p>Р’Р°С€ РєРѕРґ РїС–РґС‚РІРµСЂРґР¶РµРЅРЅСЏ email:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>РљРѕРґ РґС–Р№СЃРЅРёР№ 30 С…РІРёР»РёРЅ. РЇРєС‰Рѕ РІРё РЅРµ СЂРµС”СЃС‚СЂСѓРІР°Р»РёСЃСЏ, С–РіРЅРѕСЂСѓР№С‚Рµ Р»РёСЃС‚.</p>`
         : `<p>Your email verification code:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${params.code}</p><p>This code expires in 30 minutes. If you did not sign up, ignore this email.</p>`;
   return resendSend("verification", {
     from,
     to: params.to,
     subject,
-    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>вЂ” ${SITE_NAME}</p></div>`,
   });
 }
 
@@ -112,21 +112,21 @@ export async function sendPasswordResetEmail(params: { to: string; resetLink: st
   const from = getResendFrom();
   const subject =
     params.locale === "ru"
-      ? `Восстановление пароля — ${SITE_NAME}`
+      ? `Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РїР°СЂРѕР»СЏ вЂ” ${SITE_NAME}`
       : params.locale === "uk"
-        ? `Відновлення пароля — ${SITE_NAME}`
-        : `Password reset — ${SITE_NAME}`;
+        ? `Р’С–РґРЅРѕРІР»РµРЅРЅСЏ РїР°СЂРѕР»СЏ вЂ” ${SITE_NAME}`
+        : `Password reset вЂ” ${SITE_NAME}`;
   const body =
     params.locale === "ru"
-      ? `<p>Перейдите по ссылке, чтобы задать новый пароль:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Ссылка действительна 1 час.</p>`
+      ? `<p>РџРµСЂРµР№РґРёС‚Рµ РїРѕ СЃСЃС‹Р»РєРµ, С‡С‚РѕР±С‹ Р·Р°РґР°С‚СЊ РЅРѕРІС‹Р№ РїР°СЂРѕР»СЊ:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>РЎСЃС‹Р»РєР° РґРµР№СЃС‚РІРёС‚РµР»СЊРЅР° 1 С‡Р°СЃ.</p>`
       : params.locale === "uk"
-        ? `<p>Перейдіть за посиланням, щоб встановити новий пароль:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Посилання дійсне 1 годину.</p>`
+        ? `<p>РџРµСЂРµР№РґС–С‚СЊ Р·Р° РїРѕСЃРёР»Р°РЅРЅСЏРј, С‰РѕР± РІСЃС‚Р°РЅРѕРІРёС‚Рё РЅРѕРІРёР№ РїР°СЂРѕР»СЊ:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>РџРѕСЃРёР»Р°РЅРЅСЏ РґС–Р№СЃРЅРµ 1 РіРѕРґРёРЅСѓ.</p>`
         : `<p>Click the link to set a new password:</p><p><a href="${params.resetLink}">${params.resetLink}</a></p><p>Link expires in 1 hour.</p>`;
   await resendSend("password-reset", {
     from,
     to: params.to,
     subject,
-    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
+    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>вЂ” ${SITE_NAME}</p></div>`,
   });
 }
 
@@ -142,7 +142,7 @@ export async function sendOrderConfirmation(params: {
   await resendSend("order-confirmation", {
     from,
     to: params.to,
-    subject: `Order #${params.orderNumber} confirmed — ${SITE_NAME}`,
+    subject: `Order #${params.orderNumber} confirmed вЂ” ${SITE_NAME}`,
     html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2>Order confirmed</h2>
@@ -152,13 +152,13 @@ export async function sendOrderConfirmation(params: {
           <p>Total: $${params.total}</p>
           <p>After we review your order, we will send an email with instructions to pay in cryptocurrency. You will find the wallet address and network in your account under Orders.</p>
           <p>You can track your order in your <a href="${siteUrl}/dashboard/orders">dashboard</a>.</p>
-          <p>— ${SITE_NAME}</p>
+          <p>вЂ” ${SITE_NAME}</p>
         </div>
       `,
   });
 }
 
-/** Sent when admin sets order to AWAITING_PAYMENT — asks customer to open site for crypto details */
+/** Sent when admin sets order to AWAITING_PAYMENT вЂ” asks customer to open site for crypto details */
 export async function sendAwaitingPaymentEmail(params: {
   to: string;
   orderNumber: string;
@@ -174,22 +174,22 @@ export async function sendAwaitingPaymentEmail(params: {
   const loc = params.locale ?? "en";
   const linkLabel =
     loc === "ru"
-      ? "Открыть страницу оплаты"
+      ? "РћС‚РєСЂС‹С‚СЊ СЃС‚СЂР°РЅРёС†Сѓ РѕРїР»Р°С‚С‹"
       : loc === "uk"
-        ? "Відкрити сторінку оплати"
+        ? "Р’С–РґРєСЂРёС‚Рё СЃС‚РѕСЂС–РЅРєСѓ РѕРїР»Р°С‚Рё"
         : "Open payment page";
   const subject =
     loc === "ru"
-      ? `Оплатите заказ #${params.orderNumber} — ${SITE_NAME}`
+      ? `РћРїР»Р°С‚РёС‚Рµ Р·Р°РєР°Р· #${params.orderNumber} вЂ” ${SITE_NAME}`
       : loc === "uk"
-        ? `Оплатіть замовлення #${params.orderNumber} — ${SITE_NAME}`
-        : `Complete payment for order #${params.orderNumber} — ${SITE_NAME}`;
+        ? `РћРїР»Р°С‚С–С‚СЊ Р·Р°РјРѕРІР»РµРЅРЅСЏ #${params.orderNumber} вЂ” ${SITE_NAME}`
+        : `Complete payment for order #${params.orderNumber} вЂ” ${SITE_NAME}`;
   const html =
     loc === "ru"
-      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Заказ <strong>#${params.orderNumber}</strong> подтверждён. Нажмите кнопку ниже — откроется страница с адресом кошелька, сетью и формой для скрина перевода.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">Если кнопка не работает, скопируйте ссылку:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>После перевода прикрепите скрин транзакции и нажмите «Оплатил».</p><p>— ${SITE_NAME}</p></div>`
+      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Р—Р°РєР°Р· <strong>#${params.orderNumber}</strong> РїРѕРґС‚РІРµСЂР¶РґС‘РЅ. РќР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ РЅРёР¶Рµ вЂ” РѕС‚РєСЂРѕРµС‚СЃСЏ СЃС‚СЂР°РЅРёС†Р° СЃ Р°РґСЂРµСЃРѕРј РєРѕС€РµР»СЊРєР°, СЃРµС‚СЊСЋ Рё С„РѕСЂРјРѕР№ РґР»СЏ СЃРєСЂРёРЅР° РїРµСЂРµРІРѕРґР°.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">Р•СЃР»Рё РєРЅРѕРїРєР° РЅРµ СЂР°Р±РѕС‚Р°РµС‚, СЃРєРѕРїРёСЂСѓР№С‚Рµ СЃСЃС‹Р»РєСѓ:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>РџРѕСЃР»Рµ РїРµСЂРµРІРѕРґР° РїСЂРёРєСЂРµРїРёС‚Рµ СЃРєСЂРёРЅ С‚СЂР°РЅР·Р°РєС†РёРё Рё РЅР°Р¶РјРёС‚Рµ В«РћРїР»Р°С‚РёР»В».</p><p>вЂ” ${SITE_NAME}</p></div>`
       : loc === "uk"
-        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Замовлення <strong>#${params.orderNumber}</strong> підтверджено. Натисніть кнопку нижче — відкриється сторінка з адресою гаманця, мережею та формою для скрина переказу.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">Якщо кнопка не працює, скопіюйте посилання:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>Після переказу додайте скрін та натисніть «Оплатив».</p><p>— ${SITE_NAME}</p></div>`
-        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Use the button below to open the payment page — wallet address, network, and the upload form for your transaction screenshot.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">If the button does not work, copy this link:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>After you send the transfer, upload a screenshot and click “Paid”.</p><p>— ${SITE_NAME}</p></div>`;
+        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Р—Р°РјРѕРІР»РµРЅРЅСЏ <strong>#${params.orderNumber}</strong> РїС–РґС‚РІРµСЂРґР¶РµРЅРѕ. РќР°С‚РёСЃРЅС–С‚СЊ РєРЅРѕРїРєСѓ РЅРёР¶С‡Рµ вЂ” РІС–РґРєСЂРёС”С‚СЊСЃСЏ СЃС‚РѕСЂС–РЅРєР° Р· Р°РґСЂРµСЃРѕСЋ РіР°РјР°РЅС†СЏ, РјРµСЂРµР¶РµСЋ С‚Р° С„РѕСЂРјРѕСЋ РґР»СЏ СЃРєСЂРёРЅР° РїРµСЂРµРєР°Р·Сѓ.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">РЇРєС‰Рѕ РєРЅРѕРїРєР° РЅРµ РїСЂР°С†СЋС”, СЃРєРѕРїС–СЋР№С‚Рµ РїРѕСЃРёР»Р°РЅРЅСЏ:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>РџС–СЃР»СЏ РїРµСЂРµРєР°Р·Сѓ РґРѕРґР°Р№С‚Рµ СЃРєСЂС–РЅ С‚Р° РЅР°С‚РёСЃРЅС–С‚СЊ В«РћРїР»Р°С‚РёРІВ».</p><p>вЂ” ${SITE_NAME}</p></div>`
+        : `<div style="font-family: sans-serif; max-width: 480px;"><p>Your order <strong>#${params.orderNumber}</strong> is confirmed. Use the button below to open the payment page вЂ” wallet address, network, and the upload form for your transaction screenshot.</p><p style="margin:20px 0;"><a href="${paymentPageUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">${linkLabel}</a></p><p style="font-size:13px;color:#525252;">If the button does not work, copy this link:<br/><a href="${paymentPageUrl}">${paymentPageUrl}</a></p><p>After you send the transfer, upload a screenshot and click вЂњPaidвЂќ.</p><p>вЂ” ${SITE_NAME}</p></div>`;
   await resendSend("awaiting-payment", { from, to: params.to, subject, html });
 }
 
@@ -208,16 +208,16 @@ export async function sendPaymentProofSubmittedEmail(params: {
   const loc = params.locale ?? "en";
   const subject =
     loc === "ru"
-      ? `Платёж получен на проверку — заказ #${params.orderNumber} — ${SITE_NAME}`
+      ? `РџР»Р°С‚С‘Р¶ РїРѕР»СѓС‡РµРЅ РЅР° РїСЂРѕРІРµСЂРєСѓ вЂ” Р·Р°РєР°Р· #${params.orderNumber} вЂ” ${SITE_NAME}`
       : loc === "uk"
-        ? `Платіж на перевірці — замовлення #${params.orderNumber} — ${SITE_NAME}`
-        : `Payment proof received — order #${params.orderNumber} — ${SITE_NAME}`;
+        ? `РџР»Р°С‚С–Р¶ РЅР° РїРµСЂРµРІС–СЂС†С– вЂ” Р·Р°РјРѕРІР»РµРЅРЅСЏ #${params.orderNumber} вЂ” ${SITE_NAME}`
+        : `Payment proof received вЂ” order #${params.orderNumber} вЂ” ${SITE_NAME}`;
   const html =
     loc === "ru"
-      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Мы получили скрин транзакции по заказу <strong>#${params.orderNumber}</strong>. После проверки статус обновится — следите в личном кабинете.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`
+      ? `<div style="font-family: sans-serif; max-width: 480px;"><p>РњС‹ РїРѕР»СѓС‡РёР»Рё СЃРєСЂРёРЅ С‚СЂР°РЅР·Р°РєС†РёРё РїРѕ Р·Р°РєР°Р·Сѓ <strong>#${params.orderNumber}</strong>. РџРѕСЃР»Рµ РїСЂРѕРІРµСЂРєРё СЃС‚Р°С‚СѓСЃ РѕР±РЅРѕРІРёС‚СЃСЏ вЂ” СЃР»РµРґРёС‚Рµ РІ Р»РёС‡РЅРѕРј РєР°Р±РёРЅРµС‚Рµ.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>вЂ” ${SITE_NAME}</p></div>`
       : loc === "uk"
-        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>Ми отримали скрін транзакції для замовлення <strong>#${params.orderNumber}</strong>. Після перевірки статус оновиться — слідкуйте в особистому кабінеті.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`
-        : `<div style="font-family: sans-serif; max-width: 480px;"><p>We received your transaction screenshot for order <strong>#${params.orderNumber}</strong>. We will verify it and update your order status — check your dashboard.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>— ${SITE_NAME}</p></div>`;
+        ? `<div style="font-family: sans-serif; max-width: 480px;"><p>РњРё РѕС‚СЂРёРјР°Р»Рё СЃРєСЂС–РЅ С‚СЂР°РЅР·Р°РєС†С–С— РґР»СЏ Р·Р°РјРѕРІР»РµРЅРЅСЏ <strong>#${params.orderNumber}</strong>. РџС–СЃР»СЏ РїРµСЂРµРІС–СЂРєРё СЃС‚Р°С‚СѓСЃ РѕРЅРѕРІРёС‚СЊСЃСЏ вЂ” СЃР»С–РґРєСѓР№С‚Рµ РІ РѕСЃРѕР±РёСЃС‚РѕРјСѓ РєР°Р±С–РЅРµС‚С–.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>вЂ” ${SITE_NAME}</p></div>`
+        : `<div style="font-family: sans-serif; max-width: 480px;"><p>We received your transaction screenshot for order <strong>#${params.orderNumber}</strong>. We will verify it and update your order status вЂ” check your dashboard.</p><p><a href="${ordersUrl}">${ordersUrl}</a></p><p>вЂ” ${SITE_NAME}</p></div>`;
   await resendSend("payment-proof-submitted", { from, to: params.to, subject, html });
 }
 
@@ -230,7 +230,7 @@ function escapeHtml(s: string): string {
 }
 
 /**
- * Internal/admin inbox — payment screenshot uploaded, verification needed.
+ * Internal/admin inbox вЂ” payment screenshot uploaded, verification needed.
  * Requires ADMIN_NOTIFICATION_EMAIL (comma-separated allowed).
  */
 export async function sendAdminPaymentProofReceivedNotification(params: {
@@ -261,23 +261,23 @@ export async function sendAdminPaymentProofReceivedNotification(params: {
     timeZone: "Europe/Kyiv",
   });
 
-  const subject = `[${SITE_NAME}] Заказ №${params.orderNumber} — поступило подтверждение оплаты`;
+  const subject = `[${SITE_NAME}] Р—Р°РєР°Р· в„–${params.orderNumber} вЂ” РїРѕСЃС‚СѓРїРёР»Рѕ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РѕРїР»Р°С‚С‹`;
 
   const html = `
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a; line-height: 1.55; font-size: 15px;">
-  <p style="margin: 0 0 18px;">Добрый день.</p>
+  <p style="margin: 0 0 18px;">Р”РѕР±СЂС‹Р№ РґРµРЅСЊ.</p>
   <p style="margin: 0 0 18px;">
-    По заказу <strong>№${num}</strong> клиент приложил скриншот транзакции. Сумма заказа в системе: <strong>$${totalStr}&nbsp;USD</strong>.
-    Статус переведён в режим ожидания проверки платежа.
+    РџРѕ Р·Р°РєР°Р·Сѓ <strong>в„–${num}</strong> РєР»РёРµРЅС‚ РїСЂРёР»РѕР¶РёР» СЃРєСЂРёРЅС€РѕС‚ С‚СЂР°РЅР·Р°РєС†РёРё. РЎСѓРјРјР° Р·Р°РєР°Р·Р° РІ СЃРёСЃС‚РµРјРµ: <strong>$${totalStr}&nbsp;USD</strong>.
+    РЎС‚Р°С‚СѓСЃ РїРµСЂРµРІРµРґС‘РЅ РІ СЂРµР¶РёРј РѕР¶РёРґР°РЅРёСЏ РїСЂРѕРІРµСЂРєРё РїР»Р°С‚РµР¶Р°.
   </p>
-  <p style="margin: 0 0 18px;"><strong>Необходимо:</strong> сверить данные перевода со скриншотом в карточке заказа и при успешной проверке установить статус «Оплачен».</p>
+  <p style="margin: 0 0 18px;"><strong>РќРµРѕР±С…РѕРґРёРјРѕ:</strong> СЃРІРµСЂРёС‚СЊ РґР°РЅРЅС‹Рµ РїРµСЂРµРІРѕРґР° СЃРѕ СЃРєСЂРёРЅС€РѕС‚РѕРј РІ РєР°СЂС‚РѕС‡РєРµ Р·Р°РєР°Р·Р° Рё РїСЂРё СѓСЃРїРµС€РЅРѕР№ РїСЂРѕРІРµСЂРєРµ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃС‚Р°С‚СѓСЃ В«РћРїР»Р°С‡РµРЅВ».</p>
   <p style="margin: 0 0 18px;">
-    Административная панель — заказы:<br />
+    РђРґРјРёРЅРёСЃС‚СЂР°С‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ вЂ” Р·Р°РєР°Р·С‹:<br />
     <a href="${adminOrdersUrl}" style="color: #0f766e;">${adminOrdersUrl}</a>
   </p>
-  <p style="margin: 0 0 24px; color: #525252; font-size: 13px;">Время загрузки скриншота (Киев): ${escapeHtml(whenStr)}</p>
+  <p style="margin: 0 0 24px; color: #525252; font-size: 13px;">Р’СЂРµРјСЏ Р·Р°РіСЂСѓР·РєРё СЃРєСЂРёРЅС€РѕС‚Р° (РљРёРµРІ): ${escapeHtml(whenStr)}</p>
   <p style="margin: 0; color: #737373; font-size: 12px; border-top: 1px solid #e5e5e5; padding-top: 16px;">
-    Это автоматическое служебное уведомление. Ответ на это письмо не обрабатывается.
+    Р­С‚Рѕ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРµ СЃР»СѓР¶РµР±РЅРѕРµ СѓРІРµРґРѕРјР»РµРЅРёРµ. РћС‚РІРµС‚ РЅР° СЌС‚Рѕ РїРёСЃСЊРјРѕ РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ.
   </p>
 </div>`;
 
@@ -307,8 +307,8 @@ export async function sendOrderStatusUpdate(params: {
 
   const trackingHtml =
     params.trackingNumber != null && params.trackingNumber !== ""
-      ? `<p>${loc === "ru" ? "Трек-номер" : loc === "uk" ? "Трек-номер" : "Tracking"}: ${params.trackingNumber}</p>
-         <p><a href="https://novaposhta.ua/tracking/?cargo_number=${encodeURIComponent(params.trackingNumber)}">${loc === "ru" ? "Отследить на Новой Почте" : loc === "uk" ? "Відстежити на Новій Пошті" : "Track on Nova Poshta"}</a></p>`
+      ? `<p>${loc === "ru" ? "РўСЂРµРє-РЅРѕРјРµСЂ" : loc === "uk" ? "РўСЂРµРє-РЅРѕРјРµСЂ" : "Tracking"}: ${params.trackingNumber}</p>
+         <p><a href="https://novaposhta.ua/tracking/?cargo_number=${encodeURIComponent(params.trackingNumber)}">${loc === "ru" ? "РћС‚СЃР»РµРґРёС‚СЊ РЅР° РќРѕРІРѕР№ РџРѕС‡С‚Рµ" : loc === "uk" ? "Р’С–РґСЃС‚РµР¶РёС‚Рё РЅР° РќРѕРІС–Р№ РџРѕС€С‚С–" : "Track on Nova Poshta"}</a></p>`
       : "";
 
   const imeiHtml =
@@ -316,34 +316,34 @@ export async function sendOrderStatusUpdate(params: {
       ? `<p>${loc === "ru" ? "IMEI" : loc === "uk" ? "IMEI" : "IMEI"}: ${params.imei}</p>`
       : "";
 
-  /** Payment flow — avoid misleading «verification» wording in customer inbox */
+  /** Payment flow вЂ” avoid misleading В«verificationВ» wording in customer inbox */
   if (params.status === "AWAITING_PAYMENT" || params.status === "PAYMENT_VERIFICATION_PENDING") {
     let subject: string;
     let html: string;
     if (loc === "ru") {
-      subject = `Заказ №${params.orderNumber} — для оплаты заказа, перейдите по ссылке — ${SITE_NAME}`;
+      subject = `Р—Р°РєР°Р· в„–${params.orderNumber} вЂ” РґР»СЏ РѕРїР»Р°С‚С‹ Р·Р°РєР°Р·Р°, РїРµСЂРµР№РґРёС‚Рµ РїРѕ СЃСЃС‹Р»РєРµ вЂ” ${SITE_NAME}`;
       html = `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2 style="font-size:18px;margin-bottom:12px;">Обновление статуса заказа</h2>
-          <p>Для оплаты заказа, перейдите по ссылке:</p>
-          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Открыть страницу заказа</a></p>
-          <p style="font-size:13px;color:#525252;">Или скопируйте адрес:<br/><a href="${ordersLink}">${ordersLink}</a></p>
+          <h2 style="font-size:18px;margin-bottom:12px;">РћР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚СѓСЃР° Р·Р°РєР°Р·Р°</h2>
+          <p>Р”Р»СЏ РѕРїР»Р°С‚С‹ Р·Р°РєР°Р·Р°, РїРµСЂРµР№РґРёС‚Рµ РїРѕ СЃСЃС‹Р»РєРµ:</p>
+          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">РћС‚РєСЂС‹С‚СЊ СЃС‚СЂР°РЅРёС†Сѓ Р·Р°РєР°Р·Р°</a></p>
+          <p style="font-size:13px;color:#525252;">РР»Рё СЃРєРѕРїРёСЂСѓР№С‚Рµ Р°РґСЂРµСЃ:<br/><a href="${ordersLink}">${ordersLink}</a></p>
           ${trackingHtml}${imeiHtml}
-          <p style="margin-top:16px;">— ${SITE_NAME}</p>
+          <p style="margin-top:16px;">вЂ” ${SITE_NAME}</p>
         </div>`;
     } else if (loc === "uk") {
-      subject = `Замовлення №${params.orderNumber} — для оплати замовлення перейдіть за посиланням — ${SITE_NAME}`;
+      subject = `Р—Р°РјРѕРІР»РµРЅРЅСЏ в„–${params.orderNumber} вЂ” РґР»СЏ РѕРїР»Р°С‚Рё Р·Р°РјРѕРІР»РµРЅРЅСЏ РїРµСЂРµР№РґС–С‚СЊ Р·Р° РїРѕСЃРёР»Р°РЅРЅСЏРј вЂ” ${SITE_NAME}`;
       html = `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2 style="font-size:18px;margin-bottom:12px;">Оновлення статусу замовлення</h2>
-          <p>Для оплати замовлення перейдіть за посиланням:</p>
-          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Відкрити сторінку замовлення</a></p>
-          <p style="font-size:13px;color:#525252;">Або скопіюйте адресу:<br/><a href="${ordersLink}">${ordersLink}</a></p>
+          <h2 style="font-size:18px;margin-bottom:12px;">РћРЅРѕРІР»РµРЅРЅСЏ СЃС‚Р°С‚СѓСЃСѓ Р·Р°РјРѕРІР»РµРЅРЅСЏ</h2>
+          <p>Р”Р»СЏ РѕРїР»Р°С‚Рё Р·Р°РјРѕРІР»РµРЅРЅСЏ РїРµСЂРµР№РґС–С‚СЊ Р·Р° РїРѕСЃРёР»Р°РЅРЅСЏРј:</p>
+          <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Р’С–РґРєСЂРёС‚Рё СЃС‚РѕСЂС–РЅРєСѓ Р·Р°РјРѕРІР»РµРЅРЅСЏ</a></p>
+          <p style="font-size:13px;color:#525252;">РђР±Рѕ СЃРєРѕРїС–СЋР№С‚Рµ Р°РґСЂРµСЃСѓ:<br/><a href="${ordersLink}">${ordersLink}</a></p>
           ${trackingHtml}${imeiHtml}
-          <p style="margin-top:16px;">— ${SITE_NAME}</p>
+          <p style="margin-top:16px;">вЂ” ${SITE_NAME}</p>
         </div>`;
     } else {
-      subject = `Order #${params.orderNumber} — complete payment via link — ${SITE_NAME}`;
+      subject = `Order #${params.orderNumber} вЂ” complete payment via link вЂ” ${SITE_NAME}`;
       html = `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2 style="font-size:18px;margin-bottom:12px;">Order status update</h2>
@@ -351,7 +351,7 @@ export async function sendOrderStatusUpdate(params: {
           <p style="margin:16px 0;"><a href="${ordersLink}" style="display:inline-block;background:#059669;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;">Open order page</a></p>
           <p style="font-size:13px;color:#525252;">Or copy this URL:<br/><a href="${ordersLink}">${ordersLink}</a></p>
           ${trackingHtml}${imeiHtml}
-          <p style="margin-top:16px;">— ${SITE_NAME}</p>
+          <p style="margin-top:16px;">вЂ” ${SITE_NAME}</p>
         </div>`;
     }
     await resendSend("order-status", { from, to: params.to, subject, html });
@@ -359,26 +359,26 @@ export async function sendOrderStatusUpdate(params: {
   }
 
   const labelRu: Record<string, string> = {
-    NEW: "Новый",
-    AWAITING_PAYMENT: "Ожидает оплаты",
-    PAYMENT_VERIFICATION_PENDING: "Ожидает проверки оплаты",
-    PAID: "Оплачен",
-    PROCESSING: "В обработке",
-    SHIPPED: "Отправлен",
-    DELIVERED: "Доставлен",
-    CANCELLED: "Отменён",
-    REFUNDED: "Возврат",
+    NEW: "РќРѕРІС‹Р№",
+    AWAITING_PAYMENT: "РћР¶РёРґР°РµС‚ РѕРїР»Р°С‚С‹",
+    PAYMENT_VERIFICATION_PENDING: "РћР¶РёРґР°РµС‚ РїСЂРѕРІРµСЂРєРё РѕРїР»Р°С‚С‹",
+    PAID: "РћРїР»Р°С‡РµРЅ",
+    PROCESSING: "Р’ РѕР±СЂР°Р±РѕС‚РєРµ",
+    SHIPPED: "РћС‚РїСЂР°РІР»РµРЅ",
+    DELIVERED: "Р”РѕСЃС‚Р°РІР»РµРЅ",
+    CANCELLED: "РћС‚РјРµРЅС‘РЅ",
+    REFUNDED: "Р’РѕР·РІСЂР°С‚",
   };
   const labelUk: Record<string, string> = {
-    NEW: "Новий",
-    AWAITING_PAYMENT: "Очікує оплати",
-    PAYMENT_VERIFICATION_PENDING: "Очікує перевірки оплати",
-    PAID: "Оплачено",
-    PROCESSING: "В обробці",
-    SHIPPED: "Відправлено",
-    DELIVERED: "Доставлено",
-    CANCELLED: "Скасовано",
-    REFUNDED: "Повернення",
+    NEW: "РќРѕРІРёР№",
+    AWAITING_PAYMENT: "РћС‡С–РєСѓС” РѕРїР»Р°С‚Рё",
+    PAYMENT_VERIFICATION_PENDING: "РћС‡С–РєСѓС” РїРµСЂРµРІС–СЂРєРё РѕРїР»Р°С‚Рё",
+    PAID: "РћРїР»Р°С‡РµРЅРѕ",
+    PROCESSING: "Р’ РѕР±СЂРѕР±С†С–",
+    SHIPPED: "Р’С–РґРїСЂР°РІР»РµРЅРѕ",
+    DELIVERED: "Р”РѕСЃС‚Р°РІР»РµРЅРѕ",
+    CANCELLED: "РЎРєР°СЃРѕРІР°РЅРѕ",
+    REFUNDED: "РџРѕРІРµСЂРЅРµРЅРЅСЏ",
   };
   const labelEn: Record<string, string> = {
     NEW: "New",
@@ -401,24 +401,24 @@ export async function sendOrderStatusUpdate(params: {
   let linkLabel: string;
 
   if (loc === "ru") {
-    subject = `Заказ №${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`;
-    heading = "Обновление статуса заказа";
-    line = `Ваш заказ <strong>#${params.orderNumber}</strong>. Статус: <strong>${statusLabel}</strong>`;
-    linkLabel = "Открыть заказы в личном кабинете";
+    subject = `Р—Р°РєР°Р· в„–${params.orderNumber} вЂ” ${statusLabel} вЂ” ${SITE_NAME}`;
+    heading = "РћР±РЅРѕРІР»РµРЅРёРµ СЃС‚Р°С‚СѓСЃР° Р·Р°РєР°Р·Р°";
+    line = `Р’Р°С€ Р·Р°РєР°Р· <strong>#${params.orderNumber}</strong>. РЎС‚Р°С‚СѓСЃ: <strong>${statusLabel}</strong>`;
+    linkLabel = "РћС‚РєСЂС‹С‚СЊ Р·Р°РєР°Р·С‹ РІ Р»РёС‡РЅРѕРј РєР°Р±РёРЅРµС‚Рµ";
   } else if (loc === "uk") {
-    subject = `Замовлення №${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`;
-    heading = "Оновлення статусу замовлення";
-    line = `Ваше замовлення <strong>#${params.orderNumber}</strong>. Статус: <strong>${statusLabel}</strong>`;
-    linkLabel = "Відкрити замовлення в кабінеті";
+    subject = `Р—Р°РјРѕРІР»РµРЅРЅСЏ в„–${params.orderNumber} вЂ” ${statusLabel} вЂ” ${SITE_NAME}`;
+    heading = "РћРЅРѕРІР»РµРЅРЅСЏ СЃС‚Р°С‚СѓСЃСѓ Р·Р°РјРѕРІР»РµРЅРЅСЏ";
+    line = `Р’Р°С€Рµ Р·Р°РјРѕРІР»РµРЅРЅСЏ <strong>#${params.orderNumber}</strong>. РЎС‚Р°С‚СѓСЃ: <strong>${statusLabel}</strong>`;
+    linkLabel = "Р’С–РґРєСЂРёС‚Рё Р·Р°РјРѕРІР»РµРЅРЅСЏ РІ РєР°Р±С–РЅРµС‚С–";
   } else {
-    subject = `Order #${params.orderNumber} — ${statusLabel} — ${SITE_NAME}`;
+    subject = `Order #${params.orderNumber} вЂ” ${statusLabel} вЂ” ${SITE_NAME}`;
     heading = "Order status update";
     line = `Your order <strong>#${params.orderNumber}</strong> status: <strong>${statusLabel}</strong>`;
     linkLabel = "View orders";
   }
 
   const body =
-    `<p>${line}</p>${trackingHtml}${imeiHtml}<p><a href="${ordersLink}">${linkLabel}</a></p><p>— ${SITE_NAME}</p>`;
+    `<p>${line}</p>${trackingHtml}${imeiHtml}<p><a href="${ordersLink}">${linkLabel}</a></p><p>вЂ” ${SITE_NAME}</p>`;
 
   await resendSend("order-status", {
     from,
@@ -440,99 +440,4 @@ function getAdminNotificationRecipients(): string[] {
     .split(",")
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
-}
-
-/** Customer: 6-digit code to confirm saving crypto wallet for cash alternative to free iPhone. */
-export async function sendFreeIphoneCashWalletVerificationEmail(params: {
-  to: string;
-  code: string;
-  locale: "en" | "ru" | "uk";
-}) {
-  if (!resend) return false;
-  const from = getResendFrom();
-  const loc = params.locale;
-  const subject =
-    loc === "ru"
-      ? `Код подтверждения кошелька — бонус за рефералов — ${SITE_NAME}`
-      : loc === "uk"
-        ? `Код підтвердження гаманця — бонус за рефералів — ${SITE_NAME}`
-        : `Wallet confirmation code — referral bonus — ${SITE_NAME}`;
-  const body =
-    loc === "ru"
-      ? `<p>Введите этот код на сайте, чтобы мы сохранили адрес кошелька для выплаты вместо бесплатного iPhone:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${escapeHtml(params.code)}</p><p>Код действителен 30 минут. Если вы не запрашивали выплату, проигнорируйте письмо.</p>`
-      : loc === "uk"
-        ? `<p>Введіть цей код на сайті, щоб ми зберегли адресу гаманця для виплати замість безкоштовного iPhone:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${escapeHtml(params.code)}</p><p>Код дійсний 30 хвилин. Якщо ви не запитували виплату, ігноруйте лист.</p>`
-        : `<p>Enter this code on the site so we can save your wallet address for the payout instead of a free iPhone:</p><p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${escapeHtml(params.code)}</p><p>Code expires in 30 minutes. If you did not request this, ignore this email.</p>`;
-  return resendSend("free-iphone-cash-verify", {
-    from,
-    to: params.to,
-    subject,
-    html: `<div style="font-family: sans-serif; max-width: 480px;">${body}<p>— ${SITE_NAME}</p></div>`,
-  });
-}
-
-export async function sendAdminFreeIphoneDeviceRequested(params: {
-  userId: string;
-  userEmail: string | null;
-  userName: string | null;
-  referralCode: string;
-  qualifiedReferrals: number;
-}) {
-  const recipients = getAdminNotificationRecipients();
-  if (recipients.length === 0) return;
-  const from = getResendFrom();
-  const siteUrl = getPublicSiteUrl().replace(/\/$/, "");
-  const adminFreeIphoneUrl = `${siteUrl}/admin/free-iphone`;
-  const email = escapeHtml(params.userEmail ?? "—");
-  const name = escapeHtml(params.userName ?? "—");
-  const code = escapeHtml(params.referralCode);
-  const subject = `[${SITE_NAME}] Бесплатный iPhone — пользователь нажал «Получить iPhone»`;
-  const html = `
-<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; line-height: 1.55;">
-  <p>Пользователь подтвердил желание получить бесплатный iPhone по программе 20 рефералов.</p>
-  <ul>
-    <li><strong>User ID:</strong> ${escapeHtml(params.userId)}</li>
-    <li><strong>Email:</strong> ${email}</li>
-    <li><strong>Имя:</strong> ${name}</li>
-    <li><strong>Реферальный код:</strong> ${code}</li>
-    <li><strong>Квалифицированных рефералов (год):</strong> ${params.qualifiedReferrals}</li>
-  </ul>
-  <p><a href="${adminFreeIphoneUrl}">${adminFreeIphoneUrl}</a></p>
-  <p style="color:#737373;font-size:12px;">Автоуведомление.</p>
-</div>`;
-  for (const to of recipients) {
-    await resendSend("admin-free-iphone-device", { from, to, subject, html });
-  }
-}
-
-export async function sendAdminFreeIphoneCashPayoutWalletSaved(params: {
-  userId: string;
-  userEmail: string | null;
-  userName: string | null;
-  walletAddress: string;
-  walletNetwork: string;
-}) {
-  const recipients = getAdminNotificationRecipients();
-  if (recipients.length === 0) return;
-  const from = getResendFrom();
-  const email = escapeHtml(params.userEmail ?? "—");
-  const name = escapeHtml(params.userName ?? "—");
-  const addr = escapeHtml(params.walletAddress);
-  const net = escapeHtml(params.walletNetwork);
-  const subject = `[${SITE_NAME}] Выплата вместо iPhone — кошелёк подтверждён по email`;
-  const html = `
-<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; line-height: 1.55;">
-  <p>Пользователь отказался от бесплатного iPhone и подтвердил по коду на почте адрес для выплаты.</p>
-  <ul>
-    <li><strong>User ID:</strong> ${escapeHtml(params.userId)}</li>
-    <li><strong>Email:</strong> ${email}</li>
-    <li><strong>Имя:</strong> ${name}</li>
-    <li><strong>Сеть:</strong> ${net}</li>
-    <li><strong>Адрес кошелька:</strong> ${addr}</li>
-  </ul>
-  <p style="color:#737373;font-size:12px;">Автоуведомление.</p>
-</div>`;
-  for (const to of recipients) {
-    await resendSend("admin-free-iphone-cash", { from, to, subject, html });
-  }
 }
