@@ -2,15 +2,10 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount, getLastFreeiPhoneRewardAt } from "@/lib/referral";
+import { getReferralStats, getOrCreateReferralCode, getFreeiPhoneQualifiedReferralsCount } from "@/lib/referral";
 import { processAvailableCashback } from "@/lib/cashback";
 import { getPublicSiteUrl } from "@/lib/public-url";
-import {
-  getFreeIphoneClaimUiState,
-  canRequestFreeIphoneDevice,
-  canStartCashAlternative,
-} from "@/lib/free-iphone-reward";
-import { getFreeIphoneCashPayoutAmount, getMinWithdrawalAmount } from "@/lib/payout";
+import { getMinWithdrawalAmount } from "@/lib/payout";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -22,18 +17,8 @@ export async function GET(req: Request) {
 
   await processAvailableCashback();
 
-  const [
-    referralStats,
-    code,
-    cashbackAgg,
-    available,
-    qualifiedForFreeiPhone,
-    lastFreeiPhoneAt,
-    claimState,
-    userFlags,
-    freeIphoneCashPayoutUsd,
-    minWithdrawal,
-  ] = await Promise.all([
+  const [referralStats, code, cashbackAgg, available, qualifiedForFreeiPhone, minWithdrawal] =
+    await Promise.all([
       getReferralStats(userId),
       getOrCreateReferralCode(userId),
       prisma.cashbackEntry.aggregate({
@@ -45,17 +30,8 @@ export async function GET(req: Request) {
         _sum: { amount: true },
       }),
       getFreeiPhoneQualifiedReferralsCount(userId),
-      getLastFreeiPhoneRewardAt(userId),
-      getFreeIphoneClaimUiState(userId),
-      prisma.user.findUnique({
-        where: { id: userId },
-        select: { emailVerified: true, email: true },
-      }),
-      getFreeIphoneCashPayoutAmount(),
       getMinWithdrawalAmount(),
     ]);
-
-  const canClaimFreeIphone = claimState.canClaim;
 
   const baseUrl = getPublicSiteUrl(req);
   const referralUrl = `${baseUrl}/ref/${code}`;
@@ -67,16 +43,6 @@ export async function GET(req: Request) {
     totalEarned: cashbackAgg._sum.amount ? Number(cashbackAgg._sum.amount) : 0,
     referralUrl,
     qualifiedForFreeiPhone,
-    lastFreeiPhoneAt: lastFreeiPhoneAt?.toISOString() ?? null,
-    canClaimFreeIphone,
-    freeIphone: {
-      ...claimState,
-      canRequestDevice: canRequestFreeIphoneDevice(claimState),
-      canStartCash: canStartCashAlternative(claimState),
-    },
-    emailVerified: userFlags?.emailVerified ?? false,
-    hasEmail: Boolean(userFlags?.email),
-    freeIphoneCashPayoutUsd,
     minWithdrawal,
   });
 }

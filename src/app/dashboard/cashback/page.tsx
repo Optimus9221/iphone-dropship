@@ -180,14 +180,14 @@ export default function CashbackPage() {
             </p>
           ) : (
             <div className="mt-4 space-y-3">
-              <label className="block text-sm text-slate-400">{t("freeiPhoneWalletLabel")}</label>
+              <label className="block text-sm text-slate-400">{t("cashbackWalletLabel")}</label>
               <input
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white"
                 autoComplete="off"
               />
-              <label className="block text-sm text-slate-400">{t("freeiPhoneNetworkLabel")}</label>
+              <label className="block text-sm text-slate-400">{t("cashbackNetworkLabel")}</label>
               <input
                 value={walletNetwork}
                 onChange={(e) => setWalletNetwork(e.target.value)}

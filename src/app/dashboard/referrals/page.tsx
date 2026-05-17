@@ -86,10 +86,10 @@ export default function ReferralsPage() {
       >
         <div className="flex items-center gap-2">
           <Gift className="h-5 w-5 text-emerald-400" />
-          <span className="font-medium text-white">{t("freeiPhoneProgress")}</span>
+          <span className="font-medium text-white">{t("referralProgressTitle")}</span>
         </div>
         <p className="mt-1 text-sm text-slate-400">
-          {t("freeiPhoneProgressDesc", {
+          {t("referralProgressDesc", {
             current: data?.qualifiedForFreeiPhone ?? 0,
             total: FREE_IPHONE_REQUIRED,
           })}
