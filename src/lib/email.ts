@@ -89,10 +89,9 @@ async function resendSend(
   htmlLang = "en"
 ): Promise<boolean> {
   if (!resend) return false;
-  const html =
-    typeof payload.html === "string" && !payload.html.includes("<html")
-      ? wrapHtmlEmail(payload.html, htmlLang)
-      : payload.html;
+  const rawHtml = payload.html;
+  if (typeof rawHtml !== "string" || rawHtml.length === 0) return false;
+  const html = rawHtml.includes("<html") ? rawHtml : wrapHtmlEmail(rawHtml, htmlLang);
   try {
     const result = await resend.emails.send({ ...payload, html });
     /** Treat any present error payload as failure (SDK uses `null` on success). */
