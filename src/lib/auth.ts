@@ -1,7 +1,13 @@
+import { headers } from "next/headers";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./db";
 import bcrypt from "bcryptjs";
+import { checkLoginRateLimit } from "./rate-limit";
+import { getClientIpFromHeaders } from "./request-client";
+
+/** Thrown from authorize — surfaced to login page as res.error */
+export const LOGIN_RATE_LIMIT_ERROR = "RateLimited";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,6 +21,12 @@ export const authOptions: NextAuthOptions = {
         const email = credentials?.email?.trim().toLowerCase();
         const password = credentials?.password;
         if (!email || !password) return null;
+
+        const ip = getClientIpFromHeaders(await headers());
+        const limited = await checkLoginRateLimit(ip, email);
+        if (!limited.allowed) {
+          throw new Error(LOGIN_RATE_LIMIT_ERROR);
+        }
 
         const user = await prisma.user.findUnique({
           where: { email },

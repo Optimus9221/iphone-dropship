@@ -41,7 +41,11 @@ function LoginForm() {
     });
 
     if (res?.error) {
-      setError(t("invalidEmailOrPassword"));
+      setError(
+        res.error === "RateLimited" || res.error.includes("RateLimited")
+          ? t("loginRateLimited")
+          : t("invalidEmailOrPassword")
+      );
       setLoading(false);
       return;
     }

@@ -14,6 +14,7 @@
 | **.env in .gitignore** | ✓ Not committed |
 | **Credentials auth** | Generic "Invalid email or password" (no user enumeration) |
 | **Auth email rate limit** | IP + email limits on register / forgot-password / resend-verification |
+| **Login rate limit** | 25 attempts / 15 min per IP, 5 / 15 min per email (credentials sign-in) |
 | **Suspicious Gmail filter** | Blocks dot-stuffed Gmail addresses on signup & password reset |
 | **Password reset** | Only for verified accounts with a password |
 

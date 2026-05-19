@@ -57,3 +57,21 @@ export async function checkAuthEmailRateLimit(
 
   return checkRateLimit(emailKey, AUTH_EMAIL_MAX_PER_EMAIL, AUTH_EMAIL_WINDOW_MS);
 }
+
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_PER_IP = 25;
+const LOGIN_MAX_PER_EMAIL = 5;
+
+/** Brute-force protection for NextAuth credentials sign-in. */
+export async function checkLoginRateLimit(
+  ip: string,
+  email: string
+): Promise<RateLimitResult> {
+  const ipKey = `login:ip:${ip}`;
+  const emailKey = `login:email:${email}`;
+
+  const ipResult = await checkRateLimit(ipKey, LOGIN_MAX_PER_IP, LOGIN_WINDOW_MS);
+  if (!ipResult.allowed) return ipResult;
+
+  return checkRateLimit(emailKey, LOGIN_MAX_PER_EMAIL, LOGIN_WINDOW_MS);
+}
