@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useCallback } from "react";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
@@ -20,6 +21,9 @@ function RegisterForm() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
+  const onTurnstileToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,6 +45,10 @@ function RegisterForm() {
       setError(t("nameRequired"));
       return;
     }
+    if (turnstileEnabled && !turnstileToken) {
+      setError(t("captchaRequired"));
+      return;
+    }
 
     setLoading(true);
 
@@ -53,6 +61,7 @@ function RegisterForm() {
         name: name.trim(),
         referralCode: referralCode || undefined,
         locale,
+        turnstileToken: turnstileToken ?? undefined,
       }),
     });
 
@@ -70,7 +79,13 @@ function RegisterForm() {
     }
 
     if (!res.ok || data.ok !== true) {
-      setError(data.code === "EMAIL_SEND_FAILED" ? t("emailSendFailed") : t("registrationFailed"));
+      setError(
+        data.code === "CAPTCHA_FAILED"
+          ? t("captchaFailed")
+          : data.code === "EMAIL_SEND_FAILED"
+            ? t("emailSendFailed")
+            : t("registrationFailed")
+      );
       setLoading(false);
       return;
     }
@@ -155,10 +170,12 @@ function RegisterForm() {
         />
       </div>
 
+      <TurnstileWidget onToken={onTurnstileToken} theme="dark" />
+
       <LoadingButton
         type="submit"
         loading={loading}
-        disabled={loading}
+        disabled={loading || (turnstileEnabled && !turnstileToken)}
         className="w-full rounded-full bg-white py-3 font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100 hover:shadow-indigo-500/30"
       >
         {t("createAccount")}

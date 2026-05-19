@@ -6,10 +6,12 @@ import { isSuspiciousSignupEmail } from "@/lib/email-abuse";
 import type { Locale } from "@/lib/i18n/translations";
 import { checkAuthEmailRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-client";
+import { requireTurnstile } from "@/lib/turnstile";
 
 const schema = z.object({
   email: z.string().email(),
   locale: z.enum(["en", "ru", "uk"]).optional(),
+  turnstileToken: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -18,6 +20,11 @@ export async function POST(req: Request) {
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ ok: true });
+    }
+
+    const captcha = await requireTurnstile(req, parsed.data.turnstileToken);
+    if (!captcha.ok) {
+      return NextResponse.json({ ok: false, code: "CAPTCHA_FAILED" }, { status: 400 });
     }
 
     const email = parsed.data.email.trim().toLowerCase();

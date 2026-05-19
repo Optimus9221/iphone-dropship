@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useCallback } from "react";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
@@ -20,6 +21,9 @@ function VerifyEmailForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
+  const onTurnstileToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
   const inputClass =
     "mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/20";
@@ -63,16 +67,26 @@ function VerifyEmailForm() {
       setError(t("verifyEmailNotRouted"));
       return;
     }
+    if (turnstileEnabled && !turnstileToken) {
+      setError(t("captchaRequired"));
+      return;
+    }
     setResendLoading(true);
     const res = await fetch("/api/auth/resend-verification", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim().toLowerCase(), locale }),
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        locale,
+        turnstileToken: turnstileToken ?? undefined,
+      }),
     });
     setResendLoading(false);
     const rdata = await res.json().catch(() => ({}));
     if (!res.ok || rdata.ok !== true) {
-      if (res.status === 429) {
+      if (rdata.code === "CAPTCHA_FAILED" || res.status === 400) {
+        setError(t("captchaFailed"));
+      } else if (res.status === 429) {
         setError(t("verifyEmailCooldown"));
       } else {
         setError(t("verifyEmailFailed"));
@@ -128,10 +142,12 @@ function VerifyEmailForm() {
         {t("verifyEmailSubmit")}
       </LoadingButton>
 
+      <TurnstileWidget onToken={onTurnstileToken} theme="dark" />
+
       <button
         type="button"
         onClick={handleResend}
-        disabled={resendLoading}
+        disabled={resendLoading || (turnstileEnabled && !turnstileToken)}
         className="w-full text-sm text-emerald-400 hover:text-emerald-300 hover:underline disabled:opacity-50"
       >
         {resendLoading ? "…" : t("verifyEmailResend")}

@@ -8,6 +8,7 @@ import { isSuspiciousSignupEmail } from "@/lib/email-abuse";
 import type { Locale } from "@/lib/i18n/translations";
 import { checkAuthEmailRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-client";
+import { requireTurnstile } from "@/lib/turnstile";
 
 const schema = z.object({
   email: z.string().email(),
@@ -15,6 +16,7 @@ const schema = z.object({
   name: z.string().min(1, "Name is required"),
   referralCode: z.string().optional(),
   locale: z.enum(["en", "ru", "uk"]).optional(),
+  turnstileToken: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -26,6 +28,11 @@ export async function POST(req: Request) {
         { ok: false, details: parsed.error.flatten() },
         { status: 400 }
       );
+    }
+
+    const captcha = await requireTurnstile(req, parsed.data.turnstileToken);
+    if (!captcha.ok) {
+      return NextResponse.json({ ok: false, code: "CAPTCHA_FAILED" }, { status: 400 });
     }
 
     const email = parsed.data.email.trim().toLowerCase();

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 import { PhoneBackground } from "@/components/phone-background";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export default function ForgotPasswordPage() {
   const { t, locale } = useI18n();
@@ -12,17 +13,32 @@ export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim());
+  const onTurnstileToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (turnstileEnabled && !turnstileToken) {
+      setError(t("captchaRequired"));
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim().toLowerCase(), locale }),
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          locale,
+          turnstileToken: turnstileToken ?? undefined,
+        }),
       });
+      if (res.status === 400) {
+        setError(t("captchaFailed"));
+        return;
+      }
       if (!res.ok) throw new Error("Failed");
       setSent(true);
     } catch {
@@ -65,10 +81,11 @@ export default function ForgotPasswordPage() {
                   placeholder={t("placeholderEmail")}
                 />
               </div>
+              <TurnstileWidget onToken={onTurnstileToken} theme="dark" />
               <LoadingButton
                 type="submit"
                 loading={loading}
-                disabled={loading}
+                disabled={loading || (turnstileEnabled && !turnstileToken)}
                 className="w-full rounded-full bg-white py-3 font-semibold text-slate-900"
               >
                 {t("forgotPasswordTitle")}
@@ -84,3 +101,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

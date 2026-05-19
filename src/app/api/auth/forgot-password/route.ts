@@ -5,10 +5,14 @@ import { isSuspiciousSignupEmail } from "@/lib/email-abuse";
 import { getPublicSiteUrl } from "@/lib/public-url";
 import { checkAuthEmailRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-client";
+import { requireTurnstile } from "@/lib/turnstile";
 import { z } from "zod";
 import crypto from "crypto";
 
-const schema = z.object({ email: z.string().email() });
+const schema = z.object({
+  email: z.string().email(),
+  turnstileToken: z.string().optional(),
+});
 
 export async function POST(req: Request) {
   try {
@@ -17,6 +21,11 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
+    const captcha = await requireTurnstile(req, parsed.data.turnstileToken);
+    if (!captcha.ok) {
+      return NextResponse.json({ error: "captcha" }, { status: 400 });
+    }
+
     const email = parsed.data.email.trim().toLowerCase();
 
     if (isSuspiciousSignupEmail(email)) {
