@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { isSuspiciousSignupEmail } from "@/lib/email-abuse";
 import { getPublicSiteUrl } from "@/lib/public-url";
+import { checkAuthEmailRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-client";
 import { z } from "zod";
 import crypto from "crypto";
 
@@ -15,8 +18,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
     const email = parsed.data.email.trim().toLowerCase();
+
+    if (isSuspiciousSignupEmail(email)) {
+      return NextResponse.json({ message: "ok" });
+    }
+
+    const ip = getClientIp(req);
+    const limited = await checkAuthEmailRateLimit(ip, email);
+    if (!limited.allowed) {
+      return NextResponse.json({ message: "ok" });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user?.passwordHash) {
+    if (!user?.passwordHash || !user.emailVerified) {
       return NextResponse.json({ message: "ok" });
     }
     await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } });

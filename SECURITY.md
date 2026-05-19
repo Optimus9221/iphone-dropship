@@ -13,10 +13,13 @@
 | **XSS** | React escaping, no `dangerouslySetInnerHTML` |
 | **.env in .gitignore** | ✓ Not committed |
 | **Credentials auth** | Generic "Invalid email or password" (no user enumeration) |
+| **Auth email rate limit** | IP + email limits on register / forgot-password / resend-verification |
+| **Suspicious Gmail filter** | Blocks dot-stuffed Gmail addresses on signup & password reset |
+| **Password reset** | Only for verified accounts with a password |
 
 ## ⚠️ Recommendations for Production
 
-1. **Rate limiting** — Add on `/api/auth/*` and `/api/orders` (e.g. `@upstash/ratelimit`)
+1. **Rate limiting (orders)** — Extend limits to `/api/orders` (e.g. `@upstash/ratelimit` for global edge limits)
 2. **HTTPS only** — Set `NEXTAUTH_URL` to `https://...`
 3. **CSP headers** — Add Content-Security-Policy in `next.config`
 4. **Image domains** — If using Next/Image for product URLs, restrict `images.domains`

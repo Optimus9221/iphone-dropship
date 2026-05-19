@@ -390,6 +390,16 @@ enum ReviewStatus {
   REJECTED
 }
 
+// === API RATE LIMITING (auth email abuse) ===
+model RateLimitCounter {
+  key       String   @id
+  count     Int      @default(0)
+  windowEnd DateTime @map("window_end")
+
+  @@index([windowEnd])
+  @@map("rate_limit_counters")
+}
+
 // === SYSTEM SETTINGS (admin configurable) ===
 model SystemSetting {
   id        String   @id @default(cuid())

@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { issueEmailVerificationCode } from "@/lib/email-verification";
+import { isSuspiciousSignupEmail } from "@/lib/email-abuse";
 import type { Locale } from "@/lib/i18n/translations";
+import { checkAuthEmailRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/request-client";
 
 const schema = z.object({
   email: z.string().email(),
@@ -19,6 +22,17 @@ export async function POST(req: Request) {
 
     const email = parsed.data.email.trim().toLowerCase();
     const { locale } = parsed.data;
+
+    if (isSuspiciousSignupEmail(email)) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const ip = getClientIp(req);
+    const limited = await checkAuthEmailRateLimit(ip, email);
+    if (!limited.allowed) {
+      return NextResponse.json({ ok: false }, { status: 429 });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || user.emailVerified || !user.email) {
