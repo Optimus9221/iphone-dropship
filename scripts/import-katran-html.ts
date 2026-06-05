@@ -53,11 +53,12 @@ async function main() {
   const htmlFile = process.argv[2] ?? "katran-page.html";
   const outDir =
     process.argv[3] ?? path.join("public", "images", "iphone-17", "pro-max", "cosmic-orange");
-  const sourceUrl =
-    process.argv[4] ??
-    "https://katran.vn.ua/smartfoni-aksesuari-telefoniya/smartfoni/apple/3089349";
 
   const html = fs.readFileSync(htmlFile, "utf8");
+  const sourceUrl =
+    process.argv[4] ??
+    html.match(/"url":\s*"(https:\/\/katran\.vn\.ua\/[^"]+)"/i)?.[1] ??
+    "https://katran.vn.ua/";
   const images = extractKatranProductImages(html);
   if (!images.length) throw new Error(`No Katran product images found in ${htmlFile}`);
 
