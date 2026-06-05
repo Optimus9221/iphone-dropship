@@ -15,7 +15,7 @@ const schema = z.object({
   password: z.string().min(8).regex(/^(?=.*[A-Za-z])(?=.*\d)/, "Password must contain letters and numbers"),
   name: z.string().min(1, "Name is required"),
   referralCode: z.string().optional(),
-  locale: z.enum(["en", "ru", "uk"]).optional(),
+  locale: z.enum(["en", "ru", "uk", "he"]).optional(),
   turnstileToken: z.string().optional(),
 });
 

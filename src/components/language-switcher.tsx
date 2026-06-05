@@ -42,7 +42,7 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
           }`}
           title={localeNames[l as Locale]}
         >
-          {l.toUpperCase()}
+          {l === "he" ? "עב" : l.toUpperCase()}
         </button>
         );
       })}

@@ -29,6 +29,10 @@ body {
   font-family: var(--font-sans);
 }
 
+html[dir="rtl"] body {
+  font-family: var(--font-hebrew), var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+}
+
 @keyframes blood-drip {
   0% { transform: scaleY(0); opacity: 1; }
   20% { transform: scaleY(1); opacity: 1; }

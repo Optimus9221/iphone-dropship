@@ -10,7 +10,7 @@ import { requireTurnstile } from "@/lib/turnstile";
 
 const schema = z.object({
   email: z.string().email(),
-  locale: z.enum(["en", "ru", "uk"]).optional(),
+  locale: z.enum(["en", "ru", "uk", "he"]).optional(),
   turnstileToken: z.string().optional(),
 });
 

@@ -1,6 +1,8 @@
 import type { Locale } from "./translations";
 
-export const productDescriptions: Record<Locale, Record<string, string>> = {
+export const productDescriptions: Partial<Record<Locale, Record<string, string>>> & {
+  en: Record<string, string>;
+} = {
   en: {
     "iphone-16-128gb-white": getIphone16DescEn(),
     "iphone-16-256gb-black": getIphone16DescEn(),

@@ -1443,7 +1443,7 @@ export function getProductContent(
   slug: string,
   storage?: string
 ): ProductContent | null {
-  const bySlug: Record<string, Record<Locale, ProductContent>> = {
+  const bySlug: Record<string, Partial<Record<Locale, ProductContent>> & { en: ProductContent }> = {
     "iphone-14-pro-max-128gb-space-black": getIphone14ProMaxContent("128 GB"),
     "iphone-15-128gb-black": getIphone15Content("128 GB"),
     "iphone-15-256gb-blue": getIphone15Content("256 GB"),
@@ -1451,10 +1451,13 @@ export function getProductContent(
     "iphone-16-256gb-black": getIphone16Content("256 GB"),
   };
 
-  const staticContent = bySlug[slug]?.[locale];
-  if (staticContent) return staticContent;
+  const staticBundle = bySlug[slug];
+  if (staticBundle) return staticBundle[locale] ?? staticBundle.en;
 
   const line = resolveIphone17Line(slug);
   if (!line) return null;
-  return getIphone17LineContent(line, storage)[locale];
+  const lineContent = getIphone17LineContent(line, storage) as Partial<Record<Locale, ProductContent>> & {
+    en: ProductContent;
+  };
+  return lineContent[locale] ?? lineContent.en;
 }

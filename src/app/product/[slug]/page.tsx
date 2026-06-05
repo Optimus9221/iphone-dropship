@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Smartphone, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
-import { usdToUah } from "@/lib/currency";
+import { ProductPrice } from "@/components/product-price";
 import { getProductContent } from "@/lib/i18n/product-content";
 import { productDescriptions } from "@/lib/i18n/product-descriptions";
 import { PhoneBackground } from "@/components/phone-background";
@@ -60,7 +60,10 @@ export default function ProductPage() {
   const cashback = Math.round(product.price * 0.05);
   const images: (string | null)[] = product.images.length > 0 ? product.images : [null];
   const content = getProductContent(locale, product.slug, product.storage);
-  const fallbackDesc = productDescriptions[locale]?.[product.slug] ?? product.description;
+  const fallbackDesc =
+    productDescriptions[locale]?.[product.slug] ??
+    productDescriptions.en[product.slug] ??
+    product.description;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.targetTouches[0].clientX;
@@ -182,7 +185,11 @@ export default function ProductPage() {
             <p className="mt-2 text-slate-400">
               {product.model} • {product.storage} • {product.color}
             </p>
-            <p className="mt-4 text-3xl font-bold text-white">${product.price} <span className="text-lg font-normal text-slate-400">{t("priceApproxUah", { uah: usdToUah(product.price) })}</span></p>
+            <ProductPrice
+              price={product.price}
+              className="mt-4 text-3xl font-bold text-white"
+              uahClassName="text-lg font-normal text-slate-400"
+            />
             <p className="mt-1 text-emerald-400">
               +${cashback} {t("cashbackOnPurchase")}
             </p>

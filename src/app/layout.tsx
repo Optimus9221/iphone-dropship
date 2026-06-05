@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, JetBrains_Mono } from "next/font/google";
+import { Outfit, JetBrains_Mono, Noto_Sans_Hebrew } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -19,6 +19,12 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const notoSansHebrew = Noto_Sans_Hebrew({
+  variable: "--font-hebrew",
+  subsets: ["hebrew"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "PhoneFree | Cashback & Referral Program",
   description: "Buy new iPhones 15-17 with official warranty. Accumulate cashback toward a free iPhone. Referral program: $50 at 10 refs, $100 at 15, free iPhone at 20.",
@@ -31,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${outfit.variable} ${jetbrainsMono.variable} min-h-screen antialiased font-sans`}>
+      <body className={`${outfit.variable} ${jetbrainsMono.variable} ${notoSansHebrew.variable} min-h-screen antialiased font-sans`}>
         <Providers>
           <Header />
           <main className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col">{children}</main>

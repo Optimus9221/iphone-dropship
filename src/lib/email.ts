@@ -76,6 +76,7 @@ ${innerHtml}
 function localeLang(locale?: string): string {
   if (locale === "ru") return "ru";
   if (locale === "uk") return "uk";
+  if (locale === "he") return "he";
   return "en";
 }
 

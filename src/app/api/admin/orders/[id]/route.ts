@@ -31,6 +31,7 @@ function localeFromRequest(req: Request): string | undefined {
   const raw = req.headers.get("accept-language")?.split(",")[0]?.trim().toLowerCase() ?? "";
   if (raw.startsWith("uk")) return "uk";
   if (raw.startsWith("ru")) return "ru";
+  if (raw.startsWith("he")) return "he";
   return "en";
 }
 

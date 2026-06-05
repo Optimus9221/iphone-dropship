@@ -1,15 +1,17 @@
-export type Locale = "en" | "ru" | "uk";
+import { heOverrides } from "./translations-he-overrides";
 
-export const locales: Locale[] = ["uk", "en", "ru"];
+export type Locale = "en" | "ru" | "uk" | "he";
+
+export const locales: Locale[] = ["uk", "en", "ru", "he"];
 
 export const localeNames: Record<Locale, string> = {
   en: "English",
   ru: "Русский",
   uk: "Українська",
+  he: "עברית",
 };
 
-export const translations = {
-  en: {
+const enTranslations = {
     // Common / Header
     siteName: "PhoneFree",
     catalog: "Catalog",
@@ -555,8 +557,11 @@ export const translations = {
     adminCryptoNetwork: "Network (e.g. USDT TRC20)",
     adminCryptoHint:
       "Shown when order status is «Awaiting payment». Optional overrides per order in Orders.",
-  },
-  ru: {
+} as const;
+
+export type TranslationKeys = keyof typeof enTranslations;
+
+const ruTranslations = {
     siteName: "PhoneFree",
     catalog: "Каталог",
     dashboard: "Личный кабинет",
@@ -1092,8 +1097,9 @@ export const translations = {
     adminCryptoNetwork: "Сеть (напр. USDT TRC20)",
     adminCryptoHint:
       "Показывается клиенту при статусе «Ожидает оплаты». Можно переопределить в заказе.",
-  },
-  uk: {
+} as const;
+
+const ukTranslations = {
     siteName: "PhoneFree",
     catalog: "Каталог",
     dashboard: "Особистий кабінет",
@@ -1629,7 +1635,16 @@ export const translations = {
     adminCryptoNetwork: "Мережа (напр. USDT TRC20)",
     adminCryptoHint:
       "Показується клієнту при статусі «Очікує оплати». Можна перевизначити в замовленні.",
-  },
 } as const;
 
-export type TranslationKeys = keyof (typeof translations)["en"];
+const heTranslations: Record<TranslationKeys, string> = {
+  ...enTranslations,
+  ...heOverrides,
+};
+
+export const translations = {
+  en: enTranslations,
+  ru: ruTranslations,
+  uk: ukTranslations,
+  he: heTranslations,
+} as const;

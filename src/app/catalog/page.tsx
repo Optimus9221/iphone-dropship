@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Smartphone } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
-import { usdToUah } from "@/lib/currency";
+import { ProductPrice } from "@/components/product-price";
 import { PhoneBackground } from "@/components/phone-background";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
 
@@ -94,7 +94,11 @@ export default function CatalogPage() {
                   <div className="p-4">
                     <h3 className="font-semibold text-white">{p.name}</h3>
                     <p className="mt-1 text-sm text-slate-400">{p.color} • {p.storage}</p>
-                    <p className="mt-2 text-lg font-bold text-white">${p.price} <span className="text-sm font-normal text-slate-400">{t("priceApproxUah", { uah: usdToUah(p.price) })}</span></p>
+                    <ProductPrice
+                      price={p.price}
+                      className="mt-2 text-lg font-bold text-white"
+                      uahClassName="text-sm font-normal text-slate-400"
+                    />
                     <p className="text-sm text-emerald-400">
                       +${Math.round(p.price * 0.05)} {t("cashback")}
                     </p>

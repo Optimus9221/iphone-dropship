@@ -49,13 +49,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale);
     localStorage.setItem(STORAGE_KEY, newLocale);
     if (typeof document !== "undefined") {
-      document.documentElement.lang = newLocale === "uk" ? "uk" : newLocale === "ru" ? "ru" : "en";
+      document.documentElement.lang = newLocale;
+      document.documentElement.dir = newLocale === "he" ? "rtl" : "ltr";
     }
   }, []);
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.documentElement.lang = locale === "uk" ? "uk" : locale === "ru" ? "ru" : "en";
+      document.documentElement.lang = locale;
+      document.documentElement.dir = locale === "he" ? "rtl" : "ltr";
     }
   }, [locale]);
 
