@@ -1,0 +1,1 @@
+ei=YOUR_SESSION_COOKIE; other_cookie=value

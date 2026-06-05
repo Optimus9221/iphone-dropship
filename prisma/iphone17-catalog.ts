@@ -81,6 +81,43 @@ const imageByModelColor = new Map(
   IPHONE17_IMAGE_ASSETS.map((a) => [`${a.model}::${a.color}`, `/images/iphone-17/${a.folder}/${a.file}.png`])
 );
 
+type ColorManifestEntry = {
+  source?: string;
+  provider?: string;
+  query?: string;
+  images: string[];
+};
+
+function normalizeWebPath(imagePath: string): string {
+  return imagePath.replace(/^\/public/, "");
+}
+
+function loadKatranGallery(model: Iphone17Model, color: string): string[] | undefined {
+  const asset = IPHONE17_IMAGE_ASSETS.find((a) => a.model === model && a.color === color);
+  if (!asset) return undefined;
+
+  const manifestPath = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "iphone-17",
+    asset.folder,
+    asset.file,
+    "manifest.json"
+  );
+
+  try {
+    const entry = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as ColorManifestEntry;
+    if (entry.provider === "katran" && entry.images?.length) {
+      return entry.images.map(normalizeWebPath);
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+}
+
 type RozetkaManifestEntry = { source: string; query: string; images: string[] };
 
 function loadRozetkaGalleryManifest(): Map<string, string[]> {
@@ -101,6 +138,9 @@ function getRozetkaGallery(model: Iphone17Model, color: string): string[] | unde
 }
 
 export function getIphone17Images(model: Iphone17Model, color: string): string[] {
+  const katranGallery = loadKatranGallery(model, color);
+  if (katranGallery?.length) return katranGallery;
+
   const appleImage =
     imageByModelColor.get(`${model}::${color}`) ??
     `/images/iphone-17/${modelFolder(model)}/${colorSlug(color)}.png`;

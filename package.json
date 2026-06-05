@@ -14,6 +14,8 @@
     "images:iphone17": "npx tsx scripts/download-iphone17-images.ts",
     "images:rozetka": "npx tsx scripts/scrape-rozetka-images.ts",
     "images:rozetka:all": "npx tsx scripts/scrape-all-rozetka-images.ts",
+    "images:katran": "npx tsx scripts/scrape-katran-images.ts",
+    "images:katran:import": "npx tsx scripts/import-katran-html.ts",
     "db:push": "prisma db push"
   },
   "prisma": {

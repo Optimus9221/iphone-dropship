@@ -37,6 +37,11 @@ yarn-error.log*
 # local DB dumps from production (sensitive)
 /dumps/
 
+# local katran session (do not commit)
+/katran-cookies.txt
+/katran-page.html
+/katran-page_files/
+
 # vercel
 .vercel
 
