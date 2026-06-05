@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 export type Iphone17Model = "17" | "Air" | "17 Pro" | "17 Pro Max";
 
 export type Iphone17ProductDef = {
@@ -78,7 +81,29 @@ const imageByModelColor = new Map(
   IPHONE17_IMAGE_ASSETS.map((a) => [`${a.model}::${a.color}`, `/images/iphone-17/${a.folder}/${a.file}.png`])
 );
 
+type RozetkaManifestEntry = { source: string; query: string; images: string[] };
+
+function loadRozetkaGalleryManifest(): Map<string, string[]> {
+  const manifestPath = path.join(process.cwd(), "public", "images", "iphone-17", "rozetka-manifest.json");
+  try {
+    const raw = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as Record<string, RozetkaManifestEntry>;
+    return new Map(Object.entries(raw).map(([key, entry]) => [key, entry.images]));
+  } catch {
+    return new Map();
+  }
+}
+
+let rozetkaGalleryCache: Map<string, string[]> | null = null;
+
+function getRozetkaGallery(model: Iphone17Model, color: string): string[] | undefined {
+  if (!rozetkaGalleryCache) rozetkaGalleryCache = loadRozetkaGalleryManifest();
+  return rozetkaGalleryCache.get(`${model}::${color}`);
+}
+
 export function getIphone17Images(model: Iphone17Model, color: string): string[] {
+  const gallery = getRozetkaGallery(model, color);
+  if (gallery?.length) return gallery;
+
   const image = imageByModelColor.get(`${model}::${color}`);
   if (image) return [image];
   return [`/images/iphone-17/${modelFolder(model)}/${colorSlug(color)}.png`];
