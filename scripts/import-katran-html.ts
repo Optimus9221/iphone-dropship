@@ -13,16 +13,29 @@ function loadCookieHeader(): string | undefined {
   return fs.readFileSync(cookieFile, "utf8").trim().replace(/^cookie:\s*/i, "");
 }
 
-export function extractKatranProductImages(html: string): string[] {
-  const urls = new Set<string>();
-
+function extractJsonLdGallery(html: string): string[] {
   const jsonLdPattern = /"image"\s*:\s*\[([\s\S]*?)\]\s*,\s*"description"/i;
   const jsonLdMatch = html.match(jsonLdPattern);
-  if (jsonLdMatch) {
-    for (const match of jsonLdMatch[1].matchAll(/https:\/\/katran\.vn\.ua\/assets\/img\/shop\/products\/im\/[^"'\\s]+\.png/gi)) {
-      urls.add(match[0]);
+  if (!jsonLdMatch) return [];
+
+  const urls: string[] = [];
+  const seen = new Set<string>();
+  for (const match of jsonLdMatch[1].matchAll(
+    /https:\/\/katran\.vn\.ua\/assets\/img\/shop\/products\/im\/[^"'\s]+\.png/gi
+  )) {
+    if (!seen.has(match[0])) {
+      seen.add(match[0]);
+      urls.push(match[0]);
     }
   }
+  return urls;
+}
+
+export function extractKatranProductImages(html: string): string[] {
+  const jsonLdGallery = extractJsonLdGallery(html);
+  if (jsonLdGallery.length) return jsonLdGallery;
+
+  const urls = new Set<string>();
 
   for (const match of html.matchAll(
     /class="[^"]*s-slick-offer-img[^"]*"[^>]*src="([^"]+\.png)"/gi
@@ -48,6 +61,11 @@ function curlToFile(url: string, dest: string, cookie?: string) {
   const size = fs.statSync(dest).size;
   if (size < 1000) throw new Error(`Download too small (${size}b): ${url}`);
 }
+
+const isMain =
+  typeof process.argv[1] === "string" &&
+  (process.argv[1].endsWith("import-katran-html.ts") ||
+    process.argv[1].endsWith("import-katran-html.js"));
 
 async function main() {
   const htmlFile = process.argv[2] ?? "katran-page.html";
@@ -86,7 +104,9 @@ async function main() {
   console.log(`Manifest: ${path.join(outDir, "manifest.json")}`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (isMain) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
