@@ -959,14 +959,14 @@ Dynamic Island
 USB-C
 Універсальне підключення через USB-C. Заряджайте, передавайте дані та підключайте аксесуари одним кабелем.`;
 
-// ——— iPhone 17 Pro Max ———
-const iphone17SpecsEn = (): SpecCategory[] => [
+// ——— iPhone 17 lineup ———
+const iphone17SpecsEn = (series: string, storage: string, display: string): SpecCategory[] => [
   {
     title: "General",
     items: [
       { key: "Manufacturer", value: "Apple" },
       { key: "Type", value: "Smartphone" },
-      { key: "Series", value: "Apple iPhone 17 Pro Max" },
+      { key: "Series", value: series },
       { key: "Design", value: "Titanium unibody" },
       { key: "Control", value: "Touch" },
       { key: "OS", value: "iOS" },
@@ -975,7 +975,7 @@ const iphone17SpecsEn = (): SpecCategory[] => [
   {
     title: "Display",
     items: [
-      { key: "Diagonal", value: '6.9"' },
+      { key: "Diagonal", value: display },
       { key: "Resolution", value: "2796×1290 px" },
       { key: "Touch type", value: "Capacitive" },
       { key: "Matrix", value: "Super Retina XDR OLED" },
@@ -983,7 +983,7 @@ const iphone17SpecsEn = (): SpecCategory[] => [
       { key: "Features", value: "Dynamic Island, Always-On, Ceramic Shield 2" },
     ],
   },
-  { title: "Memory", items: [{ key: "Internal storage", value: "256 GB" }] },
+  { title: "Memory", items: [{ key: "Internal storage", value: storage }] },
   {
     title: "Processor",
     items: [
@@ -1050,13 +1050,13 @@ const iphone17SpecsEn = (): SpecCategory[] => [
   },
 ];
 
-const iphone17SpecsRu = (): SpecCategory[] => [
+const iphone17SpecsRu = (series: string, storage: string, display: string): SpecCategory[] => [
   {
     title: "Общие",
     items: [
       { key: "Производитель", value: "Apple" },
       { key: "Тип", value: "Смартфон" },
-      { key: "Серия", value: "Apple iPhone 17 Pro Max" },
+      { key: "Серия", value: series },
       { key: "Конструкция", value: "Титановый корпус" },
       { key: "Управление", value: "Сенсорное" },
       { key: "ОС", value: "iOS" },
@@ -1065,7 +1065,7 @@ const iphone17SpecsRu = (): SpecCategory[] => [
   {
     title: "Экран",
     items: [
-      { key: "Диагональ", value: '6.9"' },
+      { key: "Диагональ", value: display },
       { key: "Разрешение", value: "2796×1290 px" },
       { key: "Тип сенсора", value: "Ёмкостный" },
       { key: "Матрица", value: "Super Retina XDR OLED" },
@@ -1073,7 +1073,7 @@ const iphone17SpecsRu = (): SpecCategory[] => [
       { key: "Особенности", value: "Dynamic Island, Always-On, Ceramic Shield 2" },
     ],
   },
-  { title: "Память", items: [{ key: "Внутренняя", value: "256 ГБ" }] },
+  { title: "Память", items: [{ key: "Внутренняя", value: storage }] },
   {
     title: "Процессор",
     items: [
@@ -1140,13 +1140,13 @@ const iphone17SpecsRu = (): SpecCategory[] => [
   },
 ];
 
-const iphone17SpecsUk = (): SpecCategory[] => [
+const iphone17SpecsUk = (series: string, storage: string, display: string): SpecCategory[] => [
   {
     title: "Загальні",
     items: [
       { key: "Виробник", value: "Apple" },
       { key: "Тип телефону", value: "Смартфон" },
-      { key: "Серія смартфона", value: "Apple iPhone 17 Pro Max" },
+      { key: "Серія смартфона", value: series },
       { key: "Тип", value: "Титановий корпус" },
       { key: "Тип управління", value: "Сенсорний" },
       { key: "Операційна система", value: "iOS" },
@@ -1155,7 +1155,7 @@ const iphone17SpecsUk = (): SpecCategory[] => [
   {
     title: "Екран",
     items: [
-      { key: "Діагональ екрану", value: '6.9"' },
+      { key: "Діагональ екрану", value: display },
       { key: "Роздільна здатність", value: "2796×1290 px" },
       { key: "Тип сенсорного екрану", value: "Ємнісний" },
       { key: "Тип матриці", value: "Super Retina XDR OLED" },
@@ -1163,7 +1163,7 @@ const iphone17SpecsUk = (): SpecCategory[] => [
       { key: "Особливості", value: "Dynamic Island, Always-On, Ceramic Shield 2" },
     ],
   },
-  { title: "Пам'ять", items: [{ key: "Внутрішня пам'ять", value: "256 ГБ" }] },
+  { title: "Пам'ять", items: [{ key: "Внутрішня пам'ять", value: storage }] },
   {
     title: "Процесор",
     items: [
@@ -1312,24 +1312,130 @@ function getIphone16Content(storage: string) {
   };
 }
 
-function getIphone17Content() {
-  return {
-    en: {
-      intro: iphone17IntroEn,
-      specs: iphone17SpecsEn(),
-      note: noteEn,
+type Iphone17Line = "17" | "Air" | "17 Pro" | "17 Pro Max";
+
+function formatStorageLabel(storage?: string): string {
+  if (!storage) return "256 GB";
+  const normalized = storage.replace(/\s/g, "").toUpperCase();
+  const match = normalized.match(/^(\d+)(GB|TB)$/);
+  if (!match) return storage;
+  return `${match[1]} ${match[2]}`;
+}
+
+function getIphone17LineContent(line: Iphone17Line, storage?: string) {
+  const storageLabel = formatStorageLabel(storage);
+  const config: Record<
+    Iphone17Line,
+    {
+      series: { en: string; ru: string; uk: string };
+      display: string;
+      intro: { en: string; ru: string; uk: string };
+      chip: string;
+    }
+  > = {
+    "17": {
+      series: {
+        en: "Apple iPhone 17",
+        ru: "Apple iPhone 17",
+        uk: "Apple iPhone 17",
+      },
+      display: '6.3"',
+      chip: "A19",
+      intro: {
+        en: "iPhone 17 — even more delightful and durable. 6.3\" Super Retina XDR with ProMotion, A19 chip, and 48MP Dual Fusion cameras.",
+        ru: "iPhone 17 — ещё приятнее и надёжнее. 6.3\" Super Retina XDR с ProMotion, чип A19 и двойная 48МП Fusion камера.",
+        uk: "iPhone 17 — ще приємніший і надійніший. 6.3\" Super Retina XDR з ProMotion, чіп A19 та подвійна 48МП Fusion камера.",
+      },
     },
-    ru: {
-      intro: iphone17IntroRu,
-      specs: iphone17SpecsRu(),
-      note: noteRu,
+    Air: {
+      series: {
+        en: "Apple iPhone Air",
+        ru: "Apple iPhone Air",
+        uk: "Apple iPhone Air",
+      },
+      display: '6.5"',
+      chip: "A19 Pro",
+      intro: {
+        en: "iPhone Air — the thinnest iPhone ever with pro-level power inside. Titanium design, 6.5\" display, and A19 Pro chip.",
+        ru: "iPhone Air — самый тонкий iPhone с мощностью Pro внутри. Титановый корпус, 6.5\" дисплей и чип A19 Pro.",
+        uk: "iPhone Air — найтонший iPhone з потужністю Pro всередині. Титановий корпус, 6.5\" дисплей та чіп A19 Pro.",
+      },
     },
-    uk: {
-      intro: iphone17IntroUk,
-      specs: iphone17SpecsUk(),
-      note: noteUk,
+    "17 Pro": {
+      series: {
+        en: "Apple iPhone 17 Pro",
+        ru: "Apple iPhone 17 Pro",
+        uk: "Apple iPhone 17 Pro",
+      },
+      display: '6.3"',
+      chip: "A19 Pro",
+      intro: {
+        en: "iPhone 17 Pro — innovative design for ultimate performance. Triple 48MP Fusion cameras and the A19 Pro chip.",
+        ru: "iPhone 17 Pro — инновационный дизайн для максимальной производительности. Тройная 48МП Fusion камера и чип A19 Pro.",
+        uk: "iPhone 17 Pro — інноваційний дизайн для максимальної продуктивності. Потрійна 48МП Fusion камера та чіп A19 Pro.",
+      },
+    },
+    "17 Pro Max": {
+      series: {
+        en: "Apple iPhone 17 Pro Max",
+        ru: "Apple iPhone 17 Pro Max",
+        uk: "Apple iPhone 17 Pro Max",
+      },
+      display: '6.9"',
+      chip: "A19 Pro",
+      intro: {
+        en: iphone17IntroEn,
+        ru: iphone17IntroRu,
+        uk: iphone17IntroUk,
+      },
     },
   };
+
+  const c = config[line];
+  const specsEn = iphone17SpecsEn(c.series.en, storageLabel, c.display).map((category) =>
+    category.title === "Processor"
+      ? {
+          ...category,
+          items: category.items.map((item) =>
+            item.key === "Name" ? { ...item, value: c.chip } : item
+          ),
+        }
+      : category
+  );
+  const specsRu = iphone17SpecsRu(c.series.ru, storageLabel, c.display).map((category) =>
+    category.title === "Процессор"
+      ? {
+          ...category,
+          items: category.items.map((item) =>
+            item.key === "Название" ? { ...item, value: c.chip } : item
+          ),
+        }
+      : category
+  );
+  const specsUk = iphone17SpecsUk(c.series.uk, storageLabel, c.display).map((category) =>
+    category.title === "Процесор"
+      ? {
+          ...category,
+          items: category.items.map((item) =>
+            item.key === "Назва процесора" ? { ...item, value: c.chip } : item
+          ),
+        }
+      : category
+  );
+
+  return {
+    en: { intro: c.intro.en, specs: specsEn, note: noteEn },
+    ru: { intro: c.intro.ru, specs: specsRu, note: noteRu },
+    uk: { intro: c.intro.uk, specs: specsUk, note: noteUk },
+  };
+}
+
+function resolveIphone17Line(slug: string): Iphone17Line | null {
+  if (slug.startsWith("iphone-17-pro-max-")) return "17 Pro Max";
+  if (slug.startsWith("iphone-17-pro-")) return "17 Pro";
+  if (slug.startsWith("iphone-air-")) return "Air";
+  if (slug.startsWith("iphone-17-")) return "17";
+  return null;
 }
 
 export function getProductContent(
@@ -1343,7 +1449,12 @@ export function getProductContent(
     "iphone-15-256gb-blue": getIphone15Content("256 GB"),
     "iphone-16-128gb-white": getIphone16Content("128 GB"),
     "iphone-16-256gb-black": getIphone16Content("256 GB"),
-    "iphone-17-256gb-titanium": getIphone17Content(),
   };
-  return bySlug[slug]?.[locale] ?? null;
+
+  const staticContent = bySlug[slug]?.[locale];
+  if (staticContent) return staticContent;
+
+  const line = resolveIphone17Line(slug);
+  if (!line) return null;
+  return getIphone17LineContent(line, storage)[locale];
 }

@@ -1,6 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import "dotenv/config";
+import {
+  buildIphone17Name,
+  buildIphone17Slug,
+  getIphone17Images,
+  getIphone17Specs,
+  IPHONE17_CATALOG,
+} from "./iphone17-catalog";
 
 const prisma = new PrismaClient();
 
@@ -56,7 +63,6 @@ async function main() {
     { model: "15", storage: "256GB", color: "Blue", price: 899, bg: "1e3a8a", fg: "93c5fd", description: null, specs: null },
     { model: "16", storage: "128GB", color: "White", price: 899, bg: "f8fafc", fg: "64748b", description: null, specs: null },
     { model: "16", storage: "256GB", color: "Black", price: 999, bg: "0f172a", fg: "94a3b8", description: null, specs: null },
-    { model: "17", storage: "256GB", color: "Titanium", price: 1099, bg: "52525b", fg: "e4e4e7", description: null, specs: null },
   ];
 
   const iphone14ProMaxDescription = `Смартфон Apple iPhone 14 Pro Max 128GB A2894 Space Black (Відновлений / Майже новий)
@@ -103,13 +109,6 @@ A16 Bionic
     "/images/iphone-16/ae2db6b09bda12dda814347b5c85da6c.png",
   ];
 
-  const iphone17Images = [
-    "/images/iphone-17/iphone-17-pro-17-pro-max-hero.png",
-    "/images/iphone-17/14f06b19202d8d324a436edd074a0078.png",
-    "/images/iphone-17/4107344ea00535bf1254a45f08e14c52.png",
-    "/images/iphone-17/44a1cfb645b34868983311ae341596c5.png",
-  ];
-
   const iphone14ProMaxImages = [
     "/images/iphone-14-pro-max/2aac8373587591f9830fe6f6cb6a40a0.png",
     "/images/iphone-14-pro-max/d1dc984068b32d84441962c11285726c.png",
@@ -123,7 +122,6 @@ A16 Bionic
     const slug = `iphone-${p.model.toLowerCase().replace(/\s/g, "-")}-${p.storage.toLowerCase()}-${p.color.toLowerCase().replace(/\s/g, "-")}`;
     const isIphone15 = p.model === "15";
     const isIphone16 = p.model === "16";
-    const isIphone17 = p.model === "17";
     const isIphone14ProMax = p.model === "14 Pro Max";
     const imageUrl = `https://placehold.co/600x600/${p.bg}/${p.fg}?text=iPhone+${p.model}+${p.color}`;
     const images = isIphone14ProMax
@@ -132,9 +130,7 @@ A16 Bionic
         ? iphone15Images
         : isIphone16
           ? iphone16Images
-          : isIphone17
-            ? iphone17Images
-            : [imageUrl];
+          : [imageUrl];
     const description = isIphone14ProMax ? iphone14ProMaxDescription : p.description;
     const specs = isIphone14ProMax
       ? { display: "6.7\" Super Retina XDR", processor: "A16 Bionic", camera: "48MP Main", battery: "Up to 23h" }
@@ -156,7 +152,39 @@ A16 Bionic
       },
     });
   }
-  console.log("Products created");
+
+  for (const p of IPHONE17_CATALOG) {
+    const name = buildIphone17Name(p.model, p.storage, p.color);
+    const slug = buildIphone17Slug(p.model, p.storage, p.color);
+    const specs = getIphone17Specs(p.model, p.storage);
+    const images = getIphone17Images(p.model, p.color);
+    await prisma.product.upsert({
+      where: { slug },
+      update: {
+        name,
+        model: p.model,
+        storage: p.storage,
+        color: p.color,
+        price: p.price,
+        images,
+        specs,
+        isPublished: true,
+      },
+      create: {
+        name,
+        slug,
+        model: p.model,
+        storage: p.storage,
+        color: p.color,
+        price: p.price,
+        stock: 10,
+        images,
+        specs,
+        isPublished: true,
+      },
+    });
+  }
+  console.log(`Products created (${IPHONE17_CATALOG.length} iPhone 17 variants)`);
 
   // System settings
   await prisma.systemSetting.upsert({

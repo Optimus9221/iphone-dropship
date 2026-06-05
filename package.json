@@ -11,6 +11,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "npx tsx prisma/seed.ts",
+    "images:iphone17": "npx tsx scripts/download-iphone17-images.ts",
     "db:push": "prisma db push"
   },
   "prisma": {
