@@ -55,10 +55,14 @@ function SpecCategoryBlock({ category, index }: { category: SpecCategory; index:
 }
 
 export function ProductSpecs({ content }: ProductSpecsProps) {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
+  const specsDir = locale === "he" ? "ltr" : undefined;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
+    <div
+      dir={specsDir}
+      className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md"
+    >
       <div className="border-b border-white/10 px-6 py-4">
         <h2 className="text-xl font-bold text-white">{t("productSpecsTitle")}</h2>
       </div>
