@@ -300,12 +300,12 @@ export default function Home() {
                   className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
                 >
                   <Link href={`/product/${p.slug}`} className="block flex-1 min-h-0">
-                    <div className="relative aspect-square overflow-hidden bg-white/5">
+                    <div className="relative aspect-square overflow-hidden bg-white/5 p-3">
                       {p.images[0] ? (
                         <img
                           src={p.images[0]}
                           alt={p.name}
-                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                          className="h-full w-full object-contain transition duration-300 group-hover:scale-105"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center">

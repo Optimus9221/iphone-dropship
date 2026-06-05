@@ -247,7 +247,7 @@ function CheckoutContent() {
               <img
                 src={product.images[0]}
                 alt={product.name}
-                className="h-20 w-20 rounded-lg object-cover"
+                className="h-20 w-20 rounded-lg bg-white/5 object-contain p-1"
               />
             ) : (
               <div className="h-20 w-20 rounded-lg bg-white/10" />
