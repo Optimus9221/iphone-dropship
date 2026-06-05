@@ -101,12 +101,17 @@ function getRozetkaGallery(model: Iphone17Model, color: string): string[] | unde
 }
 
 export function getIphone17Images(model: Iphone17Model, color: string): string[] {
+  const appleImage =
+    imageByModelColor.get(`${model}::${color}`) ??
+    `/images/iphone-17/${modelFolder(model)}/${colorSlug(color)}.png`;
   const gallery = getRozetkaGallery(model, color);
-  if (gallery?.length) return gallery;
 
-  const image = imageByModelColor.get(`${model}::${color}`);
-  if (image) return [image];
-  return [`/images/iphone-17/${modelFolder(model)}/${colorSlug(color)}.png`];
+  if (gallery?.length) {
+    const extras = gallery.filter((img) => img !== appleImage);
+    return [appleImage, ...extras];
+  }
+
+  return [appleImage];
 }
 
 export function buildIphone17Slug(model: Iphone17Model, storage: string, color: string): string {

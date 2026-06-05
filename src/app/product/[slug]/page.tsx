@@ -106,7 +106,7 @@ export default function ProductPage() {
               aria-label="View fullscreen"
             >
               {images[selectedImage] ? (
-                <img src={images[selectedImage]} alt={product.name} className="h-full w-full object-contain p-4 select-none" draggable={false} />
+                <img src={images[selectedImage]} alt={product.name} className="h-full w-full object-contain p-6 select-none" draggable={false} />
               ) : (
                 <div className="flex h-full items-center justify-center bg-white/5">
                   <Smartphone className="h-24 w-24 text-white/30" />
