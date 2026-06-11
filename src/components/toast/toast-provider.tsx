@@ -55,6 +55,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               )}
               <span className="text-sm font-medium">{t.message}</span>
               <button
+                data-testid={`pf-toast-dismiss-${t.id}`}
                 onClick={() => dismiss(t.id)}
                 className="ml-2 rounded p-1 hover:bg-white/10"
                 aria-label="Dismiss"

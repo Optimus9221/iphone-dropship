@@ -74,7 +74,7 @@ export default function DashboardPage() {
     return (
       <motion.div className="mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 lg:px-8">
         <p className="text-slate-400">{t("pleaseSignIn")}</p>
-        <Link href="/login" className="mt-4 inline-block font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
+        <Link href="/login" data-testid="pf-dashboard-login-link" className="mt-4 inline-block font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
           {t("signIn")}
         </Link>
       </motion.div>
@@ -99,6 +99,7 @@ export default function DashboardPage() {
           <p className="mt-1 text-xs text-slate-500">{t("availableCashbackWithdrawHint")}</p>
           <Link
             href="/dashboard/cashback"
+            data-testid="pf-dashboard-cashback-card-link"
             className="mt-3 inline-block text-sm font-medium text-emerald-400 hover:underline"
           >
             {t("cashbackWithdrawLink")} →
@@ -130,6 +131,7 @@ export default function DashboardPage() {
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             href="/catalog"
+            data-testid="pf-dashboard-catalog-link"
             className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100"
           >
             <ShoppingBag className="h-4 w-4" />
@@ -137,6 +139,7 @@ export default function DashboardPage() {
           </Link>
           <Link
             href="/dashboard/cashback"
+            data-testid="pf-dashboard-withdraw-link"
             className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-600/20 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-600/30"
           >
             <Wallet className="h-4 w-4" />
@@ -171,6 +174,7 @@ export default function DashboardPage() {
             <p className="text-sm text-amber-200/90">{t("dashboardStatsLoadError")}</p>
             <button
               type="button"
+              data-testid="pf-dashboard-stats-retry"
               onClick={() => loadStats()}
               className="mt-2 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-900 hover:bg-slate-100"
             >
@@ -192,11 +196,13 @@ export default function DashboardPage() {
           <div className="mt-4 flex gap-2">
             <input
               readOnly
+              data-testid="pf-dashboard-referral-url"
               value={stats.referralUrl}
               className="flex-1 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white"
             />
             <button
               type="button"
+              data-testid="pf-dashboard-referral-copy"
               onClick={() => {
                 navigator.clipboard.writeText(stats.referralUrl);
                 toast(t("linkCopied"));
@@ -217,24 +223,28 @@ export default function DashboardPage() {
       >
         <Link
           href="/dashboard/referrals"
+          data-testid="pf-dashboard-nav-referrals"
           className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10"
         >
           {t("viewReferrals")}
         </Link>
         <Link
           href="/dashboard/cashback"
+          data-testid="pf-dashboard-nav-cashback"
           className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10"
         >
           {t("cashbackHistory")}
         </Link>
         <Link
           href="/dashboard/orders"
+          data-testid="pf-dashboard-nav-orders"
           className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10"
         >
           {t("myOrders")}
         </Link>
         <Link
           href="/dashboard/settings"
+          data-testid="pf-dashboard-nav-settings"
           className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:border-white/30 hover:bg-white/10"
         >
           {t("dashboardSettings")}

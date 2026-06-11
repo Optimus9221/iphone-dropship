@@ -60,7 +60,7 @@ function ResetPasswordForm() {
         <PhoneBackground patternId="phones-reset" />
         <div className="relative mx-auto max-w-md px-4 py-16 text-center">
           <p className="text-slate-400">{t("resetPasswordInvalidToken")}</p>
-          <Link href="/forgot-password" className="mt-4 inline-block text-emerald-400 hover:underline">
+          <Link href="/forgot-password" data-testid="pf-reset-password-forgot-link" className="mt-4 inline-block text-emerald-400 hover:underline">
             {t("forgotPasswordTitle")}
           </Link>
         </div>
@@ -92,6 +92,7 @@ function ResetPasswordForm() {
                 </label>
                 <input
                   id="newPassword"
+                  data-testid="pf-reset-password-new-input"
                   type="password"
                   required
                   value={newPassword}
@@ -107,6 +108,7 @@ function ResetPasswordForm() {
                 </label>
                 <input
                   id="confirmPassword"
+                  data-testid="pf-reset-password-confirm-input"
                   type="password"
                   required
                   value={confirmPassword}
@@ -117,6 +119,7 @@ function ResetPasswordForm() {
               </div>
               <LoadingButton
                 type="submit"
+                data-testid="pf-reset-password-submit-button"
                 loading={loading}
                 disabled={loading}
                 className="w-full rounded-full bg-white py-3 font-semibold text-slate-900"
@@ -126,7 +129,7 @@ function ResetPasswordForm() {
             </form>
           )}
 
-          <Link href="/login" className="mt-6 block text-center text-sm text-emerald-400 hover:underline">
+          <Link href="/login" data-testid="pf-reset-password-login-link" className="mt-6 block text-center text-sm text-emerald-400 hover:underline">
             ← {t("signIn")}
           </Link>
         </div>

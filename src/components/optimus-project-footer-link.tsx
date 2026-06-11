@@ -6,6 +6,7 @@ export function OptimusProjectFooterLink() {
   return (
     <Link
       href={OPTIMUS_URL}
+      data-testid="pf-footer-optimus-link"
       target="_blank"
       rel="noopener noreferrer"
       className="group flex items-center gap-2.5 rounded-xl px-2 py-1.5 outline-none transition duration-300 hover:bg-zinc-200/70 dark:hover:bg-zinc-800/90 focus-visible:ring-2 focus-visible:ring-emerald-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-50 dark:focus-visible:ring-offset-zinc-950"

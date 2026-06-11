@@ -73,6 +73,7 @@ export default function ForgotPasswordPage() {
                 </label>
                 <input
                   id="email"
+                  data-testid="pf-forgot-password-email-input"
                   type="email"
                   required
                   value={email}
@@ -84,6 +85,7 @@ export default function ForgotPasswordPage() {
               <TurnstileWidget onToken={onTurnstileToken} theme="dark" />
               <LoadingButton
                 type="submit"
+                data-testid="pf-forgot-password-submit-button"
                 loading={loading}
                 disabled={loading || (turnstileEnabled && !turnstileToken)}
                 className="w-full rounded-full bg-white py-3 font-semibold text-slate-900"
@@ -93,7 +95,7 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          <Link href="/login" className="mt-6 block text-center text-sm text-emerald-400 hover:underline">
+          <Link href="/login" data-testid="pf-forgot-password-login-link" className="mt-6 block text-center text-sm text-emerald-400 hover:underline">
             ← {t("signIn")}
           </Link>
         </div>

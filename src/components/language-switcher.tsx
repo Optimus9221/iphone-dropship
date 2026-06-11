@@ -28,6 +28,7 @@ export function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) 
         <button
           key={l}
           type="button"
+          data-testid={`pf-lang-${l}`}
           onClick={() => setLocale(l as Locale)}
           className={`relative overflow-visible rounded-full px-3 py-1.5 text-sm font-medium transition ${
             selected && !isUkButton

@@ -65,7 +65,7 @@ function LoginForm() {
           </p>
           <p className="mt-1 text-sm text-slate-400">
             {t("dontHaveAccount")}{" "}
-            <Link href="/register" className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
+            <Link href="/register" data-testid="pf-login-register-link" className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
               {t("signUp")}
             </Link>
           </p>
@@ -80,6 +80,7 @@ function LoginForm() {
                       ? `/verify-email?email=${encodeURIComponent(pendingEmail)}`
                       : "/verify-email"
                   }
+                  data-testid="pf-login-verify-email-link"
                   className="mt-2 inline-block font-medium text-emerald-400 hover:underline"
                 >
                   {t("verifyEmailTitle")} →
@@ -103,6 +104,7 @@ function LoginForm() {
               </label>
               <input
                 id="email"
+                data-testid="pf-login-email-input"
                 type="email"
                 required
                 value={email}
@@ -119,6 +121,7 @@ function LoginForm() {
               </label>
               <input
                 id="password"
+                data-testid="pf-login-password-input"
                 type="password"
                 required
                 value={password}
@@ -126,13 +129,14 @@ function LoginForm() {
                 className="mt-1 w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/20"
                 autoComplete="current-password"
               />
-              <Link href="/forgot-password" className="mt-1 block text-right text-xs text-emerald-400 hover:underline">
+              <Link href="/forgot-password" data-testid="pf-login-forgot-password-link" className="mt-1 block text-right text-xs text-emerald-400 hover:underline">
                 {t("forgotPassword")}
               </Link>
             </div>
 
             <LoadingButton
               type="submit"
+              data-testid="pf-login-submit-button"
               loading={loading}
               disabled={loading}
               className="w-full rounded-full bg-white py-3 font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100 hover:shadow-indigo-500/30"

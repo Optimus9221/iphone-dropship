@@ -81,6 +81,7 @@ export default function AdminSettingsPage() {
           <p className="mt-0.5 text-xs text-zinc-500">{t("adminMinWithdrawalHint")}</p>
           <input
             type="text"
+            data-testid="pf-admin-settings-min-withdrawal"
             value={settings?.min_withdrawal ?? "10"}
             onChange={(e) =>
               setSettings((s) => (s ? { ...s, min_withdrawal: e.target.value } : { ...DEFAULT_SETTINGS, min_withdrawal: e.target.value }))
@@ -92,6 +93,7 @@ export default function AdminSettingsPage() {
           <label className="block text-sm font-medium">{t("adminCashbackHoldDays")}</label>
           <input
             type="text"
+            data-testid="pf-admin-settings-cashback-hold-days"
             value={settings?.cashback_hold_days ?? "1"}
             onChange={(e) =>
               setSettings((s) => (s ? { ...s, cashback_hold_days: e.target.value } : { ...DEFAULT_SETTINGS, cashback_hold_days: e.target.value }))
@@ -106,6 +108,7 @@ export default function AdminSettingsPage() {
               <label className="block text-sm font-medium">{t("adminWhatsApp")}</label>
               <input
                 type="text"
+                data-testid="pf-admin-settings-whatsapp"
                 value={settings?.whatsapp_phone ?? "+380501234567"}
                 onChange={(e) => setSettings((s) => (s ? { ...s, whatsapp_phone: e.target.value } : { ...DEFAULT_SETTINGS, whatsapp_phone: e.target.value }))}
                 className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
@@ -116,6 +119,7 @@ export default function AdminSettingsPage() {
               <label className="block text-sm font-medium">{t("adminTelegram")}</label>
               <input
                 type="text"
+                data-testid="pf-admin-settings-telegram"
                 value={settings?.telegram_link ?? "https://t.me/iphone_store_ua"}
                 onChange={(e) => setSettings((s) => (s ? { ...s, telegram_link: e.target.value } : { ...DEFAULT_SETTINGS, telegram_link: e.target.value }))}
                 className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
@@ -132,6 +136,7 @@ export default function AdminSettingsPage() {
               <label className="block text-sm font-medium">{t("adminCryptoWallet")}</label>
               <input
                 type="text"
+                data-testid="pf-admin-settings-crypto-wallet"
                 value={settings?.crypto_wallet_address ?? ""}
                 onChange={(e) =>
                   setSettings((s) =>
@@ -149,6 +154,7 @@ export default function AdminSettingsPage() {
               <label className="block text-sm font-medium">{t("adminCryptoNetwork")}</label>
               <input
                 type="text"
+                data-testid="pf-admin-settings-crypto-network"
                 value={settings?.crypto_network ?? ""}
                 onChange={(e) =>
                   setSettings((s) =>
@@ -168,6 +174,7 @@ export default function AdminSettingsPage() {
             <div>
               <label className="block text-sm font-medium">{t("footerPrivacy")}</label>
               <textarea
+                data-testid="pf-admin-settings-privacy-policy"
                 value={settings?.privacy_policy ?? ""}
                 onChange={(e) => setSettings((s) => (s ? { ...s, privacy_policy: e.target.value } : { ...DEFAULT_SETTINGS, privacy_policy: e.target.value }))}
                 rows={6}
@@ -178,6 +185,7 @@ export default function AdminSettingsPage() {
             <div>
               <label className="block text-sm font-medium">{t("footerTerms")}</label>
               <textarea
+                data-testid="pf-admin-settings-terms-of-service"
                 value={settings?.terms_of_service ?? ""}
                 onChange={(e) => setSettings((s) => (s ? { ...s, terms_of_service: e.target.value } : { ...DEFAULT_SETTINGS, terms_of_service: e.target.value }))}
                 rows={6}
@@ -189,6 +197,7 @@ export default function AdminSettingsPage() {
         </div>
         <button
           type="submit"
+          data-testid="pf-admin-settings-save-button"
           disabled={saving}
           className="rounded bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
         >

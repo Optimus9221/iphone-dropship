@@ -193,6 +193,7 @@ export default function AdminUsersPage() {
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
                       <button
                         type="button"
+                        data-testid={`pf-admin-user-edit-${u.id}`}
                         onClick={() => openEdit(u)}
                         className="shrink-0 whitespace-nowrap text-sm text-emerald-600 hover:underline"
                       >
@@ -201,6 +202,7 @@ export default function AdminUsersPage() {
                       {u.role !== "ADMIN" && (
                         <button
                           type="button"
+                          data-testid={`pf-admin-user-block-${u.id}`}
                           onClick={() => handleBlock(u.id, !u.isBlocked)}
                           className={`shrink-0 whitespace-nowrap text-sm hover:underline ${
                             u.isBlocked ? "text-emerald-600" : "text-red-600"
@@ -212,6 +214,7 @@ export default function AdminUsersPage() {
                       {!u.emailVerified && u.role !== "ADMIN" && (
                         <button
                           type="button"
+                          data-testid={`pf-admin-user-delete-${u.id}`}
                           disabled={deletingId === u.id}
                           onClick={() => handleDeleteUser(u)}
                           className="shrink-0 whitespace-nowrap text-sm text-red-700 hover:underline disabled:opacity-50 dark:text-red-400"
@@ -237,6 +240,7 @@ export default function AdminUsersPage() {
                 <label className="block text-sm font-medium">{t("adminUserName")}</label>
                 <input
                   type="text"
+                  data-testid="pf-admin-users-form-name"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
@@ -246,6 +250,7 @@ export default function AdminUsersPage() {
                 <label className="block text-sm font-medium">{t("adminUserEmail")}</label>
                 <input
                   type="email"
+                  data-testid="pf-admin-users-form-email"
                   required
                   value={form.email}
                   onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -256,6 +261,7 @@ export default function AdminUsersPage() {
                 <label className="block text-sm font-medium">{t("adminUserPhone")}</label>
                 <input
                   type="text"
+                  data-testid="pf-admin-users-form-phone"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   placeholder="+380..."
@@ -265,6 +271,7 @@ export default function AdminUsersPage() {
               <div>
                 <label className="block text-sm font-medium">{t("adminUserRole")}</label>
                 <select
+                  data-testid="pf-admin-users-form-role"
                   value={form.role}
                   onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as "USER" | "ADMIN" }))}
                   className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
@@ -276,6 +283,7 @@ export default function AdminUsersPage() {
               <div className="flex gap-2 pt-2">
                 <button
                   type="submit"
+                  data-testid="pf-admin-users-form-save"
                   disabled={saving}
                   className="rounded bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
                 >
@@ -283,6 +291,7 @@ export default function AdminUsersPage() {
                 </button>
                 <button
                   type="button"
+                  data-testid="pf-admin-users-form-cancel"
                   onClick={() => setEditing(null)}
                   className="rounded border px-4 py-2"
                 >

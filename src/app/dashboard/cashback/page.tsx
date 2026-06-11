@@ -122,7 +122,7 @@ export default function CashbackPage() {
   if (status === "loading" || loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+        <Link href="/dashboard" data-testid="pf-cashback-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
           {t("backToDashboard")}
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("cashbackHistory")}</h1>
@@ -139,7 +139,7 @@ export default function CashbackPage() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 text-center sm:px-6 lg:px-8">
         <p className="text-slate-400">{t("pleaseSignIn")}</p>
-        <Link href="/login" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
+        <Link href="/login" data-testid="pf-cashback-login-link" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
           {t("signIn")}
         </Link>
       </div>
@@ -153,7 +153,7 @@ export default function CashbackPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+      <Link href="/dashboard" data-testid="pf-cashback-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("cashbackHistory")}</h1>
@@ -165,7 +165,7 @@ export default function CashbackPage() {
             {t("cashbackWithdrawDesc").replace("${min}", String(min))}
           </p>
           <p className="mt-2 text-sm text-slate-500">{t("cashbackSpendHint", { min })}</p>
-          <Link href="/catalog" className="mt-2 inline-block text-sm text-emerald-400 hover:underline">
+          <Link href="/catalog" data-testid="pf-cashback-catalog-link" className="mt-2 inline-block text-sm text-emerald-400 hover:underline">
             {t("catalog")}
           </Link>
           <p className="mt-3 text-lg font-medium text-emerald-300">
@@ -182,6 +182,7 @@ export default function CashbackPage() {
             <div className="mt-4 space-y-3">
               <label className="block text-sm text-slate-400">{t("cashbackWalletLabel")}</label>
               <input
+                data-testid="pf-cashback-wallet-input"
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white"
@@ -189,6 +190,7 @@ export default function CashbackPage() {
               />
               <label className="block text-sm text-slate-400">{t("cashbackNetworkLabel")}</label>
               <input
+                data-testid="pf-cashback-network-input"
                 value={walletNetwork}
                 onChange={(e) => setWalletNetwork(e.target.value)}
                 placeholder="USDT TRC20"
@@ -197,6 +199,7 @@ export default function CashbackPage() {
               {withdrawError && <p className="text-sm text-red-300">{withdrawError}</p>}
               <LoadingButton
                 type="button"
+                data-testid="pf-cashback-withdraw-button"
                 loading={withdrawing}
                 disabled={!canWithdraw || withdrawing}
                 onClick={handleWithdraw}

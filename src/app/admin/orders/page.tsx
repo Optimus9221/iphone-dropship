@@ -230,6 +230,7 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-3">
                         <button
                           type="button"
+                          data-testid={`pf-admin-order-toggle-${o.id}`}
                           onClick={() => setExpandedOrder(expandedOrder === o.id ? null : o.id)}
                           className="font-medium hover:underline"
                         >
@@ -249,6 +250,7 @@ export default function AdminOrdersPage() {
                         <div className="flex max-w-[min(100%,18rem)] flex-col gap-2">
                           <AdminOrderStatusBadge status={ed.status} />
                           <select
+                            data-testid={`pf-admin-order-status-${o.id}`}
                             value={ed.status}
                             onChange={(e) => setEdit(o.id, "status", e.target.value)}
                             className="rounded border border-zinc-300 bg-white px-2 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
@@ -267,6 +269,7 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-3">
                         <input
                           type="text"
+                          data-testid={`pf-admin-order-tracking-${o.id}`}
                           value={ed.trackingNumber}
                           onChange={(e) => setEdit(o.id, "trackingNumber", e.target.value)}
                           placeholder="Tracking #"
@@ -274,6 +277,7 @@ export default function AdminOrdersPage() {
                         />
                         {o.trackingNumber && (
                           <a
+                            data-testid={`pf-admin-order-track-link-${o.id}`}
                             href={`https://novaposhta.ua/tracking/?cargo_number=${o.trackingNumber}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -286,6 +290,7 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-3">
                         <input
                           type="text"
+                          data-testid={`pf-admin-order-imei-${o.id}`}
                           value={ed.imei}
                           onChange={(e) => setEdit(o.id, "imei", e.target.value)}
                           placeholder="IMEI"
@@ -296,6 +301,7 @@ export default function AdminOrdersPage() {
                         {hasChanges && (
                           <button
                             type="button"
+                            data-testid={`pf-admin-order-save-${o.id}`}
                             onClick={() => handleUpdate(o.id)}
                             disabled={updating === o.id}
                             className="rounded bg-emerald-600 px-3 py-1 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
@@ -323,6 +329,7 @@ export default function AdminOrdersPage() {
                                   <span className="text-xs text-zinc-500">{t("adminCryptoWallet")}</span>
                                   <input
                                     type="text"
+                                    data-testid={`pf-admin-order-wallet-${o.id}`}
                                     value={ed.paymentWalletAddress}
                                     onChange={(e) => setEdit(o.id, "paymentWalletAddress", e.target.value)}
                                     className="mt-0.5 w-full rounded border border-zinc-300 bg-white px-2 py-1 text-sm font-mono dark:border-zinc-600 dark:bg-zinc-900"
@@ -334,6 +341,7 @@ export default function AdminOrdersPage() {
                                   <span className="text-xs text-zinc-500">{t("adminCryptoNetwork")}</span>
                                   <input
                                     type="text"
+                                    data-testid={`pf-admin-order-network-${o.id}`}
                                     value={ed.paymentNetwork}
                                     onChange={(e) => setEdit(o.id, "paymentNetwork", e.target.value)}
                                     className="mt-0.5 w-full rounded border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-900"

@@ -33,6 +33,7 @@ export function ScrollToTop() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
+          data-testid="pf-scroll-to-top-button"
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400 active:scale-95 sm:hidden"
           aria-label="Scroll to top"

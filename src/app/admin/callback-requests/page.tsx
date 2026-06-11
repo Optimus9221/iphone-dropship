@@ -77,7 +77,7 @@ export default function AdminCallbackRequestsPage() {
                 <tr key={r.id} className="border-b border-zinc-100 dark:border-zinc-800">
                   <td className="px-4 py-3">{r.name}</td>
                   <td className="px-4 py-3">
-                    <a href={`tel:${r.phone}`} className="text-emerald-600 hover:underline">
+                    <a data-testid={`pf-admin-callback-phone-link-${r.id}`} href={`tel:${r.phone}`} className="text-emerald-600 hover:underline">
                       {r.phone}
                     </a>
                   </td>
@@ -88,6 +88,7 @@ export default function AdminCallbackRequestsPage() {
                   <td className="px-4 py-3">{r.status}</td>
                   <td className="px-4 py-3">
                     <select
+                      data-testid={`pf-admin-callback-status-${r.id}`}
                       value={r.status}
                       onChange={(e) => updateStatus(r.id, e.target.value)}
                       className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-600 dark:bg-zinc-800"

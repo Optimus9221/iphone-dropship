@@ -122,6 +122,7 @@ export default function AdminReviewsPage() {
                   <>
                     <span className="font-medium text-zinc-700 dark:text-zinc-300">Відео: </span>
                     <a
+                      data-testid={`pf-admin-review-video-link-${r.id}`}
                       href={r.videoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -136,6 +137,7 @@ export default function AdminReviewsPage() {
               </p>
               <div className="mt-3">
                 <select
+                  data-testid={`pf-admin-review-status-${r.id}`}
                   value={r.status}
                   onChange={(e) => updateStatus(r.id, e.target.value)}
                   className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-800"

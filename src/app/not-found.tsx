@@ -17,6 +17,7 @@ export default function NotFound() {
         <p className="mt-2 max-w-md text-slate-400">{t("notFoundDesc")}</p>
         <Link
           href="/"
+          data-testid="pf-not-found-home-link"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 font-semibold text-slate-900 shadow-lg transition hover:bg-slate-100"
         >
           <Home className="h-5 w-5" />

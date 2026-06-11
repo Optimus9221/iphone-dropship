@@ -163,6 +163,7 @@ export default function Home() {
           >
             <Link
               href="/catalog"
+              data-testid="pf-home-hero-catalog-link"
               className={
                 isLoggedIn
                   ? "group flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:scale-105 hover:shadow-emerald-500/40"
@@ -175,6 +176,7 @@ export default function Home() {
             {!isLoggedIn && (
               <Link
                 href="/register"
+                data-testid="pf-home-hero-register-link"
                 className="rounded-full border border-white/30 bg-white/5 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:scale-105 hover:border-white/50 hover:bg-white/10"
               >
                 {t("joinEarn")}
@@ -287,6 +289,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold text-white">{t("homePopularProducts")}</h2>
               <Link
                 href="/catalog"
+                data-testid="pf-home-view-all-catalog-link"
                 className="text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:underline"
               >
                 {t("homeViewAllCatalog")} →
@@ -299,7 +302,7 @@ export default function Home() {
                   variants={fadeUp}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md transition hover:scale-[1.02] hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-xl hover:shadow-emerald-500/10"
                 >
-                  <Link href={`/product/${p.slug}`} className="block flex-1 min-h-0">
+                  <Link href={`/product/${p.slug}`} data-testid={`pf-home-product-link-${p.slug}`} className="block flex-1 min-h-0">
                     <div className="relative aspect-square overflow-hidden bg-transparent p-4">
                       {p.images[0] ? (
                         <img
@@ -327,6 +330,7 @@ export default function Home() {
                   <div className="mt-auto px-4 pb-4 flex flex-col justify-end">
                     <Link
                       href={`/checkout?product=${p.id}`}
+                      data-testid={`pf-home-buy-link-${p.slug}`}
                       className={`block w-full rounded-xl py-2.5 text-center text-sm font-semibold text-white transition min-h-[42px] flex items-center justify-center ${
                         p.stock === 0
                           ? "bg-amber-500 hover:bg-amber-400"
@@ -422,6 +426,7 @@ export default function Home() {
                 {canScroll && (
                   <button
                     type="button"
+                    data-testid="pf-home-review-prev"
                     onClick={goPrev}
                     aria-label={t("reviewPrev")}
                     className="absolute left-0 top-1/2 z-10 -translate-y-1/2 -translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 md:-translate-x-4"
@@ -460,6 +465,7 @@ export default function Home() {
                         {videoUrl && !embedUrl && (
                           <a
                             href={videoUrl}
+                            data-testid={`pf-home-review-video-${item.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-3 inline-block text-sm text-emerald-400 hover:underline"
@@ -476,6 +482,7 @@ export default function Home() {
                 {canScroll && (
                   <button
                     type="button"
+                    data-testid="pf-home-review-next"
                     onClick={goNext}
                     aria-label={t("reviewNext")}
                     className="absolute right-0 top-1/2 z-10 -translate-y-1/2 translate-x-2 rounded-full border border-white/20 bg-white/10 p-2 text-white shadow-lg backdrop-blur-sm transition hover:bg-white/20 md:translate-x-4"
@@ -489,6 +496,7 @@ export default function Home() {
                       <button
                         key={i}
                         type="button"
+                        data-testid={`pf-home-review-dot-${i}`}
                         onClick={() => setReviewCarouselIndex(i)}
                         aria-label={t("reviewPage", { num: i + 1 })}
                         className={`h-2 rounded-full transition-all ${
@@ -506,6 +514,7 @@ export default function Home() {
           <div className="mt-12">
             <button
               type="button"
+              data-testid="pf-home-review-form-toggle"
               onClick={() => setReviewFormOpen((v) => !v)}
               className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-4 text-xl font-bold text-white transition hover:bg-white/10 hover:border-white/20"
             >
@@ -535,6 +544,7 @@ export default function Home() {
                           className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
                         >
                           <textarea
+                            data-testid="pf-home-review-text"
                             value={reviewText}
                             onChange={(e) => setReviewText(e.target.value)}
                             placeholder={t("reviewWritePlaceholder")}
@@ -545,6 +555,7 @@ export default function Home() {
                           <p className="mt-1 text-xs text-slate-400">{t("reviewMinLength")}</p>
                           <input
                             type="url"
+                            data-testid="pf-home-review-video-url"
                             value={reviewVideoUrl}
                             onChange={(e) => setReviewVideoUrl(e.target.value)}
                             placeholder={t("reviewVideoPlaceholder")}
@@ -557,6 +568,7 @@ export default function Home() {
                                 <button
                                   key={n}
                                   type="button"
+                                  data-testid={`pf-home-review-rating-${n}`}
                                   onClick={() => setReviewRating(n)}
                                   className="rounded p-1 transition hover:opacity-80"
                                   aria-label={`${n} ${t("reviewRatingLabel")}`}
@@ -572,6 +584,7 @@ export default function Home() {
                           </div>
                           <button
                             type="submit"
+                            data-testid="pf-home-review-submit"
                             disabled={reviewSubmitting}
                             className="mt-4 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-white transition hover:bg-emerald-400 disabled:opacity-50"
                           >
@@ -635,6 +648,7 @@ export default function Home() {
             <p className="mx-auto mt-2 max-w-xl text-slate-400">{t("homeCtaDesc")}</p>
             <Link
               href="/catalog"
+              data-testid="pf-home-cta-catalog-link"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-8 py-3 font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:scale-105 hover:shadow-emerald-500/40"
             >
               <ShoppingBag className="h-5 w-5" />
@@ -661,6 +675,7 @@ export default function Home() {
               >
                 <button
                   type="button"
+                  data-testid={`pf-home-faq-${i}`}
                   onClick={() => setFaqOpen(faqOpen === i ? null : i)}
                   className="flex w-full items-center justify-between px-4 py-4 text-left text-white hover:bg-white/5"
                 >

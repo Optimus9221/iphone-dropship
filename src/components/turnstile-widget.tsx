@@ -83,7 +83,7 @@ export function TurnstileWidget({ onToken, theme = "dark" }: Props) {
           if (window.turnstile) setReady(true);
         }}
       />
-      <div ref={containerRef} className="flex min-h-[65px] justify-center" />
+      <div ref={containerRef} data-testid="pf-turnstile-widget" className="flex min-h-[65px] justify-center" />
     </>
   );
 }

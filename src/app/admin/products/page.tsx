@@ -141,6 +141,7 @@ export default function AdminProductsPage() {
           <label className="block text-sm text-zinc-500">{t("adminProductName")}</label>
           <input
             type="text"
+            data-testid="pf-admin-products-form-name"
             required
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
@@ -151,6 +152,7 @@ export default function AdminProductsPage() {
         <div>
           <label className="block text-sm text-zinc-500">Model</label>
           <select
+            data-testid="pf-admin-products-form-model"
             value={form.model}
             onChange={(e) => setForm((f) => ({ ...f, model: e.target.value }))}
             className="mt-1 w-full rounded border border-zinc-300 px-2 py-1 dark:border-zinc-600 dark:bg-zinc-800"
@@ -163,6 +165,7 @@ export default function AdminProductsPage() {
         <div>
           <label className="block text-sm text-zinc-500">Storage</label>
           <select
+            data-testid="pf-admin-products-form-storage"
             value={form.storage}
             onChange={(e) => setForm((f) => ({ ...f, storage: e.target.value }))}
             className="mt-1 w-full rounded border border-zinc-300 px-2 py-1 dark:border-zinc-600 dark:bg-zinc-800"
@@ -176,6 +179,7 @@ export default function AdminProductsPage() {
           <label className="block text-sm text-zinc-500">Color</label>
           <input
             type="text"
+            data-testid="pf-admin-products-form-color"
             value={form.color}
             onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
             className="mt-1 w-full rounded border border-zinc-300 px-2 py-1 dark:border-zinc-600 dark:bg-zinc-800"
@@ -185,6 +189,7 @@ export default function AdminProductsPage() {
           <label className="block text-sm text-zinc-500">{t("adminProductPrice")}</label>
           <input
             type="number"
+            data-testid="pf-admin-products-form-price"
             required
             min="1"
             value={form.price}
@@ -196,6 +201,7 @@ export default function AdminProductsPage() {
           <label className="block text-sm text-zinc-500">{t("adminProductStock")}</label>
           <input
             type="number"
+            data-testid="pf-admin-products-form-stock"
             min="0"
             value={form.stock}
             onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))}
@@ -207,6 +213,7 @@ export default function AdminProductsPage() {
       <div className="mt-4">
         <label className="block text-sm text-zinc-500">{t("adminProductDescription")}</label>
         <textarea
+          data-testid="pf-admin-products-form-description"
           value={form.description}
           onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
           rows={4}
@@ -237,6 +244,7 @@ export default function AdminProductsPage() {
                 {i !== 0 && (
                   <button
                     type="button"
+                    data-testid={`pf-admin-products-image-set-main-${i}`}
                     onClick={() => setMainImage(i)}
                     className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-500"
                   >
@@ -245,6 +253,7 @@ export default function AdminProductsPage() {
                 )}
                 <button
                   type="button"
+                  data-testid={`pf-admin-products-image-remove-${i}`}
                   onClick={() => removeImage(i)}
                   className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-400"
                 >
@@ -257,13 +266,14 @@ export default function AdminProductsPage() {
         <div className="mt-2 flex gap-2">
           <input
             type="url"
+            data-testid="pf-admin-products-image-url-input"
             value={newImageUrl}
             onChange={(e) => setNewImageUrl(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
             placeholder="https://..."
             className="flex-1 rounded border border-zinc-300 px-2 py-1 dark:border-zinc-600 dark:bg-zinc-800"
           />
-          <button type="button" onClick={addImage} className="rounded border px-3 py-1">
+          <button type="button" data-testid="pf-admin-products-add-image-button" onClick={addImage} className="rounded border px-3 py-1">
             {t("adminAddImage")}
           </button>
         </div>
@@ -273,6 +283,7 @@ export default function AdminProductsPage() {
         <input
           type="checkbox"
           id="published"
+          data-testid="pf-admin-products-form-published"
           checked={form.isPublished}
           onChange={(e) => setForm((f) => ({ ...f, isPublished: e.target.checked }))}
         />
@@ -280,10 +291,10 @@ export default function AdminProductsPage() {
       </div>
 
       <div className="mt-4 flex gap-2">
-        <button type="submit" className="rounded bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-500">
+        <button type="submit" data-testid="pf-admin-products-form-submit" className="rounded bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-500">
           {submitLabel}
         </button>
-        <button type="button" onClick={onCancel} className="rounded border px-4 py-2">
+        <button type="button" data-testid="pf-admin-products-form-cancel" onClick={onCancel} className="rounded border px-4 py-2">
           {t("adminCancel")}
         </button>
       </div>
@@ -305,6 +316,7 @@ export default function AdminProductsPage() {
         <h1 className="text-2xl font-bold">{t("adminProducts")}</h1>
         <button
           type="button"
+          data-testid="pf-admin-products-add-button"
           onClick={() => {
             setShowAdd(!showAdd);
             setEditing(null);
@@ -355,6 +367,7 @@ export default function AdminProductsPage() {
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
+                      data-testid={`pf-admin-product-published-${p.id}`}
                       checked={p.isPublished}
                       onChange={(e) => {
                         fetch(`/api/admin/products/${p.id}`, {
@@ -368,6 +381,7 @@ export default function AdminProductsPage() {
                   <td className="px-4 py-3">
                     <button
                       type="button"
+                      data-testid={`pf-admin-product-edit-${p.id}`}
                       onClick={() => {
                         openEdit(p);
                         setShowAdd(false);
@@ -378,6 +392,7 @@ export default function AdminProductsPage() {
                     </button>
                     <button
                       type="button"
+                      data-testid={`pf-admin-product-delete-${p.id}`}
                       onClick={() => handleDelete(p.id)}
                       className="text-red-600 hover:underline"
                     >

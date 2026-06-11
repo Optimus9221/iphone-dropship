@@ -37,7 +37,7 @@ export default function TermsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <Link href="/" className="text-sm text-emerald-600 hover:underline dark:text-emerald-400">
+      <Link href="/" data-testid="pf-terms-home-link" className="text-sm text-emerald-600 hover:underline dark:text-emerald-400">
         ← {t("home")}
       </Link>
       <article

@@ -28,6 +28,7 @@ export function Header() {
       <LanguageSwitcher variant="headerDark" />
       <Link
         href="/catalog"
+        data-testid="pf-header-catalog-link"
         className={navLinkClass(pathname === "/catalog" || pathname.startsWith("/product"))}
         onClick={() => setMobileOpen(false)}
       >
@@ -40,6 +41,7 @@ export function Header() {
           {(session.user as { role?: string })?.role === "ADMIN" && (
             <Link
               href="/admin"
+              data-testid="pf-header-admin-link"
               className={navLinkClass(pathname.startsWith("/admin"))}
               onClick={() => setMobileOpen(false)}
             >
@@ -48,6 +50,7 @@ export function Header() {
           )}
           <Link
             href="/dashboard"
+            data-testid="pf-header-dashboard-link"
             className={navLinkClass(pathname.startsWith("/dashboard"))}
             onClick={() => setMobileOpen(false)}
           >
@@ -55,6 +58,7 @@ export function Header() {
           </Link>
           <button
             type="button"
+            data-testid="pf-header-logout-button"
             onClick={() => { signOut(); setMobileOpen(false); }}
             className="text-sm font-medium text-zinc-400 hover:text-white"
           >
@@ -65,6 +69,7 @@ export function Header() {
         <>
           <Link
             href="/login"
+            data-testid="pf-header-login-link"
             className={navLinkClass(pathname === "/login")}
             onClick={() => setMobileOpen(false)}
           >
@@ -72,6 +77,7 @@ export function Header() {
           </Link>
           <Link
             href="/register"
+            data-testid="pf-header-register-link"
             className="rounded-full bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm transition hover:bg-zinc-100"
             onClick={() => setMobileOpen(false)}
           >
@@ -87,6 +93,7 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
+          data-testid="pf-header-home-link"
           className="flex shrink-0 items-center gap-2"
           aria-label={t("siteName")}
         >
@@ -99,6 +106,7 @@ export function Header() {
 
         <button
           type="button"
+          data-testid="pf-header-mobile-menu-toggle"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="flex rounded-lg p-2 text-zinc-300 hover:bg-white/10 hover:text-white sm:hidden"
           aria-label="Toggle menu"

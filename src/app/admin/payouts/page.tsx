@@ -60,6 +60,7 @@ export default function AdminPayoutsPage() {
       {status === "PENDING" && (
         <button
           type="button"
+          data-testid={`pf-admin-payout-processing-${id}`}
           disabled={busy === id}
           onClick={() => updateCashback(id, "PROCESSING")}
           className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-600"
@@ -71,6 +72,7 @@ export default function AdminPayoutsPage() {
         <>
           <button
             type="button"
+            data-testid={`pf-admin-payout-completed-${id}`}
             disabled={busy === id}
             onClick={() => updateCashback(id, "COMPLETED")}
             className="rounded bg-emerald-600 px-2 py-1 text-xs text-white"
@@ -79,6 +81,7 @@ export default function AdminPayoutsPage() {
           </button>
           <button
             type="button"
+            data-testid={`pf-admin-payout-rejected-${id}`}
             disabled={busy === id}
             onClick={() => updateCashback(id, "REJECTED")}
             className="rounded bg-red-600/90 px-2 py-1 text-xs text-white"

@@ -97,11 +97,12 @@ function CheckoutContent() {
           <p className="mt-4 text-slate-400">{t("checkoutSignIn")}</p>
           <Link
             href={`/login?callbackUrl=/checkout?product=${productId ?? ""}`}
+            data-testid="pf-checkout-login-link"
             className="mt-6 inline-block rounded-full bg-white px-6 py-3 font-semibold text-slate-900 hover:bg-slate-100"
           >
             {t("signIn")}
           </Link>
-          <Link href="/catalog" className="mt-4 block text-slate-400 hover:text-white hover:underline">
+          <Link href="/catalog" data-testid="pf-checkout-catalog-link" className="mt-4 block text-slate-400 hover:text-white hover:underline">
             {t("backToCatalog")}
           </Link>
         </div>
@@ -116,7 +117,7 @@ function CheckoutContent() {
         <div className="relative mx-auto max-w-xl px-4 py-12 text-center">
           <h1 className="text-2xl font-bold text-white">{t("checkoutTitle")}</h1>
           <p className="mt-4 text-slate-400">{t("checkoutSelectProductFirst")}</p>
-          <Link href="/catalog" className="mt-6 inline-block text-emerald-400 hover:underline">
+          <Link href="/catalog" data-testid="pf-checkout-catalog-link" className="mt-6 inline-block text-emerald-400 hover:underline">
             {t("backToCatalog")}
           </Link>
         </div>
@@ -211,7 +212,7 @@ function CheckoutContent() {
     <div className="relative min-h-[calc(100vh-4rem)]">
       <PhoneBackground patternId="phones-checkout" />
       <div className="relative mx-auto max-w-xl px-4 py-12 sm:px-6 lg:px-8">
-        <Link href={`/product/${product.slug}`} className="text-sm text-slate-400 hover:text-white hover:underline">
+        <Link href={`/product/${product.slug}`} data-testid="pf-checkout-back-to-product" className="text-sm text-slate-400 hover:text-white hover:underline">
           {t("backToCatalog")}
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("checkoutTitle")}</h1>
@@ -279,6 +280,7 @@ function CheckoutContent() {
             <label className="block text-sm text-slate-400">{t("shippingName")}</label>
             <input
               type="text"
+              data-testid="pf-checkout-shipping-name"
               required
               value={form.shippingName}
               onChange={(e) => { setForm((f) => ({ ...f, shippingName: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingName: "" })); }}
@@ -295,6 +297,7 @@ function CheckoutContent() {
                 <input
                   type="radio"
                   name="deliveryMethod"
+                  data-testid="pf-checkout-delivery-nova-poshta"
                   checked={form.deliveryMethod === "nova_poshta"}
                   onChange={() => setForm((f) => ({ ...f, deliveryMethod: "nova_poshta" }))}
                 />
@@ -304,6 +307,7 @@ function CheckoutContent() {
                 <input
                   type="radio"
                   name="deliveryMethod"
+                  data-testid="pf-checkout-delivery-courier"
                   checked={form.deliveryMethod === "courier"}
                   onChange={() => setForm((f) => ({ ...f, deliveryMethod: "courier" }))}
                 />
@@ -318,6 +322,7 @@ function CheckoutContent() {
                 <label className="block text-sm text-slate-400">{t("checkoutNovaPoshtaCity")}</label>
                 <input
                   type="text"
+                  data-testid="pf-checkout-nova-poshta-city"
                   required
                   value={form.novaPoshtaCity}
                   onChange={(e) => { setForm((f) => ({ ...f, novaPoshtaCity: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
@@ -329,6 +334,7 @@ function CheckoutContent() {
                 <label className="block text-sm text-slate-400">{t("checkoutNovaPoshtaDepartment")}</label>
                 <input
                   type="text"
+                  data-testid="pf-checkout-nova-poshta-department"
                   required
                   value={form.novaPoshtaDepartment}
                   onChange={(e) => { setForm((f) => ({ ...f, novaPoshtaDepartment: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
@@ -343,6 +349,7 @@ function CheckoutContent() {
               <label className="block text-sm text-slate-400">{t("checkoutCourierAddress")}</label>
               <input
                 type="text"
+                data-testid="pf-checkout-courier-address"
                 required
                 value={form.shippingAddress}
                 onChange={(e) => { setForm((f) => ({ ...f, shippingAddress: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
@@ -356,6 +363,7 @@ function CheckoutContent() {
             <label className="block text-sm text-slate-400">{t("shippingPhone")}</label>
             <input
               type="tel"
+              data-testid="pf-checkout-shipping-phone"
               required
               value={form.shippingPhone}
               onChange={(e) => { setForm((f) => ({ ...f, shippingPhone: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingPhone: "" })); }}
@@ -368,6 +376,7 @@ function CheckoutContent() {
             <label className="block text-sm text-slate-400">{t("shippingEmail")}</label>
             <input
               type="email"
+              data-testid="pf-checkout-shipping-email"
               required
               value={form.shippingEmail}
               onChange={(e) => { setForm((f) => ({ ...f, shippingEmail: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingEmail: "" })); }}
@@ -379,6 +388,7 @@ function CheckoutContent() {
           <div>
             <label className="block text-sm text-slate-400">{t("comment")}</label>
             <textarea
+              data-testid="pf-checkout-comment"
               value={form.comment}
               onChange={(e) => setForm((f) => ({ ...f, comment: e.target.value }))}
               rows={2}
@@ -393,6 +403,7 @@ function CheckoutContent() {
                 <input
                   type="radio"
                   name="paymentMethod"
+                  data-testid="pf-checkout-payment-crypto"
                   checked={paymentMethod === "crypto"}
                   onChange={() => setPaymentMethod("crypto")}
                   className="mt-1"
@@ -410,6 +421,7 @@ function CheckoutContent() {
                 <input
                   type="radio"
                   name="paymentMethod"
+                  data-testid="pf-checkout-payment-cashback"
                   checked={paymentMethod === "cashback"}
                   disabled={!cashbackPreview?.canPayWithCashback}
                   onChange={() => setPaymentMethod("cashback")}
@@ -439,6 +451,7 @@ function CheckoutContent() {
 
           <button
             type="submit"
+            data-testid="pf-checkout-submit-button"
             disabled={submitting || (paymentMethod === "cashback" && !cashbackPreview?.canPayWithCashback)}
             className="w-full rounded-full bg-white py-4 font-semibold text-slate-900 transition hover:bg-slate-100 disabled:opacity-50"
           >

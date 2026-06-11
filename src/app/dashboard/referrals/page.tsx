@@ -46,7 +46,7 @@ export default function ReferralsPage() {
   if (status === "loading" || loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+        <Link href="/dashboard" data-testid="pf-referrals-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
           {t("backToDashboard")}
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("myReferrals")}</h1>
@@ -59,7 +59,7 @@ export default function ReferralsPage() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 text-center sm:px-6 lg:px-8">
         <p className="text-slate-400">{t("pleaseSignIn")}</p>
-        <Link href="/login" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
+        <Link href="/login" data-testid="pf-referrals-login-link" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
           {t("signIn")}
         </Link>
       </div>
@@ -70,7 +70,7 @@ export default function ReferralsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+      <Link href="/dashboard" data-testid="pf-referrals-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("myReferrals")}</h1>

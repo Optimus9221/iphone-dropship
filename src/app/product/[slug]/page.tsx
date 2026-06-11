@@ -84,9 +84,9 @@ export default function ProductPage() {
       <PhoneBackground patternId="phones-product" />
       <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <nav className="flex items-center gap-2 text-sm text-slate-400">
-          <Link href="/" className="hover:text-white">{t("home")}</Link>
+          <Link href="/" data-testid="pf-product-breadcrumb-home" className="hover:text-white">{t("home")}</Link>
           <ChevronRight className="h-4 w-4" />
-          <Link href="/catalog" className="hover:text-white">{t("catalog")}</Link>
+          <Link href="/catalog" data-testid="pf-product-breadcrumb-catalog" className="hover:text-white">{t("catalog")}</Link>
           <ChevronRight className="h-4 w-4" />
           <span className="text-white">{product.name}</span>
         </nav>
@@ -103,6 +103,7 @@ export default function ProductPage() {
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
               onClick={() => setLightboxOpen(true)}
+              data-testid="pf-product-main-image"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === "Enter" && setLightboxOpen(true)}
@@ -125,6 +126,7 @@ export default function ProductPage() {
                   <button
                     key={i}
                     type="button"
+                    data-testid={`pf-product-thumbnail-${i}`}
                     onClick={() => setSelectedImage(i)}
                     className={`h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 snap-center transition ${
                       selectedImage === i ? "border-emerald-400" : "border-white/20 hover:border-white/40"
@@ -148,6 +150,7 @@ export default function ProductPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+                  data-testid="pf-product-lightbox-overlay"
                   onClick={() => setLightboxOpen(false)}
                   role="button"
                   tabIndex={0}
@@ -156,6 +159,7 @@ export default function ProductPage() {
                 >
                   <button
                     type="button"
+                    data-testid="pf-product-lightbox-close"
                     onClick={() => setLightboxOpen(false)}
                     className="absolute right-4 top-4 rounded-full p-2 text-white hover:bg-white/10"
                     aria-label="Close"
@@ -199,6 +203,7 @@ export default function ProductPage() {
 
             <Link
               href={`/checkout?product=${product.id}`}
+              data-testid="pf-product-buy-button"
               className="mt-6 block w-full rounded-full bg-white py-4 text-center font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100 hover:shadow-indigo-500/30"
             >
               {product.stock === 0 ? t("orderNow") : t("buyNow")}

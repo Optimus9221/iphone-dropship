@@ -78,6 +78,7 @@ function PaymentProofForm({
       <label className="mt-2 block text-sm text-slate-400">{t("paymentProofScreenshotLabel")}</label>
       <input
         type="file"
+        data-testid={`pf-order-payment-proof-file-${orderId}`}
         accept="image/jpeg,image/png,image/webp"
         className="mt-1 block w-full text-sm text-slate-300 file:mr-3 file:rounded file:border-0 file:bg-amber-600 file:px-3 file:py-1.5 file:text-white"
         disabled={busy}
@@ -85,6 +86,7 @@ function PaymentProofForm({
       />
       <button
         type="button"
+        data-testid={`pf-order-payment-proof-submit-${orderId}`}
         disabled={!file || busy}
         onClick={submit}
         className="mt-3 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-40"
@@ -108,7 +110,7 @@ function OrdersLoadingFallback() {
   const { t } = useI18n();
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+      <Link href="/dashboard" data-testid="pf-orders-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
@@ -179,7 +181,7 @@ function OrdersPageInner() {
 
   const ordersSkeleton = (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+      <Link href="/dashboard" data-testid="pf-orders-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
@@ -202,7 +204,7 @@ function OrdersPageInner() {
 
     return (
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+        <Link href="/dashboard" data-testid="pf-orders-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
           {t("backToDashboard")}
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
@@ -218,13 +220,14 @@ function OrdersPageInner() {
           </p>
           <Link
             href={loginHref}
+            data-testid="pf-orders-login-link"
             className="mt-6 inline-flex rounded-full bg-white px-6 py-3 font-semibold text-slate-900 shadow-lg shadow-emerald-500/10 transition hover:bg-slate-100"
           >
             {t("signIn")}
           </Link>
           <p className="mt-4 text-xs text-slate-500">
             {t("dontHaveAccount")}{" "}
-            <Link href="/register" className="text-emerald-400 hover:underline">
+            <Link href="/register" data-testid="pf-orders-register-link" className="text-emerald-400 hover:underline">
               {t("signUp")}
             </Link>
           </p>
@@ -239,7 +242,7 @@ function OrdersPageInner() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+      <Link href="/dashboard" data-testid="pf-orders-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("myOrders")}</h1>
@@ -254,6 +257,7 @@ function OrdersPageInner() {
           <p className="mt-4 text-slate-400">{t("noOrders")}</p>
           <Link
             href="/catalog"
+            data-testid="pf-orders-catalog-link"
             className="mt-4 text-emerald-400 hover:text-emerald-300 hover:underline"
           >
             {t("backToCatalog")}
@@ -313,6 +317,7 @@ function OrdersPageInner() {
                         {t("orderTracking")}:{" "}
                         <a
                           href={`https://novaposhta.ua/tracking/?cargo_number=${order.trackingNumber}`}
+                          data-testid={`pf-order-tracking-link-${order.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="hover:underline"

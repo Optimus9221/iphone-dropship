@@ -126,6 +126,7 @@ function RegisterForm() {
         </label>
         <input
           id="email"
+          data-testid="pf-register-email-input"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -141,6 +142,7 @@ function RegisterForm() {
         </label>
         <input
           id="password"
+          data-testid="pf-register-password-input"
           type="password"
           value={password}
           onChange={(e) => {
@@ -158,6 +160,7 @@ function RegisterForm() {
         </label>
         <input
           id="name"
+          data-testid="pf-register-name-input"
           type="text"
           value={name}
           onChange={(e) => {
@@ -174,6 +177,7 @@ function RegisterForm() {
 
       <LoadingButton
         type="submit"
+        data-testid="pf-register-submit-button"
         loading={loading}
         disabled={loading || (turnstileEnabled && !turnstileToken)}
         className="w-full rounded-full bg-white py-3 font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100 hover:shadow-indigo-500/30"
@@ -198,7 +202,7 @@ export default function RegisterPage() {
           </p>
           <p className="mt-1 text-sm text-slate-400">
             {t("alreadyHaveAccount")}{" "}
-            <Link href="/login" className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
+            <Link href="/login" data-testid="pf-register-login-link" className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline">
               {t("signIn")}
             </Link>
           </p>

@@ -108,6 +108,7 @@ function VerifyEmailForm() {
         </label>
         <input
           id="ve-email"
+          data-testid="pf-verify-email-input"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -122,6 +123,7 @@ function VerifyEmailForm() {
         </label>
         <input
           id="ve-code"
+          data-testid="pf-verify-email-code-input"
           type="text"
           inputMode="numeric"
           maxLength={6}
@@ -135,6 +137,7 @@ function VerifyEmailForm() {
 
       <LoadingButton
         type="submit"
+        data-testid="pf-verify-email-submit-button"
         loading={loading}
         disabled={loading}
         className="w-full rounded-full bg-white py-3 font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100"
@@ -146,6 +149,7 @@ function VerifyEmailForm() {
 
       <button
         type="button"
+        data-testid="pf-verify-email-resend-button"
         onClick={handleResend}
         disabled={resendLoading || (turnstileEnabled && !turnstileToken)}
         className="w-full text-sm text-emerald-400 hover:text-emerald-300 hover:underline disabled:opacity-50"
@@ -167,7 +171,7 @@ export default function VerifyEmailPage() {
           <h1 className="text-2xl font-bold text-white">{t("verifyEmailTitle")}</h1>
           <p className="mt-2 text-sm text-slate-400">{t("verifyEmailDesc")}</p>
           <p className="mt-2 text-sm text-slate-500">
-            <Link href="/login" className="text-emerald-400 hover:underline">
+            <Link href="/login" data-testid="pf-verify-email-login-link" className="text-emerald-400 hover:underline">
               {t("signIn")}
             </Link>
           </p>

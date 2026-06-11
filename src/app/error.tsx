@@ -27,6 +27,7 @@ export default function Error({
         <p className="mt-2 max-w-md text-slate-400">{t("errorDesc")}</p>
         <button
           type="button"
+          data-testid="pf-error-retry-button"
           onClick={reset}
           className="mt-8 rounded-full bg-white px-6 py-3 font-semibold text-slate-900 shadow-lg transition hover:bg-slate-100"
         >

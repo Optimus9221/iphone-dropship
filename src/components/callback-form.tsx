@@ -12,6 +12,7 @@ export function CallbackFormTrigger() {
     <>
       <button
         type="button"
+        data-testid="pf-footer-callback-trigger"
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 text-zinc-600 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400"
       >
@@ -67,9 +68,10 @@ function CallbackFormModal(props: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={props.onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" data-testid="pf-callback-overlay" onClick={props.onClose}>
       <div
         className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900"
+        data-testid="pf-callback-modal"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-lg font-semibold">{t("callbackTitle")}</h3>
@@ -79,6 +81,7 @@ function CallbackFormModal(props: { onClose: () => void }) {
             <label className="block text-sm font-medium">{t("nameLabel")}</label>
             <input
               type="text"
+              data-testid="pf-callback-name-input"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
@@ -88,6 +91,7 @@ function CallbackFormModal(props: { onClose: () => void }) {
             <label className="block text-sm font-medium">{t("phoneLabel")}</label>
             <input
               type="tel"
+              data-testid="pf-callback-phone-input"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
@@ -96,6 +100,7 @@ function CallbackFormModal(props: { onClose: () => void }) {
           <div>
             <label className="block text-sm font-medium">{t("comment")}</label>
             <textarea
+              data-testid="pf-callback-comment-input"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
@@ -103,11 +108,12 @@ function CallbackFormModal(props: { onClose: () => void }) {
             />
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={props.onClose} className="rounded border border-zinc-300 px-4 py-2 dark:border-zinc-600">
+            <button type="button" data-testid="pf-callback-cancel-button" onClick={props.onClose} className="rounded border border-zinc-300 px-4 py-2 dark:border-zinc-600">
               {t("adminCancel")}
             </button>
             <button
               type="submit"
+              data-testid="pf-callback-submit-button"
               disabled={submitting}
               className="rounded bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
             >

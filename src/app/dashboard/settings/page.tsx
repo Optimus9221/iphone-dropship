@@ -119,7 +119,7 @@ export default function SettingsPage() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 lg:px-8">
         <p className="text-slate-400">{t("pleaseSignIn")}</p>
-        <Link href="/login" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
+        <Link href="/login" data-testid="pf-settings-login-link" className="mt-4 inline-block font-medium text-emerald-400 hover:underline">
           {t("signIn")}
         </Link>
       </div>
@@ -128,7 +128,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="text-sm text-slate-400 hover:text-white hover:underline">
+      <Link href="/dashboard" data-testid="pf-settings-back-link" className="text-sm text-slate-400 hover:text-white hover:underline">
         {t("backToDashboard")}
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-white">{t("dashboardSettings")}</h1>
@@ -155,6 +155,7 @@ export default function SettingsPage() {
             </label>
             <input
               id="current"
+              data-testid="pf-settings-current-password"
               type="password"
               required
               value={currentPassword}
@@ -169,6 +170,7 @@ export default function SettingsPage() {
             </label>
             <input
               id="new"
+              data-testid="pf-settings-new-password"
               type="password"
               required
               value={newPassword}
@@ -184,6 +186,7 @@ export default function SettingsPage() {
             </label>
             <input
               id="confirm"
+              data-testid="pf-settings-confirm-password"
               type="password"
               required
               value={confirmPassword}
@@ -194,6 +197,7 @@ export default function SettingsPage() {
           </div>
           <button
             type="submit"
+            data-testid="pf-settings-save-password"
             disabled={saving}
             className="rounded-lg bg-white px-4 py-2 font-medium text-slate-900 transition hover:bg-slate-100 disabled:opacity-50"
           >
@@ -219,6 +223,7 @@ export default function SettingsPage() {
         ) : (
           <button
             type="button"
+            data-testid="pf-settings-delete-profile-open"
             onClick={() => {
               setDeletePassword("");
               setDeleteAgreed(false);
@@ -233,11 +238,12 @@ export default function SettingsPage() {
       </motion.div>
 
       {showDeleteModal && !isAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" data-testid="pf-settings-delete-modal-overlay">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-profile-title"
+            data-testid="pf-settings-delete-modal"
             className="w-full max-w-md rounded-2xl border border-white/15 bg-slate-950 p-6 shadow-xl"
           >
             <h3 id="delete-profile-title" className="text-lg font-semibold text-white">
@@ -255,6 +261,7 @@ export default function SettingsPage() {
               </label>
               <input
                 id="delete-password"
+                data-testid="pf-settings-delete-password"
                 type="password"
                 autoComplete="current-password"
                 value={deletePassword}
@@ -267,6 +274,7 @@ export default function SettingsPage() {
             <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-slate-300">
               <input
                 type="checkbox"
+                data-testid="pf-settings-delete-confirm-checkbox"
                 checked={deleteAgreed}
                 onChange={(e) => setDeleteAgreed(e.target.checked)}
                 className="mt-1 rounded border-white/30 bg-white/10 text-red-600 focus:ring-red-500"
@@ -277,6 +285,7 @@ export default function SettingsPage() {
             <div className="mt-6 flex flex-wrap gap-2">
               <button
                 type="button"
+                data-testid="pf-settings-delete-confirm"
                 disabled={deleting || !deleteAgreed || deletePassword.length === 0}
                 onClick={() => handleDeleteAccount()}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500 disabled:opacity-40"
@@ -285,6 +294,7 @@ export default function SettingsPage() {
               </button>
               <button
                 type="button"
+                data-testid="pf-settings-delete-cancel"
                 disabled={deleting}
                 onClick={() => setShowDeleteModal(false)}
                 className="rounded-lg border border-white/20 px-4 py-2 text-sm text-slate-200 hover:bg-white/5 disabled:opacity-40"
