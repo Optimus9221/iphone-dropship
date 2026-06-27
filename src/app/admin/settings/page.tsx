@@ -9,8 +9,6 @@ type Settings = {
   cashback_hold_days: string;
   whatsapp_phone: string;
   telegram_link: string;
-  privacy_policy: string;
-  terms_of_service: string;
   crypto_wallet_address: string;
   crypto_network: string;
 };
@@ -20,8 +18,6 @@ const DEFAULT_SETTINGS: Settings = {
   cashback_hold_days: "1",
   whatsapp_phone: "+380501234567",
   telegram_link: "https://t.me/iphone_store_ua",
-  privacy_policy: "",
-  terms_of_service: "",
   crypto_wallet_address: "",
   crypto_network: "",
 };
@@ -164,33 +160,6 @@ export default function AdminSettingsPage() {
                 className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
                 placeholder="USDT TRC20"
                 autoComplete="off"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-zinc-200 pt-6 dark:border-zinc-800">
-          <h3 className="mb-4 font-medium">{t("adminLegalPages")}</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium">{t("footerPrivacy")}</label>
-              <textarea
-                data-testid="pf-admin-settings-privacy-policy"
-                value={settings?.privacy_policy ?? ""}
-                onChange={(e) => setSettings((s) => (s ? { ...s, privacy_policy: e.target.value } : { ...DEFAULT_SETTINGS, privacy_policy: e.target.value }))}
-                rows={6}
-                className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 font-mono text-sm dark:border-zinc-600 dark:bg-zinc-800"
-                placeholder="HTML-контент..."
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">{t("footerTerms")}</label>
-              <textarea
-                data-testid="pf-admin-settings-terms-of-service"
-                value={settings?.terms_of_service ?? ""}
-                onChange={(e) => setSettings((s) => (s ? { ...s, terms_of_service: e.target.value } : { ...DEFAULT_SETTINGS, terms_of_service: e.target.value }))}
-                rows={6}
-                className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 font-mono text-sm dark:border-zinc-600 dark:bg-zinc-800"
-                placeholder="HTML-контент..."
               />
             </div>
           </div>

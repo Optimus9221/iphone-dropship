@@ -11,10 +11,6 @@ export function Footer() {
     <footer className="mt-auto border-t border-zinc-200 bg-zinc-50 px-4 py-8 dark:border-zinc-800 dark:bg-zinc-900/50">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-8 md:flex-row md:items-center md:justify-between md:gap-6">
         <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
-          <Link href="/privacy" data-testid="pf-footer-privacy-link" className="hover:text-emerald-600 dark:hover:text-emerald-400">
-            {t("footerPrivacy")}
-          </Link>
-          <span className="text-zinc-400 dark:text-zinc-500">|</span>
           <Link href="/terms" data-testid="pf-footer-terms-link" className="hover:text-emerald-600 dark:hover:text-emerald-400">
             {t("footerTerms")}
           </Link>

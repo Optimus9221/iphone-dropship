@@ -29,8 +29,6 @@ export async function GET() {
           "cashback_hold_days",
           "whatsapp_phone",
           "telegram_link",
-          "privacy_policy",
-          "terms_of_service",
           "crypto_wallet_address",
           "crypto_network",
         ],
@@ -46,8 +44,6 @@ export async function GET() {
     cashback_hold_days: map.cashback_hold_days ?? "1",
     whatsapp_phone: map.whatsapp_phone ?? "+380501234567",
     telegram_link: map.telegram_link ?? "https://t.me/iphone_store_ua",
-    privacy_policy: map.privacy_policy ?? "",
-    terms_of_service: map.terms_of_service ?? "",
     crypto_wallet_address: map.crypto_wallet_address ?? "",
     crypto_network: map.crypto_network ?? "",
   });
@@ -58,8 +54,6 @@ const updateSchema = z.object({
   cashback_hold_days: z.string().regex(/^\d+$/).optional(),
   whatsapp_phone: z.string().optional(),
   telegram_link: z.string().optional(),
-  privacy_policy: z.string().optional(),
-  terms_of_service: z.string().optional(),
   crypto_wallet_address: z.string().optional(),
   crypto_network: z.string().optional(),
 });
