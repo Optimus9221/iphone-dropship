@@ -1,11 +1,11 @@
 /**
  * Cashback calculation logic
- * Anti-fraud: short hold before cashback becomes available to spend or withdraw
+ * Anti-fraud: hold before cashback becomes available to spend or withdraw
  */
 
 import { prisma } from "./db";
 
-const DEFAULT_CASHBACK_HOLD_DAYS = 1;
+const DEFAULT_CASHBACK_HOLD_DAYS = 14;
 const DEFAULT_OWN_PERCENT = 5;
 const DEFAULT_REFERRAL_PERCENT = 5;
 const MIN_WITHDRAWAL = 10;
@@ -37,7 +37,7 @@ export async function getCashbackHoldDays(): Promise<number> {
 }
 
 /**
- * Create cashback entry — available after hold period from delivery (default: next day).
+ * Create cashback entry — available after hold period from delivery (default: 14 days).
  */
 export async function createCashbackEntry(params: {
   userId: string;
@@ -102,3 +102,5 @@ export async function processAvailableCashback() {
 export function getMinWithdrawal() {
   return MIN_WITHDRAWAL;
 }
+
+export { DEFAULT_OWN_PERCENT, DEFAULT_CASHBACK_HOLD_DAYS };

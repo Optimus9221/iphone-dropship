@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -8,6 +8,8 @@ import { motion } from "framer-motion";
 import { useI18n } from "@/lib/i18n/context";
 import { ProductPrice } from "@/components/product-price";
 import { PhoneBackground } from "@/components/phone-background";
+import { AutocompleteField } from "@/components/autocomplete-field";
+import { displayCashbackAmount, DEFAULT_OWN_CASHBACK_PERCENT } from "@/lib/cashback-display";
 
 type Product = {
   id: string;
@@ -16,6 +18,7 @@ type Product = {
   price: number;
   images: string[];
   stock: number;
+  cashbackPercent?: number;
 };
 
 function CheckoutContent() {
@@ -36,6 +39,9 @@ function CheckoutContent() {
     canPayWithCashback: boolean;
     hasActivePayout: boolean;
   } | null>(null);
+  const [npCityRef, setNpCityRef] = useState("");
+  const [npCityLabel, setNpCityLabel] = useState("");
+  const [npWarehouseLabel, setNpWarehouseLabel] = useState("");
   const [form, setForm] = useState({
     deliveryMethod: "nova_poshta" as "nova_poshta" | "courier",
     shippingName: "",
@@ -75,6 +81,28 @@ function CheckoutContent() {
         .catch(() => setCashbackPreview(null));
     }
   }, [status, productId]);
+
+  const fetchCities = useCallback(async (query: string) => {
+    const res = await fetch(`/api/nova-poshta/cities?q=${encodeURIComponent(query)}`);
+    if (!res.ok) return [];
+    const data = (await res.json()) as Array<{ ref: string; label: string }>;
+    if (!Array.isArray(data)) return [];
+    return data.map((c) => ({ value: c.ref, label: c.label }));
+  }, []);
+
+  const fetchWarehouses = useCallback(
+    async (query: string) => {
+      if (!npCityRef) return [];
+      const params = new URLSearchParams({ cityRef: npCityRef });
+      if (query) params.set("q", query);
+      const res = await fetch(`/api/nova-poshta/warehouses?${params}`);
+      if (!res.ok) return [];
+      const data = (await res.json()) as Array<{ ref: string; label: string }>;
+      if (!Array.isArray(data)) return [];
+      return data.map((w) => ({ value: w.ref, label: w.label }));
+    },
+    [npCityRef]
+  );
 
   if (status === "loading" || loading) {
     return (
@@ -125,7 +153,10 @@ function CheckoutContent() {
     );
   }
 
-  const cashback = Math.round(product.price * 0.05);
+  const cashback = displayCashbackAmount(
+    product.price,
+    product.cashbackPercent ?? DEFAULT_OWN_CASHBACK_PERCENT
+  );
 
   const getOrderErrorMessage = (errorCode: string) => {
     const keys: Record<
@@ -149,6 +180,15 @@ function CheckoutContent() {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
+
+    if (form.deliveryMethod === "nova_poshta") {
+      if (!form.novaPoshtaCity.trim() || !form.novaPoshtaDepartment.trim()) {
+        setFieldErrors({ shippingAddress: t("orderError_validation_address") });
+        setError(t("orderError_validation"));
+        return;
+      }
+    }
+
     setSubmitting(true);
     const shippingAddress =
       form.deliveryMethod === "nova_poshta"
@@ -192,7 +232,7 @@ function CheckoutContent() {
         return;
       }
       router.push("/dashboard/orders");
-    } catch (err) {
+    } catch {
       setError(t("orderError_failed"));
     } finally {
       setSubmitting(false);
@@ -217,7 +257,6 @@ function CheckoutContent() {
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-white">{t("checkoutTitle")}</h1>
 
-        {/* Progress steps */}
         <div className="mt-6 flex items-center gap-2">
           {steps.map((step, i) => (
             <div key={i} className="flex flex-1 items-center gap-2">
@@ -245,6 +284,7 @@ function CheckoutContent() {
         >
           <div className="flex gap-4">
             {product.images[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={product.images[0]}
                 alt={product.name}
@@ -318,31 +358,55 @@ function CheckoutContent() {
 
           {form.deliveryMethod === "nova_poshta" ? (
             <>
-              <div>
-                <label className="block text-sm text-slate-400">{t("checkoutNovaPoshtaCity")}</label>
-                <input
-                  type="text"
-                  data-testid="pf-checkout-nova-poshta-city"
-                  required
-                  value={form.novaPoshtaCity}
-                  onChange={(e) => { setForm((f) => ({ ...f, novaPoshtaCity: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
-                  className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${fieldErrors.shippingAddress ? "border-red-500" : "border-white/20 focus:border-emerald-500"}`}
-                  placeholder={t("checkoutPlaceholderCity")}
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400">{t("checkoutNovaPoshtaDepartment")}</label>
-                <input
-                  type="text"
-                  data-testid="pf-checkout-nova-poshta-department"
-                  required
-                  value={form.novaPoshtaDepartment}
-                  onChange={(e) => { setForm((f) => ({ ...f, novaPoshtaDepartment: e.target.value })); setFieldErrors((e2) => ({ ...e2, shippingAddress: "" })); }}
-                  className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${fieldErrors.shippingAddress ? "border-red-500" : "border-white/20 focus:border-emerald-500"}`}
-                  placeholder={t("checkoutPlaceholderDepartment")}
-                />
-                {fieldErrors.shippingAddress && <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingAddress}</p>}
-              </div>
+              <AutocompleteField
+                label={t("checkoutNovaPoshtaCity")}
+                placeholder={t("checkoutPlaceholderCity")}
+                valueLabel={npCityLabel}
+                required
+                testId="pf-checkout-nova-poshta-city"
+                error={fieldErrors.shippingAddress && !form.novaPoshtaCity ? fieldErrors.shippingAddress : undefined}
+                fetchOptions={fetchCities}
+                onSelect={(opt) => {
+                  setNpCityRef(opt?.value ?? "");
+                  setNpCityLabel(opt?.label ?? "");
+                  setNpWarehouseLabel("");
+                  setForm((f) => ({
+                    ...f,
+                    novaPoshtaCity: opt?.label ?? "",
+                    novaPoshtaDepartment: "",
+                  }));
+                  setFieldErrors((e2) => ({ ...e2, shippingAddress: "" }));
+                }}
+                onQueryChange={(query) => {
+                  setNpCityRef("");
+                  setNpCityLabel(query);
+                  setForm((f) => ({ ...f, novaPoshtaCity: query, novaPoshtaDepartment: "" }));
+                  setNpWarehouseLabel("");
+                }}
+              />
+              <AutocompleteField
+                label={t("checkoutNovaPoshtaDepartment")}
+                placeholder={t("checkoutPlaceholderDepartment")}
+                valueLabel={npWarehouseLabel}
+                required
+                disabled={!npCityRef}
+                testId="pf-checkout-nova-poshta-department"
+                error={fieldErrors.shippingAddress && !form.novaPoshtaDepartment ? fieldErrors.shippingAddress : undefined}
+                minChars={0}
+                fetchOptions={fetchWarehouses}
+                onSelect={(opt) => {
+                  setNpWarehouseLabel(opt?.label ?? "");
+                  setForm((f) => ({ ...f, novaPoshtaDepartment: opt?.label ?? "" }));
+                  setFieldErrors((e2) => ({ ...e2, shippingAddress: "" }));
+                }}
+                onQueryChange={(query) => {
+                  setNpWarehouseLabel(query);
+                  setForm((f) => ({ ...f, novaPoshtaDepartment: query }));
+                }}
+              />
+              {!npCityRef && form.novaPoshtaCity.length >= 2 && (
+                <p className="text-xs text-amber-300/90">{t("checkoutNovaPoshtaPickCity")}</p>
+              )}
             </>
           ) : (
             <div>

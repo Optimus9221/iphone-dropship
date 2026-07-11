@@ -26,6 +26,7 @@ import { ProductPrice } from "@/components/product-price";
 import { getYoutubeEmbedUrl } from "@/lib/video-url";
 import { useToast } from "@/components/toast/toast-provider";
 import { PhoneBackground } from "@/components/phone-background";
+import { displayCashbackAmount, DEFAULT_OWN_CASHBACK_PERCENT } from "@/lib/cashback-display";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } };
 const stagger = { animate: { transition: { staggerChildren: 0.1 } } };
@@ -40,6 +41,7 @@ type Product = {
   price: number;
   images: string[];
   stock: number;
+  cashbackPercent?: number;
 };
 
 type Review = {
@@ -324,7 +326,14 @@ export default function Home() {
                         className="mt-2 text-lg font-bold text-white"
                         uahClassName="text-sm font-normal text-slate-400"
                       />
-                      <p className="text-sm text-emerald-400">+${Math.round(p.price * 0.05)} {t("cashback")}</p>
+                      <p className="text-sm text-emerald-400">
+                        +$
+                        {displayCashbackAmount(
+                          p.price,
+                          p.cashbackPercent ?? DEFAULT_OWN_CASHBACK_PERCENT
+                        )}{" "}
+                        {t("cashback")}
+                      </p>
                     </div>
                   </Link>
                   <div className="mt-auto px-4 pb-4 flex flex-col justify-end">

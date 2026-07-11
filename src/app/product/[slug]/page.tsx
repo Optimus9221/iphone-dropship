@@ -12,6 +12,7 @@ import { productDescriptions } from "@/lib/i18n/product-descriptions";
 import { PhoneBackground } from "@/components/phone-background";
 import { ProductSpecs } from "@/components/product-specs";
 import { ProductPageSkeleton } from "@/components/ui/skeleton";
+import { displayCashbackAmount, DEFAULT_OWN_CASHBACK_PERCENT } from "@/lib/cashback-display";
 
 type Product = {
   id: string;
@@ -25,6 +26,7 @@ type Product = {
   price: number;
   images: string[];
   stock: number;
+  cashbackPercent?: number;
 };
 
 export default function ProductPage() {
@@ -57,7 +59,10 @@ export default function ProductPage() {
     );
   }
 
-  const cashback = Math.round(product.price * 0.05);
+  const cashback = displayCashbackAmount(
+    product.price,
+    product.cashbackPercent ?? DEFAULT_OWN_CASHBACK_PERCENT
+  );
   const images: (string | null)[] = product.images.length > 0 ? product.images : [null];
   const content = getProductContent(locale, product.slug, product.storage);
   const fallbackDesc =

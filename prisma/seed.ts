@@ -98,8 +98,8 @@ async function main() {
   });
   await prisma.systemSetting.upsert({
     where: { key: "cashback_hold_days" },
-    update: { value: "1" },
-    create: { key: "cashback_hold_days", value: "1" },
+    update: { value: "14" },
+    create: { key: "cashback_hold_days", value: "14" },
   });
   await prisma.systemSetting.upsert({
     where: { key: "whatsapp_phone" },
