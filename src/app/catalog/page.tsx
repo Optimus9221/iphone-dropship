@@ -9,6 +9,7 @@ import { ProductPrice } from "@/components/product-price";
 import { PhoneBackground } from "@/components/phone-background";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
 import { displayCashbackAmount, DEFAULT_OWN_CASHBACK_PERCENT } from "@/lib/cashback-display";
+import { CatalogSelect } from "@/components/catalog-select";
 
 type Product = {
   id: string;
@@ -22,9 +23,6 @@ type Product = {
   stock: number;
   cashbackPercent: number;
 };
-
-const selectClass =
-  "rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none";
 
 export default function CatalogPage() {
   const { t } = useI18n();
@@ -113,67 +111,47 @@ export default function CatalogPage() {
             className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
           />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="block text-xs text-slate-400">
-              {t("catalogFilterModel")}
-              <select
-                data-testid="pf-catalog-filter-model"
-                className={`mt-1 w-full ${selectClass}`}
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-              >
-                <option value="">{t("catalogFilterAll")}</option>
-                {filterOptions.models.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block text-xs text-slate-400">
-              {t("catalogFilterStorage")}
-              <select
-                data-testid="pf-catalog-filter-storage"
-                className={`mt-1 w-full ${selectClass}`}
-                value={storage}
-                onChange={(e) => setStorage(e.target.value)}
-              >
-                <option value="">{t("catalogFilterAll")}</option>
-                {filterOptions.storages.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block text-xs text-slate-400">
-              {t("catalogFilterColor")}
-              <select
-                data-testid="pf-catalog-filter-color"
-                className={`mt-1 w-full ${selectClass}`}
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-              >
-                <option value="">{t("catalogFilterAll")}</option>
-                {filterOptions.colors.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block text-xs text-slate-400">
-              {t("catalogSort")}
-              <select
-                data-testid="pf-catalog-sort"
-                className={`mt-1 w-full ${selectClass}`}
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-              >
-                <option value="newest">{t("catalogSortNewest")}</option>
-                <option value="price_asc">{t("catalogSortPriceAsc")}</option>
-                <option value="price_desc">{t("catalogSortPriceDesc")}</option>
-              </select>
-            </label>
+            <CatalogSelect
+              label={t("catalogFilterModel")}
+              testId="pf-catalog-filter-model"
+              value={model}
+              onChange={setModel}
+              options={[
+                { value: "", label: t("catalogFilterAll") },
+                ...filterOptions.models.map((m) => ({ value: m, label: m })),
+              ]}
+            />
+            <CatalogSelect
+              label={t("catalogFilterStorage")}
+              testId="pf-catalog-filter-storage"
+              value={storage}
+              onChange={setStorage}
+              options={[
+                { value: "", label: t("catalogFilterAll") },
+                ...filterOptions.storages.map((s) => ({ value: s, label: s })),
+              ]}
+            />
+            <CatalogSelect
+              label={t("catalogFilterColor")}
+              testId="pf-catalog-filter-color"
+              value={color}
+              onChange={setColor}
+              options={[
+                { value: "", label: t("catalogFilterAll") },
+                ...filterOptions.colors.map((c) => ({ value: c, label: c })),
+              ]}
+            />
+            <CatalogSelect
+              label={t("catalogSort")}
+              testId="pf-catalog-sort"
+              value={sort}
+              onChange={setSort}
+              options={[
+                { value: "newest", label: t("catalogSortNewest") },
+                { value: "price_asc", label: t("catalogSortPriceAsc") },
+                { value: "price_desc", label: t("catalogSortPriceDesc") },
+              ]}
+            />
           </div>
           <div className="flex items-center justify-between gap-3 text-sm text-slate-400">
             <span data-testid="pf-catalog-results-count">{resultsLabel}</span>
