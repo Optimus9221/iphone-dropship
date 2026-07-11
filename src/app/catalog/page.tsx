@@ -101,7 +101,7 @@ export default function CatalogPage() {
           {t("catalogTitle")}
         </motion.h1>
 
-        <div className="mb-6 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+        <div className="relative z-40 mb-6 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
           <input
             type="search"
             data-testid="pf-catalog-search"
@@ -169,18 +169,18 @@ export default function CatalogPage() {
         </div>
 
         {loading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="relative z-0 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(8)].map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <p className="text-slate-400" data-testid="pf-catalog-no-match">
+          <p className="relative z-0 text-slate-400" data-testid="pf-catalog-no-match">
             {hasFilters ? t("catalogNoMatch") : t("noProducts")}
           </p>
         ) : (
           <motion.div
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            className="relative z-0 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
             initial="initial"
             animate="animate"
             variants={{ animate: { transition: { staggerChildren: 0.05 } } }}

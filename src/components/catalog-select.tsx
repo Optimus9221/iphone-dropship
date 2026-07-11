@@ -27,7 +27,10 @@ export function CatalogSelect({ label, value, options, onChange, testId }: Catal
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative block text-xs text-slate-400">
+    <div
+      ref={wrapRef}
+      className={`relative block text-xs text-slate-400 ${open ? "z-50" : "z-0"}`}
+    >
       {label}
       <button
         type="button"
@@ -47,7 +50,7 @@ export function CatalogSelect({ label, value, options, onChange, testId }: Catal
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-30 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-white/15 bg-slate-950 py-1 shadow-xl shadow-black/40"
+          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-56 overflow-auto rounded-lg border border-white/15 bg-slate-950 py-1 shadow-xl shadow-black/50"
         >
           {options.map((opt) => {
             const active = opt.value === value;
