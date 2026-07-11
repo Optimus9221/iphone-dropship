@@ -108,8 +108,8 @@ async function main() {
   });
   await prisma.systemSetting.upsert({
     where: { key: "telegram_link" },
-    update: { value: "https://t.me/iphone_store_ua" },
-    create: { key: "telegram_link", value: "https://t.me/iphone_store_ua" },
+    update: { value: "https://t.me/SVSB777" },
+    create: { key: "telegram_link", value: "https://t.me/SVSB777" },
   });
   await prisma.systemSetting.upsert({
     where: { key: "crypto_wallet_address" },

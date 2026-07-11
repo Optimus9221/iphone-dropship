@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: Settings = {
   min_withdrawal: "10",
   cashback_hold_days: "14",
   whatsapp_phone: "+380501234567",
-  telegram_link: "https://t.me/iphone_store_ua",
+  telegram_link: "https://t.me/SVSB777",
   crypto_wallet_address: "",
   crypto_network: "",
 };
@@ -101,22 +101,11 @@ export default function AdminSettingsPage() {
           <h3 className="mb-4 font-medium">{t("adminMessengers")}</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium">{t("adminWhatsApp")}</label>
-              <input
-                type="text"
-                data-testid="pf-admin-settings-whatsapp"
-                value={settings?.whatsapp_phone ?? "+380501234567"}
-                onChange={(e) => setSettings((s) => (s ? { ...s, whatsapp_phone: e.target.value } : { ...DEFAULT_SETTINGS, whatsapp_phone: e.target.value }))}
-                className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
-                placeholder="+380501234567"
-              />
-            </div>
-            <div>
               <label className="block text-sm font-medium">{t("adminTelegram")}</label>
               <input
                 type="text"
                 data-testid="pf-admin-settings-telegram"
-                value={settings?.telegram_link ?? "https://t.me/iphone_store_ua"}
+                value={settings?.telegram_link ?? "https://t.me/SVSB777"}
                 onChange={(e) => setSettings((s) => (s ? { ...s, telegram_link: e.target.value } : { ...DEFAULT_SETTINGS, telegram_link: e.target.value }))}
                 className="mt-1 w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800"
                 placeholder="https://t.me/username або @username"

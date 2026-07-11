@@ -43,7 +43,7 @@ export async function GET() {
     min_withdrawal: map.min_withdrawal ?? "10",
     cashback_hold_days: map.cashback_hold_days ?? "14",
     whatsapp_phone: map.whatsapp_phone ?? "+380501234567",
-    telegram_link: map.telegram_link ?? "https://t.me/iphone_store_ua",
+    telegram_link: map.telegram_link ?? "https://t.me/SVSB777",
     crypto_wallet_address: map.crypto_wallet_address ?? "",
     crypto_network: map.crypto_network ?? "",
   });
