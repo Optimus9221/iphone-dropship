@@ -14,12 +14,24 @@ const IPHONE17_COLORS = ["Black", "White", "Mist Blue", "Sage", "Lavender"] as c
 const IPHONE_AIR_COLORS = ["Space Black", "Cloud White", "Light Gold", "Sky Blue"] as const;
 const IPHONE_PRO_COLORS = ["Silver", "Deep Blue", "Cosmic Orange"] as const;
 
+/** USD prices from Citrus (rate 44.8). UAH display uses NEXT_PUBLIC_UAH_RATE / currency.ts. */
 const PRICES: Record<Iphone17Model, Record<string, number>> = {
-  "17": { "256GB": 799, "512GB": 1029 },
-  Air: { "256GB": 999, "512GB": 1199, "1TB": 1399 },
-  "17 Pro": { "256GB": 1099, "512GB": 1299, "1TB": 1499 },
-  "17 Pro Max": { "256GB": 1199, "512GB": 1399, "1TB": 1599, "2TB": 1999 },
+  "17": { "256GB": 1044, "512GB": 1267 },
+  Air: { "256GB": 1115, "512GB": 1338, "1TB": 1561 },
+  "17 Pro": { "256GB": 1383, "512GB": 1651, "1TB": 1874 },
+  "17 Pro Max": { "256GB": 1495, "512GB": 1784, "1TB": 2007, "2TB": 2453 },
 };
+
+/** Rare color-specific overrides (model + storage + color → USD). */
+const PRICE_OVERRIDES: Record<string, number> = {
+  "17 Pro::256GB::Cosmic Orange": 1338,
+};
+
+function priceFor(model: Iphone17Model, storage: string, color: string): number {
+  const override = PRICE_OVERRIDES[`${model}::${storage}::${color}`];
+  if (override != null) return override;
+  return PRICES[model][storage];
+}
 
 const STORAGE_BY_MODEL: Record<Iphone17Model, readonly string[]> = {
   "17": ["256GB", "512GB"],
@@ -203,7 +215,7 @@ function buildVariants(model: Iphone17Model): Iphone17ProductDef[] {
         model,
         storage,
         color,
-        price: PRICES[model][storage],
+        price: priceFor(model, storage, color),
       });
     }
   }

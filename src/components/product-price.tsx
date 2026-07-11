@@ -11,7 +11,7 @@ type ProductPriceProps = {
 
 export function ProductPrice({ price, className, uahClassName }: ProductPriceProps) {
   const { locale, t } = useI18n();
-  const showUah = locale === "uk";
+  const showUah = locale === "uk" || locale === "ru";
 
   return (
     <p className={className}>
