@@ -19,6 +19,7 @@ function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -45,6 +46,10 @@ function RegisterForm() {
       setError(t("nameRequired"));
       return;
     }
+    if (!acceptTerms) {
+      setError(t("registerAcceptTermsRequired"));
+      return;
+    }
     if (turnstileEnabled && !turnstileToken) {
       setError(t("captchaRequired"));
       return;
@@ -61,6 +66,7 @@ function RegisterForm() {
         name: name.trim(),
         referralCode: referralCode || undefined,
         locale,
+        acceptTerms: true,
         turnstileToken: turnstileToken ?? undefined,
       }),
     });
@@ -173,13 +179,40 @@ function RegisterForm() {
         />
       </div>
 
+      <label className="flex cursor-pointer items-start gap-3 text-sm text-slate-300">
+        <input
+          type="checkbox"
+          data-testid="pf-register-accept-terms"
+          checked={acceptTerms}
+          onChange={(e) => {
+            setAcceptTerms(e.target.checked);
+            setError("");
+          }}
+          className="mt-1 h-4 w-4 shrink-0 rounded border-white/30 bg-white/5 text-emerald-500 focus:ring-emerald-500/40"
+        />
+        <span>
+          {t("registerAcceptTerms").split("{terms}")[0]}
+          <Link
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="pf-register-terms-link"
+            className="font-medium text-emerald-400 hover:text-emerald-300 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {t("footerTerms")}
+          </Link>
+          {t("registerAcceptTerms").split("{terms}")[1] ?? ""}
+        </span>
+      </label>
+
       <TurnstileWidget onToken={onTurnstileToken} theme="dark" />
 
       <LoadingButton
         type="submit"
         data-testid="pf-register-submit-button"
         loading={loading}
-        disabled={loading || (turnstileEnabled && !turnstileToken)}
+        disabled={loading || !acceptTerms || (turnstileEnabled && !turnstileToken)}
         className="w-full rounded-full bg-white py-3 font-semibold text-slate-900 shadow-lg shadow-indigo-500/20 transition hover:bg-slate-100 hover:shadow-indigo-500/30"
       >
         {t("createAccount")}

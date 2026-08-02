@@ -16,6 +16,7 @@ const schema = z.object({
   name: z.string().min(1, "Name is required"),
   referralCode: z.string().optional(),
   locale: z.enum(["en", "ru", "uk", "he"]).optional(),
+  acceptTerms: z.literal(true),
   turnstileToken: z.string().optional(),
 });
 

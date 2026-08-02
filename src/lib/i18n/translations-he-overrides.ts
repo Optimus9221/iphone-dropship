@@ -512,6 +512,8 @@ export const heOverrides: Partial<Record<string, string>> = {
     checkoutCourierAddress: "כתובת מלאה",
     footerPrivacy: "מדיניות פרטיות",
     footerTerms: "תנאים והצעה",
+    registerAcceptTerms: "אני מסכים/ה ל{terms}",
+    registerAcceptTermsRequired: "כדי להמשיך יש לאשר את התנאים",
     footerCallback: "חזרו אלי",
     callbackTitle: "חזרו אלי",
     callbackDesc: "השאירו פרטים ונחזור אליכם בקרוב.",
