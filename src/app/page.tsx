@@ -24,8 +24,8 @@ import { useSession } from "next-auth/react";
 import { useI18n } from "@/lib/i18n/context";
 import { ProductPrice } from "@/components/product-price";
 import { getYoutubeEmbedUrl } from "@/lib/video-url";
-import { useToast } from "@/components/toast/toast-provider";
 import { PhoneBackground } from "@/components/phone-background";
+import { WriteReviewForm } from "@/components/write-review-form";
 import { displayCashbackAmount, DEFAULT_OWN_CASHBACK_PERCENT } from "@/lib/cashback-display";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } };
@@ -63,19 +63,12 @@ const FAQ_ITEMS = [
 
 export default function Home() {
   const { t } = useI18n();
-  const toast = useToast();
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated" && !!session;
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [stats, setStats] = useState({ usersCount: 0, ordersCount: 0 });
-  const [reviewText, setReviewText] = useState("");
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewVideoUrl, setReviewVideoUrl] = useState("");
-  const [reviewSubmitting, setReviewSubmitting] = useState(false);
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
-  const [reviewFormOpen, setReviewFormOpen] = useState(false);
   const [reviewCarouselIndex, setReviewCarouselIndex] = useState(0);
 
   useEffect(() => {
@@ -97,41 +90,6 @@ export default function Home() {
       .then(setReviews)
       .catch(() => []);
   }, []);
-
-  const submitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reviewText.trim() || reviewText.trim().length < 10) {
-      toast(t("reviewFillBodyFirst"), "error");
-      return;
-    }
-    setReviewSubmitting(true);
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: reviewText.trim(),
-          rating: reviewRating,
-          videoUrl: reviewVideoUrl.trim() || undefined,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setReviewText("");
-        setReviewRating(5);
-        setReviewVideoUrl("");
-        setReviewSubmitted(true);
-        toast(t("reviewSubmitSuccess"));
-      } else {
-        const msg = data?.error === "Unauthorized" ? t("pleaseSignIn") : (data?.error || t("errorOccurred"));
-        toast(msg, "error");
-      }
-    } catch {
-      toast(t("errorOccurred"), "error");
-    } finally {
-      setReviewSubmitting(false);
-    }
-  };
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
@@ -521,93 +479,10 @@ export default function Home() {
 
           {/* Write review — collapsible block */}
           <div className="mt-12">
-            <button
-              type="button"
-              data-testid="pf-home-review-form-toggle"
-              onClick={() => setReviewFormOpen((v) => !v)}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 py-4 text-xl font-bold text-white transition hover:bg-white/10 hover:border-white/20"
-            >
-              {t("reviewWriteTitle")}
-              <ChevronDown
-                className={`h-6 w-6 shrink-0 transition-transform duration-200 ${reviewFormOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-            <AnimatePresence initial={false}>
-              {reviewFormOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-4">
-                    {status === "loading" ? (
-                      <p className="text-center text-slate-400">{t("loading")}</p>
-                    ) : isLoggedIn ? (
-                      reviewSubmitted ? (
-                        <p className="text-center text-emerald-400">{t("reviewSubmitSuccess")}</p>
-                      ) : (
-                        <form
-                          onSubmit={submitReview}
-                          className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-md"
-                        >
-                          <textarea
-                            data-testid="pf-home-review-text"
-                            value={reviewText}
-                            onChange={(e) => setReviewText(e.target.value)}
-                            placeholder={t("reviewWritePlaceholder")}
-                            rows={4}
-                            minLength={10}
-                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
-                          />
-                          <p className="mt-1 text-xs text-slate-400">{t("reviewMinLength")}</p>
-                          <input
-                            type="url"
-                            data-testid="pf-home-review-video-url"
-                            value={reviewVideoUrl}
-                            onChange={(e) => setReviewVideoUrl(e.target.value)}
-                            placeholder={t("reviewVideoPlaceholder")}
-                            className="mt-3 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
-                          />
-                          <div className="mt-4 flex items-center gap-3">
-                            <span className="text-sm text-slate-400">{t("reviewRatingLabel")}</span>
-                            <div className="flex gap-0.5">
-                              {[1, 2, 3, 4, 5].map((n) => (
-                                <button
-                                  key={n}
-                                  type="button"
-                                  data-testid={`pf-home-review-rating-${n}`}
-                                  onClick={() => setReviewRating(n)}
-                                  className="rounded p-1 transition hover:opacity-80"
-                                  aria-label={`${n} ${t("reviewRatingLabel")}`}
-                                >
-                                  <Star
-                                    className={`h-6 w-6 ${
-                                      n <= reviewRating ? "fill-amber-400 text-amber-400" : "text-white/30"
-                                    }`}
-                                  />
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <button
-                            type="submit"
-                            data-testid="pf-home-review-submit"
-                            disabled={reviewSubmitting}
-                            className="mt-4 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-white transition hover:bg-emerald-400 disabled:opacity-50"
-                          >
-                            {reviewSubmitting ? "..." : t("reviewSubmit")}
-                          </button>
-                        </form>
-                      )
-                    ) : (
-                      <p className="text-center text-slate-400">{t("reviewSignInToWrite")}</p>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <WriteReviewForm
+              testIdPrefix="pf-home-review"
+              toggleTestId="pf-home-review-form-toggle"
+            />
           </div>
         </motion.section>
 

@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n/context";
 import { useToast } from "@/components/toast/toast-provider";
 import { DashboardStatsSkeleton } from "@/components/ui/skeleton";
 import { ShoppingBag, Wallet } from "lucide-react";
+import { WriteReviewForm } from "@/components/write-review-form";
 
 const REFERRAL_MILESTONE = 20;
 
@@ -145,6 +146,10 @@ export default function DashboardPage() {
             <Wallet className="h-4 w-4" />
             {t("cashbackWithdrawLink")}
           </Link>
+        </div>
+
+        <div className="mt-4 border-t border-white/10 pt-4">
+          <WriteReviewForm testIdPrefix="pf-dashboard-review" variant="button" />
         </div>
 
         {!statsError && (
