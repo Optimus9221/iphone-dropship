@@ -366,6 +366,7 @@ export const heOverrides: Partial<Record<string, string>> = {
     paymentProofHint:
       "לאחר שליחת הקריפטו, צרפו צילום מסך של העסקה (JPEG, PNG או WebP, עד 15 MB) ולחצו «שולם».",
     paymentProofScreenshotLabel: "צילום מסך העסקה",
+    chooseFile: "בחירת קובץ",
     paymentPaidButton: "שולם",
     paymentProofSubmitting: "שולח…",
     paymentProofError: "לא ניתן לשלוח. נסו שוב או השתמשו בתמונה קטנה יותר.",

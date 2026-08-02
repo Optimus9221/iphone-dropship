@@ -379,6 +379,7 @@ const enTranslations = {
     paymentProofHint:
       "After sending crypto, attach a screenshot of the transaction (JPEG, PNG or WebP, max 15 MB) and tap “Paid”.",
     paymentProofScreenshotLabel: "Transaction screenshot",
+    chooseFile: "Choose file",
     paymentPaidButton: "Paid",
     paymentProofSubmitting: "Sending…",
     paymentProofError: "Could not submit. Try again or use a smaller image.",
@@ -926,6 +927,7 @@ const ruTranslations = {
     paymentProofHint:
       "После перевода прикрепите скрин транзакции (JPEG, PNG или WebP, до 15 МБ) и нажмите «Оплатил».",
     paymentProofScreenshotLabel: "Скрин транзакции",
+    chooseFile: "Выберите файл",
     paymentPaidButton: "Оплатил",
     paymentProofSubmitting: "Отправка…",
     paymentProofError: "Не удалось отправить. Попробуйте снова или уменьшите файл.",
@@ -1470,6 +1472,7 @@ const ukTranslations = {
     paymentProofHint:
       "Після переказу додайте скрін транзакції (JPEG, PNG або WebP, до 15 МБ) і натисніть «Оплатив».",
     paymentProofScreenshotLabel: "Скрін транзакції",
+    chooseFile: "Виберіть файл",
     paymentPaidButton: "Оплатив",
     paymentProofSubmitting: "Надсилання…",
     paymentProofError: "Не вдалося надіслати. Спробуйте ще раз або зменшіть файл.",

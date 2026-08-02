@@ -76,14 +76,26 @@ function PaymentProofForm({
     <div className="mt-4 border-t border-amber-500/20 pt-4">
       <p className="text-xs text-amber-200/90">{t("paymentProofHint")}</p>
       <label className="mt-2 block text-sm text-slate-400">{t("paymentProofScreenshotLabel")}</label>
-      <input
-        type="file"
-        data-testid={`pf-order-payment-proof-file-${orderId}`}
-        accept="image/jpeg,image/png,image/webp"
-        className="mt-1 block w-full text-sm text-slate-300 file:mr-3 file:rounded file:border-0 file:bg-amber-600 file:px-3 file:py-1.5 file:text-white"
-        disabled={busy}
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-      />
+      <div className="mt-1 flex flex-wrap items-center gap-3">
+        <label className="inline-flex cursor-pointer items-center">
+          <input
+            type="file"
+            data-testid={`pf-order-payment-proof-file-${orderId}`}
+            accept="image/jpeg,image/png,image/webp"
+            className="sr-only"
+            disabled={busy}
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+          <span className="rounded bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-500">
+            {t("chooseFile")}
+          </span>
+        </label>
+        {file && (
+          <span className="truncate text-sm text-slate-400" title={file.name}>
+            {file.name}
+          </span>
+        )}
+      </div>
       <button
         type="button"
         data-testid={`pf-order-payment-proof-submit-${orderId}`}
