@@ -44,6 +44,7 @@ export async function GET() {
       total: Number(o.total),
       trackingNumber: o.trackingNumber,
       imei: o.imei,
+      shippingAddress: o.shippingAddress,
       createdAt: o.createdAt,
       deliveredAt: o.deliveredAt,
       paymentProofSubmittedAt:

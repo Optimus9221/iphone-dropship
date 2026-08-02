@@ -6,6 +6,7 @@
 
 import { Resend, type CreateEmailOptions } from "resend";
 import { getPublicSiteUrl } from "@/lib/public-url";
+import { getTrackingLinkLabel, getTrackingUrl } from "@/lib/tracking";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
@@ -355,6 +356,7 @@ export async function sendOrderStatusUpdate(params: {
   orderNumber: string;
   status: string;
   trackingNumber?: string | null;
+  shippingAddress?: string | null;
   imei?: string | null;
   /** Used for dashboard deep-link (?pay=) */
   orderId?: string;
@@ -369,10 +371,18 @@ export async function sendOrderStatusUpdate(params: {
     : `${siteUrl}/dashboard/orders`;
   const loc = params.locale === "uk" ? "uk" : params.locale === "ru" ? "ru" : "en";
 
+  const trackUrl =
+    params.trackingNumber != null && params.trackingNumber !== ""
+      ? getTrackingUrl(params.shippingAddress, params.trackingNumber)
+      : null;
   const trackingHtml =
     params.trackingNumber != null && params.trackingNumber !== ""
       ? `<p>${loc === "ru" ? "Трек-номер" : loc === "uk" ? "Трек-номер" : "Tracking"}: ${params.trackingNumber}</p>
-         <p><a href="https://novaposhta.ua/tracking/?cargo_number=${encodeURIComponent(params.trackingNumber)}">${loc === "ru" ? "Отследить на Новой Почте" : loc === "uk" ? "Відстежити на Новій Пошті" : "Track on Nova Poshta"}</a></p>`
+         ${
+           trackUrl
+             ? `<p><a href="${trackUrl}">${getTrackingLinkLabel(params.shippingAddress, loc)}</a></p>`
+             : ""
+         }`
       : "";
 
   const imeiHtml =

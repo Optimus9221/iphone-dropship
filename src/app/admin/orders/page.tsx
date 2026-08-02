@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
+import { getTrackingUrl } from "@/lib/tracking";
 
 type Order = {
   id: string;
@@ -275,17 +276,20 @@ export default function AdminOrdersPage() {
                           placeholder="Tracking #"
                           className="w-32 rounded border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-800"
                         />
-                        {o.trackingNumber && (
+                        {o.trackingNumber && (() => {
+                          const trackUrl = getTrackingUrl(o.shippingAddress, o.trackingNumber);
+                          return trackUrl ? (
                           <a
                             data-testid={`pf-admin-order-track-link-${o.id}`}
-                            href={`https://novaposhta.ua/tracking/?cargo_number=${o.trackingNumber}`}
+                            href={trackUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="ml-1 text-xs text-emerald-600 hover:underline"
                           >
                             Track
                           </a>
-                        )}
+                          ) : null;
+                        })()}
                       </td>
                       <td className="px-4 py-3">
                         <input

@@ -43,11 +43,13 @@ function CheckoutContent() {
   const [npCityLabel, setNpCityLabel] = useState("");
   const [npWarehouseLabel, setNpWarehouseLabel] = useState("");
   const [form, setForm] = useState({
-    deliveryMethod: "nova_poshta" as "nova_poshta" | "courier",
+    deliveryMethod: "nova_poshta" as "nova_poshta" | "ukrposhta" | "meest" | "courier",
     shippingName: "",
     shippingAddress: "",
     novaPoshtaCity: "",
     novaPoshtaDepartment: "",
+    carrierCity: "",
+    carrierDepartment: "",
     shippingPhone: "",
     shippingEmail: session?.user?.email ?? "",
     comment: "",
@@ -187,13 +189,23 @@ function CheckoutContent() {
         setError(t("orderError_validation"));
         return;
       }
+    } else if (form.deliveryMethod === "ukrposhta" || form.deliveryMethod === "meest") {
+      if (!form.carrierCity.trim() || !form.carrierDepartment.trim()) {
+        setFieldErrors({ shippingAddress: t("orderError_validation_address") });
+        setError(t("orderError_validation"));
+        return;
+      }
     }
 
     setSubmitting(true);
     const shippingAddress =
       form.deliveryMethod === "nova_poshta"
         ? `Нова Пошта: ${form.novaPoshtaCity}, ${form.novaPoshtaDepartment}`
-        : form.shippingAddress;
+        : form.deliveryMethod === "ukrposhta"
+          ? `Укрпошта: ${form.carrierCity}, ${form.carrierDepartment}`
+          : form.deliveryMethod === "meest"
+            ? `Meest: ${form.carrierCity}, ${form.carrierDepartment}`
+            : form.shippingAddress;
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -332,7 +344,7 @@ function CheckoutContent() {
 
           <div>
             <label className="block text-sm text-slate-400">{t("checkoutDeliveryMethod")}</label>
-            <div className="mt-2 flex gap-6">
+            <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="radio"
@@ -342,6 +354,26 @@ function CheckoutContent() {
                   onChange={() => setForm((f) => ({ ...f, deliveryMethod: "nova_poshta" }))}
                 />
                 <span>{t("adminDeliveryNovaPoshta")}</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="deliveryMethod"
+                  data-testid="pf-checkout-delivery-ukrposhta"
+                  checked={form.deliveryMethod === "ukrposhta"}
+                  onChange={() => setForm((f) => ({ ...f, deliveryMethod: "ukrposhta" }))}
+                />
+                <span>{t("adminDeliveryUkrposhta")}</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="deliveryMethod"
+                  data-testid="pf-checkout-delivery-meest"
+                  checked={form.deliveryMethod === "meest"}
+                  onChange={() => setForm((f) => ({ ...f, deliveryMethod: "meest" }))}
+                />
+                <span>{t("adminDeliveryMeest")}</span>
               </label>
               <label className="flex cursor-pointer items-center gap-2">
                 <input
@@ -407,6 +439,42 @@ function CheckoutContent() {
               {!npCityRef && form.novaPoshtaCity.length >= 2 && (
                 <p className="text-xs text-amber-300/90">{t("checkoutNovaPoshtaPickCity")}</p>
               )}
+            </>
+          ) : form.deliveryMethod === "ukrposhta" || form.deliveryMethod === "meest" ? (
+            <>
+              <div>
+                <label className="block text-sm text-slate-400">{t("checkoutNovaPoshtaCity")}</label>
+                <input
+                  type="text"
+                  data-testid="pf-checkout-carrier-city"
+                  required
+                  value={form.carrierCity}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, carrierCity: e.target.value }));
+                    setFieldErrors((e2) => ({ ...e2, shippingAddress: "" }));
+                  }}
+                  className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${inputErrorClass("shippingAddress")}`}
+                  placeholder={t("checkoutPlaceholderCity")}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-400">{t("checkoutNovaPoshtaDepartment")}</label>
+                <input
+                  type="text"
+                  data-testid="pf-checkout-carrier-department"
+                  required
+                  value={form.carrierDepartment}
+                  onChange={(e) => {
+                    setForm((f) => ({ ...f, carrierDepartment: e.target.value }));
+                    setFieldErrors((e2) => ({ ...e2, shippingAddress: "" }));
+                  }}
+                  className={`mt-1 w-full rounded-lg border bg-white/5 px-3 py-2 text-white placeholder-slate-500 focus:outline-none ${inputErrorClass("shippingAddress")}`}
+                  placeholder={t("checkoutPlaceholderDepartment")}
+                />
+                {fieldErrors.shippingAddress && (
+                  <p className="mt-1 text-sm text-red-400">{fieldErrors.shippingAddress}</p>
+                )}
+              </div>
             </>
           ) : (
             <div>

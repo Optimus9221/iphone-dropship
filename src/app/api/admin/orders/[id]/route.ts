@@ -139,6 +139,7 @@ export async function PATCH(
       orderNumber: updated.orderNumber,
       status: updated.status,
       trackingNumber: updated.trackingNumber,
+      shippingAddress: updated.shippingAddress,
       imei: updated.imei,
       orderId: updated.id,
       locale: customerLocale,

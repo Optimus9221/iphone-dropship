@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Package } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { getTrackingUrl } from "@/lib/tracking";
 
 type Order = {
   id: string;
@@ -18,6 +19,7 @@ type Order = {
   createdAt: string;
   deliveredAt: string | null;
   paymentProofSubmittedAt: string | null;
+  shippingAddress?: string;
   paidWithCashback: boolean;
   paymentInstructions: { network: string; address: string } | null;
   items: Array<{ productName: string; productSlug: string; quantity: number; price: number }>;
@@ -324,11 +326,14 @@ function OrdersPageInner() {
                         </span>
                       ))}
                     </div>
-                    {order.trackingNumber && (
+                    {order.trackingNumber && (() => {
+                      const trackUrl = getTrackingUrl(order.shippingAddress, order.trackingNumber);
+                      return (
                       <p className="mt-2 text-sm text-emerald-400">
                         {t("orderTracking")}:{" "}
+                        {trackUrl ? (
                         <a
-                          href={`https://novaposhta.ua/tracking/?cargo_number=${order.trackingNumber}`}
+                          href={trackUrl}
                           data-testid={`pf-order-tracking-link-${order.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -336,8 +341,12 @@ function OrdersPageInner() {
                         >
                           {order.trackingNumber}
                         </a>
+                        ) : (
+                          order.trackingNumber
+                        )}
                       </p>
-                    )}
+                      );
+                    })()}
                     {order.imei && (
                       <p className="mt-1 text-sm text-slate-500">
                         IMEI: {order.imei}
