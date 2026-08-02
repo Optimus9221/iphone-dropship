@@ -27,6 +27,14 @@ export function Header() {
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
       <LanguageSwitcher variant="headerDark" />
       <Link
+        href="/"
+        data-testid="pf-header-nav-home-link"
+        className={navLinkClass(pathname === "/")}
+        onClick={() => setMobileOpen(false)}
+      >
+        {t("home")}
+      </Link>
+      <Link
         href="/catalog"
         data-testid="pf-header-catalog-link"
         className={navLinkClass(pathname === "/catalog" || pathname.startsWith("/product"))}
