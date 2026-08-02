@@ -17,26 +17,58 @@ export const iphone16IntroHe = `iPhone 16 — סמארטפון סטייליש ו
 
 iOS 18 עם אפשרויות התאמה אישית — iPhone 16 מתאים למי שרוצה את הדור הבא של Apple עם AI, צילום ופרטיות מתקדמת.`;
 
-export const iphone17IntroHe = `iPhone 17 — סמארטפון עוצמתי ואלגנטי מבית Apple, עם מסך 6.3″ Super Retina XDR ו-ProMotion, שבב A19 ומערכת מצלמות כפולה Fusion 48MP. מתאים לשימוש יומיומי, צילום ויצירתיות.
+export const iphone17IntroHe = `iPhone 17 — שדרוג משמעותי עם תכונות ליומיום. מסך 6.3″ ProMotion גדול ובהיר יותר, סוללה לכל היום, ביצועי A19 ומערכת מצלמות Dual Fusion 48MP.
 
-המסך החדש נעים יותר לעין ועמיד יותר, והביצועים מאפשרים להריץ אפליקציות תובעניות בצורה חלקה. מערכת המצלמות משדרגת את איכות התמונות ביום ובלילה.
+שבב A19
+טכנולוגיית 3 ננומטר מתקדמת לביצועים ויעילות. CPU בעל 6 ליבות ו-GPU בעל 5 ליבות עם Neural Accelerators — ל-Apple Intelligence, ריבוי משימות וגיימינג נייד.
 
-דגם מאוזן במחיר וביכולות — בחירה מצוינת למי שרוצה את הדור החדש של iPhone ללא מורכבות של גרסת Pro.`;
+מצלמות Dual Fusion 48MP
+מצלמת Fusion ראשית 48MP עם Telephoto באיכות אופטית 2×, ו-Fusion Ultra Wide 48MP חדשה לפנורמות ומאקרו. מצלמת סלפי Center Stage 18MP ו-Dual Capture.
 
-export const iphoneAirIntroHe = `iPhone Air — ה-iPhone הדק ביותר אי פעם, עם עוצמת Pro בפנים. עיצוב טיטניום, מסך 6.5″ ושבב A19 Pro — הכל במארז דק וקל במיוחד.
+מסך 6.3″ Super Retina XDR
+ProMotion עד 120Hz. Ceramic Shield 2 בחזית — עמיד יותר מכל זכוכית סמארטפון, עם עמידות לשריטות פי 3 ופחות בוהק.
 
-מתאים למי שמחפש מכשיר פרימיום שנוח להחזיק ולהניח בכיס, בלי להתפשר על ביצועים או על איכות התצוגה.
+עיצוב עמיד
+Ceramic Shield 2 בחזית, גוף אלומיניום, USB-C וסוללה לכל היום עם טעינה מהירה.`;
 
-איזון מושלם בין עיצוב, משקל וביצועים — חוויית iPhone חדשה לגמרי.`;
+export const iphoneAirIntroHe = `iPhone Air — ה-iPhone הדק ביותר אי פעם עם עוצמת Pro בפנים. עיצוב טיטניום פורץ דרך, ביצועי A19 Pro ומסך 6.5″ Super Retina XDR עם ProMotion.
 
-export const iphone17ProIntroHe = `iPhone 17 Pro — עיצוב חדשני לביצועים מקסימליים. שלוש מצלמות Fusion 48MP ושבב A19 Pro מעניקים יכולות צילום ברמה מקצועית ועומס עבודה כבד ללא מאמץ.
+שבב A19 Pro
+הסיליקון החזק ביותר של Apple ל-iPhone בגוף דק במיוחד. CPU בעל 6 ליבות ו-GPU בעל 5 ליבות עם Neural Accelerators, יחד עם N1 ו-C1X — ה-iPhone החסכוני ביותר באנרגיה.
 
-מסך 6.3″ Super Retina XDR עם ProMotion, Dynamic Island ו-Ceramic Shield 2 מספק תמונה חדה ועמידות גבוהה לשימוש יומיומי.
+מצלמת Fusion 48MP
+מצלמת Fusion ראשית 48MP שוות ערך לארבע עדשות, כולל Telephoto באיכות אופטית 2×. מצלמת Center Stage 18MP מתקדמת לסלפי קבוצתיים ו-Dual Capture.
 
-הדגם המתקדם לאוהבי צילום, גיימינג ו-AI — בלי הגודל של גרסת Max.`;
+מסך 6.5″ Super Retina XDR
+ProMotion עד 120Hz. Ceramic Shield 2 בחזית לעמידות לשריטות פי 3, ו-Ceramic Shield בגב לעמידות לסדקים פי 4 מדורות קודמים.
+
+עיצוב טיטניום
+אלגנטי, קל וחזק — עמיד יותר מכל iPhone קודם. מסגרת טיטניום מלוטשת וארכיטקטורה פנימית חדשה לסוללה לכל היום בדגם הדק ביותר.`;
+
+export const iphone17ProIntroHe = `iPhone 17 Pro — עיצוב חדשני וקפיצת ביצועים דרמטית. שבב A19 Pro, שלוש מצלמות Fusion 48MP ו-unibody אלומיניום עם תא אדים מגדירים סטנדרט Pro חדש.
+
+שבב A19 Pro
+השבב החזק והיעיל ביותר של Apple ל-iPhone. CPU בעל 6 ליבות, GPU בעל 6 ליבות ו-Neural Engine בעל 16 ליבות — עד 40% ביצועים מתמשכים טובים יותר עם תא האדים.
+
+שלוש מצלמות Fusion 48MP
+Main, Ultra Wide ו-Telephoto — שוות ערך לשמונה עדשות, כולל זום אופטי באיכות 8×. ProRes RAW, Apple Log 2 ו-genlock. מצלמת Center Stage 18MP.
+
+מסך 6.3″ Super Retina XDR
+ProMotion עד 120Hz, Always-On, Dynamic Island ועד 3000 ניט בחוץ. Ceramic Shield 2 בחזית ו-Ceramic Shield בגב.
+
+עיצוב unibody אלומיניום
+גוף אלומיניום מחושל עם תא אדים של Apple לניהול חום — ביצועי Pro הטובים ביותר וקפיצה באורך חיי הסוללה.`;
 
 export const iphone17ProMaxIntroHe = `iPhone 17 Pro Max — הדגם הכי חזק ומתקדם בקו ה-Pro. שבב A19 Pro ומערכת מצלמות משולשת Fusion 48MP מציבים רף חדש לביצועים ולצילום בסמארטפון.
 
-מסך 6.9″ Super Retina XDR — הגדול והמתקדם ביותר ב-iPhone — עם ProMotion 120Hz, Dynamic Island ו-Ceramic Shield 2. מסגרת טיטניום קלה וחזקה עם ניהול חום משופר למשימות אינטנסיביות.
+שבב A19 Pro
+השבב החזק ביותר של Apple ל-iPhone. CPU בעל 6 ליבות, GPU בעל 6 ליבות ו-Neural Engine בעל 16 ליבות — ביצועים חסרי תקדים לאפליקציות תובעניות, גיימינג ו-AI.
 
-הבחירה המקסימלית למי שרוצה את כל מה ש-Apple יכולה להציע — במסך, במצלמות ובאוטונומיה.`;
+שלוש מצלמות Fusion 48MP
+Main, Ultra Wide ו-Telephoto עם זום אופטי 8×. צילום ווידאו ברמה מקצועית בכל תנאי. ProRes RAW, Apple Log 2 ו-genlock לקולנוענים.
+
+מסך 6.9″ Super Retina XDR
+המסך הגדול והמתקדם ביותר ב-iPhone. ProMotion 120Hz, Dynamic Island, Always-On ו-Ceramic Shield 2.
+
+עיצוב unibody אלומיניום
+גוף אלומיניום מחושל עם תא אדים של Apple — ניהול חום משופר למשימות אינטנסיביות, ביצועי Pro ואוטונומיה מקסימליים.`;

@@ -233,17 +233,17 @@ export default function ProductPage() {
               )
             )}
 
-            {product.specs && !content && (
+            {product.specs && (
               <dl className="mt-6 space-y-2 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
                 {Object.entries(product.specs).map(([k, v]) => {
-                  const specKey = `spec_${k}` as "spec_display" | "spec_processor" | "spec_camera" | "spec_battery";
-                  const label = ["display", "processor", "camera", "battery"].includes(k)
-                    ? t(specKey)
+                  const knownKeys = ["display", "processor", "camera", "battery"] as const;
+                  const label = (knownKeys as readonly string[]).includes(k)
+                    ? t(`spec_${k}` as "spec_display" | "spec_processor" | "spec_camera" | "spec_battery")
                     : k.charAt(0).toUpperCase() + k.slice(1);
                   return (
-                    <div key={k} className="flex justify-between text-sm">
+                    <div key={k} className="flex justify-between gap-4 text-sm">
                       <dt className="text-slate-500">{label}</dt>
-                      <dd className="text-white">{v}</dd>
+                      <dd className="text-right text-white">{v}</dd>
                     </div>
                   );
                 })}

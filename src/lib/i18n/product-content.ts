@@ -1246,7 +1246,135 @@ const iphone17SpecsUk = (series: string, storage: string, display: string): Spec
   },
 ];
 
-const iphone17IntroEn = `iPhone 17 Pro Max — the most powerful and advanced Pro model ever. Built with the A19 Pro chip and a revolutionary triple 48MP camera system, it sets new standards for smartphone performance and photography.
+/** Marketing intros adapted from Apple Newsroom (public product announcements). */
+
+const iphone17BaseIntroEn = `iPhone 17 — a big upgrade with features you’ll use every day. Bigger, brighter 6.3" ProMotion display, all-day battery life, A19 performance, and a 48MP Dual Fusion camera system.
+
+A19 chip
+Built on advanced 3-nanometer technology for higher performance and efficiency. 6-core CPU and 5-core GPU with Neural Accelerators unlock Apple Intelligence, smooth multitasking, and next-level mobile gaming.
+
+48MP Dual Fusion cameras
+48MP Fusion Main with optical-quality 2× Telephoto, plus a new 48MP Fusion Ultra Wide for expansive scenes and detailed macro. The 18MP Center Stage front camera takes selfies and Dual Capture video further.
+
+6.3" Super Retina XDR display
+ProMotion up to 120Hz for supersmooth scrolling and immersive gaming. Ceramic Shield 2 on the front — tougher than any smartphone glass, with 3× better scratch resistance and reduced glare.
+
+Durable design
+Ceramic Shield 2 front cover, refined aluminum design, USB-C, and all-day battery life with faster charging — built to last and stay with you all day.`;
+
+const iphone17BaseIntroRu = `iPhone 17 — заметный апгрейд с функциями на каждый день. Более крупный и яркий 6.3" дисплей ProMotion, батарея на весь день, производительность A19 и система камер 48МП Dual Fusion.
+
+Чип A19
+Создан по передовой 3-нм технологии для высокой производительности и энергоэффективности. 6-ядерный CPU и 5-ядерный GPU с Neural Accelerators раскрывают Apple Intelligence, плавную многозадачность и мобильный гейминг нового уровня.
+
+Двойная 48МП Fusion камера
+48МП Fusion основная с оптическим качеством 2× Telephoto и новая 48МП Fusion сверхширокоугольная для панорам и детального макро. Фронтальная 18МП Center Stage — для селфи и Dual Capture видео.
+
+6.3" дисплей Super Retina XDR
+ProMotion до 120 Гц — плавная прокрутка и иммерсивные игры. Ceramic Shield 2 спереди — прочнее любого смартфонного стекла, в 3 раза лучше защита от царапин и меньше бликов.
+
+Надёжный дизайн
+Ceramic Shield 2 спереди, продуманный алюминиевый корпус, USB-C и батарея на весь день с быстрой зарядкой — создан служить долго.`;
+
+const iphone17BaseIntroUk = `iPhone 17 — помітний апгрейд із функціями на щодень. Більший і яскравіший 6.3" дисплей ProMotion, батарея на весь день, продуктивність A19 та система камер 48МП Dual Fusion.
+
+Чіп A19
+Створений за передовою 3-нм технологією для високої продуктивності та енергоефективності. 6-ядерний CPU і 5-ядерний GPU з Neural Accelerators розкривають Apple Intelligence, плавну багатозадачність і мобільний геймінг нового рівня.
+
+Подвійна 48МП Fusion камера
+48МП Fusion основна з оптичною якістю 2× Telephoto та нова 48МП Fusion надширококутна для панорам і детального макро. Фронтальна 18МП Center Stage — для селфі та Dual Capture відео.
+
+6.3" дисплей Super Retina XDR
+ProMotion до 120 Гц — плавне гортання та імерсивні ігри. Ceramic Shield 2 спереду — міцніше за будь-яке смартфонне скло, у 3 рази кращий захист від подряпин і менше відблисків.
+
+Надійний дизайн
+Ceramic Shield 2 спереду, продуманий алюмінієвий корпус, USB-C і батарея на весь день зі швидкою зарядкою — створений служити довго.`;
+
+const iphoneAirIntroEn = `iPhone Air — the thinnest iPhone ever, with pro-level power inside. Breakthrough titanium design, A19 Pro performance, and an immersive 6.5" Super Retina XDR display with ProMotion.
+
+A19 Pro chip
+Apple’s most capable iPhone silicon in an incredibly thin body. 6-core CPU and 5-core GPU with Neural Accelerators, paired with Apple-designed N1 and C1X — the most power-efficient iPhone ever made.
+
+48MP Fusion camera
+Powerful 48MP Fusion Main enables the equivalent of four lenses, including optical-quality 2× Telephoto. The innovative 18MP Center Stage front camera elevates group selfies and Dual Capture video.
+
+6.5" Super Retina XDR display
+Immersive ProMotion up to 120Hz. Ceramic Shield 2 on the front for 3× better scratch resistance, with Ceramic Shield on the back for 4× better crack resistance than previous generations.
+
+Titanium design
+Elegant, light, and strong — more durable than any previous iPhone. Polished titanium frame and a redesigned internal architecture that enables all-day battery life in the thinnest iPhone yet.`;
+
+const iphoneAirIntroRu = `iPhone Air — самый тонкий iPhone в истории с мощностью уровня Pro. Прорывной титановый дизайн, производительность A19 Pro и иммерсивный 6.5" дисплей Super Retina XDR с ProMotion.
+
+Чип A19 Pro
+Самый мощный кремний Apple для iPhone в невероятно тонком корпусе. 6-ядерный CPU и 5-ядерный GPU с Neural Accelerators вместе с чипами N1 и C1X — самый энергоэффективный iPhone.
+
+48МП Fusion камера
+Мощная 48МП Fusion основная даёт эквивалент четырёх объективов, включая оптическое качество 2× Telephoto. Инновационная фронтальная 18МП Center Stage — для групповых селфи и Dual Capture видео.
+
+6.5" дисплей Super Retina XDR
+Иммерсивный ProMotion до 120 Гц. Ceramic Shield 2 спереди — в 3 раза лучше защита от царапин; Ceramic Shield сзади — в 4 раза выше стойкость к трещинам, чем у прошлых поколений.
+
+Титановый дизайн
+Элегантный, лёгкий и прочный — надёжнее любого предыдущего iPhone. Полированная титановая рамка и новая внутренняя архитектура обеспечивают батарею на весь день в самом тонком iPhone.`;
+
+const iphoneAirIntroUk = `iPhone Air — найтонший iPhone в історії з потужністю рівня Pro. Проривний титановий дизайн, продуктивність A19 Pro та імерсивний 6.5" дисплей Super Retina XDR з ProMotion.
+
+Чіп A19 Pro
+Найпотужніший кремній Apple для iPhone в неймовірно тонкому корпусі. 6-ядерний CPU і 5-ядерний GPU з Neural Accelerators разом із чіпами N1 та C1X — найенергоефективніший iPhone.
+
+48МП Fusion камера
+Потужна 48МП Fusion основна дає еквівалент чотирьох об'єктивів, включно з оптичною якістю 2× Telephoto. Інноваційна фронтальна 18МП Center Stage — для групових селфі та Dual Capture відео.
+
+6.5" дисплей Super Retina XDR
+Імерсивний ProMotion до 120 Гц. Ceramic Shield 2 спереду — у 3 рази кращий захист від подряпин; Ceramic Shield ззаду — у 4 рази вища стійкість до тріщин, ніж у попередніх поколінь.
+
+Титановий дизайн
+Елегантний, легкий і міцний — надійніший за будь-який попередній iPhone. Полірована титанова рамка та нова внутрішня архітектура забезпечують батарею на весь день у найтоншому iPhone.`;
+
+const iphone17ProIntroEn = `iPhone 17 Pro — a striking new design that delivers a dramatic leap in performance. A19 Pro, three 48MP Fusion cameras, and an aluminum unibody with vapor chamber set a new standard for Pro.
+
+A19 Pro chip
+Apple’s most powerful and efficient chip for iPhone. 6-core CPU, 6-core GPU, and 16-core Neural Engine — up to 40% better sustained performance with the vapor chamber for gaming, video editing, and on-device AI.
+
+Triple 48MP Fusion cameras
+Three 48MP Fusion cameras — Main, Ultra Wide, and Telephoto — offer the equivalent of eight lenses, including 8× optical-quality zoom. ProRes RAW, Apple Log 2, and genlock for filmmakers. 18MP Center Stage front camera.
+
+6.3" Super Retina XDR display
+ProMotion up to 120Hz, Always-On, Dynamic Island, and up to 3000 nits peak outdoor brightness. Ceramic Shield 2 on the front and Ceramic Shield on the back for exceptional durability.
+
+Aluminum unibody design
+Forged aluminum unibody with an Apple-designed vapor chamber for thermal management. Strong, light, and built for Apple’s best-ever Pro performance and a huge leap in battery life.`;
+
+const iphone17ProIntroRu = `iPhone 17 Pro — яркий новый дизайн и заметный скачок производительности. Чип A19 Pro, тройная 48МП Fusion камера и алюминиевый unibody с парораспределительной камерой задают новый стандарт Pro.
+
+Чип A19 Pro
+Самый мощный и эффективный чип Apple для iPhone. 6-ядерный CPU, 6-ядерный GPU и 16-ядерный Neural Engine — до 40% выше устойчивая производительность с парораспределительной камерой для игр, монтажа и AI на устройстве.
+
+Тройная 48МП Fusion камера
+Три 48МП Fusion камеры — основная, сверхширокоугольная и телеобъектив — эквивалент восьми объективов, включая 8× оптический зум. ProRes RAW, Apple Log 2 и genlock для кинематографистов. Фронтальная 18МП Center Stage.
+
+6.3" дисплей Super Retina XDR
+ProMotion до 120 Гц, Always-On, Dynamic Island и до 3000 нит пиковой яркости на улице. Ceramic Shield 2 спереди и Ceramic Shield сзади для выдающейся прочности.
+
+Алюминиевый unibody
+Кованый алюминиевый корпус с парораспределительной камерой Apple для теплового режима. Прочный, лёгкий — лучшая производительность Pro и огромный скачок автономности.`;
+
+const iphone17ProIntroUk = `iPhone 17 Pro — яскравий новий дизайн і помітний стрибок продуктивності. Чіп A19 Pro, потрійна 48МП Fusion камера та алюмінієвий unibody з паророзподільною камерою задають новий стандарт Pro.
+
+Чіп A19 Pro
+Найпотужніший і найефективніший чіп Apple для iPhone. 6-ядерний CPU, 6-ядерний GPU та 16-ядерний Neural Engine — до 40% вища стійка продуктивність із паророзподільною камерою для ігор, монтажу та AI на пристрої.
+
+Потрійна 48МП Fusion камера
+Три 48МП Fusion камери — основна, надширококутна та телеоб'єктив — еквівалент восьми об'єктивів, включно з 8× оптичним зумом. ProRes RAW, Apple Log 2 та genlock для кінематографістів. Фронтальна 18МП Center Stage.
+
+6.3" дисплей Super Retina XDR
+ProMotion до 120 Гц, Always-On, Dynamic Island і до 3000 ніт пікової яскравості надворі. Ceramic Shield 2 спереду та Ceramic Shield ззаду для видатної міцності.
+
+Алюмінієвий unibody
+Кований алюмінієвий корпус із паророзподільною камерою Apple для теплового режиму. Міцний, легкий — найкраща продуктивність Pro і величезний стрибок автономності.`;
+
+const iphone17ProMaxIntroEn = `iPhone 17 Pro Max — the most powerful and advanced Pro model ever. Built with the A19 Pro chip and a revolutionary triple 48MP camera system, it sets new standards for smartphone performance and photography.
 
 A19 Pro chip
 Apple's most powerful chip for iPhone. 6-core CPU, 6-core GPU, and 16-core Neural Engine deliver unprecedented performance for demanding apps, gaming, and AI features.
@@ -1257,10 +1385,10 @@ Three 48MP Fusion cameras — Main, Ultra Wide, and Telephoto with 8× optical z
 6.9" Super Retina XDR display
 The largest and most advanced iPhone display. 120Hz ProMotion, Dynamic Island, Always-On display, Ceramic Shield 2 for superior durability.
 
-Titanium design
-Aerospace-grade titanium frame. Lighter, stronger, more premium. Vapor chamber for enhanced thermal management during intensive tasks.`;
+Aluminum unibody design
+Forged aluminum unibody with an Apple-designed vapor chamber. Stronger thermal management for intensive tasks — Apple’s best-ever Pro performance and battery life.`;
 
-const iphone17IntroRu = `iPhone 17 Pro Max — самый мощный и продвинутый Pro-модель в истории. На базе чипа A19 Pro и революционной тройной 48МП камеры он задаёт новые стандарты производительности и фотографии.
+const iphone17ProMaxIntroRu = `iPhone 17 Pro Max — самый мощный и продвинутый Pro-модель в истории. На базе чипа A19 Pro и революционной тройной 48МП камеры он задаёт новые стандарты производительности и фотографии.
 
 Чип A19 Pro
 Самый мощный чип Apple для iPhone. 6-ядерный CPU, 6-ядерный GPU и 16-ядерный Neural Engine обеспечивают беспрецедентную производительность для требовательных приложений, игр и AI.
@@ -1271,10 +1399,10 @@ const iphone17IntroRu = `iPhone 17 Pro Max — самый мощный и про
 6.9" дисплей Super Retina XDR
 Самый большой и продвинутый дисплей iPhone. 120 Гц ProMotion, Dynamic Island, Always-On, Ceramic Shield 2 для превосходной прочности.
 
-Титановый дизайн
-Рамка из аэрокосмического титана. Легче, прочнее, премиальнее. Парораспределительная камера для улучшенного теплового режима при интенсивных задачах.`;
+Алюминиевый unibody
+Кованый алюминиевый корпус с парораспределительной камерой Apple. Улучшенный тепловой режим при интенсивных задачах — лучшая производительность Pro и автономность.`;
 
-const iphone17IntroUk = `iPhone 17 Pro Max — найпотужніша та найпередовіша Pro-модель в історії. На базі чіпа A19 Pro та революційної потрійної 48МП камери він задає нові стандарти продуктивності та фотографії.
+const iphone17ProMaxIntroUk = `iPhone 17 Pro Max — найпотужніша та найпередовіша Pro-модель в історії. На базі чіпа A19 Pro та революційної потрійної 48МП камери він задає нові стандарти продуктивності та фотографії.
 
 Чіп A19 Pro
 Найпотужніший чіп Apple для iPhone. 6-ядерний CPU, 6-ядерний GPU та 16-ядерний Neural Engine забезпечують безпрецедентну продуктивність для вимогливих застосунків, ігор та AI.
@@ -1285,8 +1413,8 @@ const iphone17IntroUk = `iPhone 17 Pro Max — найпотужніша та н�
 6.9" дисплей Super Retina XDR
 Найбільший та найпередовіший дисплей iPhone. 120 Гц ProMotion, Dynamic Island, Always-On, Ceramic Shield 2 для чудової міцності.
 
-Титановий дизайн
-Рамка з аерокосмічного титану. Легший, міцніший, преміальніший. Паророзподільна камера для покращеного теплового режиму при інтенсивних задачах.`;
+Алюмінієвий unibody
+Кований алюмінієвий корпус із паророзподільною камерою Apple. Покращений тепловий режим при інтенсивних задачах — найкраща продуктивність Pro та автономність.`;
 
 function getIphone15Content(storage: string) {
   const en = {
@@ -1362,9 +1490,9 @@ function getIphone17LineContent(line: Iphone17Line, storage?: string) {
       display: '6.3"',
       chip: "A19",
       intro: {
-        en: "iPhone 17 — even more delightful and durable. 6.3\" Super Retina XDR with ProMotion, A19 chip, and 48MP Dual Fusion cameras.",
-        ru: "iPhone 17 — ещё приятнее и надёжнее. 6.3\" Super Retina XDR с ProMotion, чип A19 и двойная 48МП Fusion камера.",
-        uk: "iPhone 17 — ще приємніший і надійніший. 6.3\" Super Retina XDR з ProMotion, чіп A19 та подвійна 48МП Fusion камера.",
+        en: iphone17BaseIntroEn,
+        ru: iphone17BaseIntroRu,
+        uk: iphone17BaseIntroUk,
         he: iphone17IntroHe,
       },
     },
@@ -1377,9 +1505,9 @@ function getIphone17LineContent(line: Iphone17Line, storage?: string) {
       display: '6.5"',
       chip: "A19 Pro",
       intro: {
-        en: "iPhone Air — the thinnest iPhone ever with pro-level power inside. Titanium design, 6.5\" display, and A19 Pro chip.",
-        ru: "iPhone Air — самый тонкий iPhone с мощностью Pro внутри. Титановый корпус, 6.5\" дисплей и чип A19 Pro.",
-        uk: "iPhone Air — найтонший iPhone з потужністю Pro всередині. Титановий корпус, 6.5\" дисплей та чіп A19 Pro.",
+        en: iphoneAirIntroEn,
+        ru: iphoneAirIntroRu,
+        uk: iphoneAirIntroUk,
         he: iphoneAirIntroHe,
       },
     },
@@ -1392,9 +1520,9 @@ function getIphone17LineContent(line: Iphone17Line, storage?: string) {
       display: '6.3"',
       chip: "A19 Pro",
       intro: {
-        en: "iPhone 17 Pro — innovative design for ultimate performance. Triple 48MP Fusion cameras and the A19 Pro chip.",
-        ru: "iPhone 17 Pro — инновационный дизайн для максимальной производительности. Тройная 48МП Fusion камера и чип A19 Pro.",
-        uk: "iPhone 17 Pro — інноваційний дизайн для максимальної продуктивності. Потрійна 48МП Fusion камера та чіп A19 Pro.",
+        en: iphone17ProIntroEn,
+        ru: iphone17ProIntroRu,
+        uk: iphone17ProIntroUk,
         he: iphone17ProIntroHe,
       },
     },
@@ -1407,9 +1535,9 @@ function getIphone17LineContent(line: Iphone17Line, storage?: string) {
       display: '6.9"',
       chip: "A19 Pro",
       intro: {
-        en: iphone17IntroEn,
-        ru: iphone17IntroRu,
-        uk: iphone17IntroUk,
+        en: iphone17ProMaxIntroEn,
+        ru: iphone17ProMaxIntroRu,
+        uk: iphone17ProMaxIntroUk,
         he: iphone17ProMaxIntroHe,
       },
     },
