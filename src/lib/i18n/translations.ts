@@ -1145,7 +1145,7 @@ const ukTranslations = {
     homeTrustNovaPoshta: "Доставка Нова Пошта",
     homeTrustSecure: "Безпечна оплата",
     homeCtaTitle: "Почни економити сьогодні",
-    homeCtaDesc: "Обери iPhone та копи кешбек на балансі.",
+    homeCtaDesc: "Обери iPhone та накопичуй кешбек на балансі.",
     homeFaqTitle: "Часті питання",
     homeCompareTitle: "Чому ми",
     homeCompareSubtitle: "PhoneFree vs інші",
