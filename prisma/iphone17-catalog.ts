@@ -104,7 +104,8 @@ function normalizeWebPath(imagePath: string): string {
   return imagePath.replace(/^\/public/, "");
 }
 
-function loadKatranGallery(model: Iphone17Model, color: string): string[] | undefined {
+/** Prefer local color-folder gallery (jabko / katran / etc.) when a manifest exists. */
+function loadColorFolderGallery(model: Iphone17Model, color: string): string[] | undefined {
   const asset = IPHONE17_IMAGE_ASSETS.find((a) => a.model === model && a.color === color);
   if (!asset) return undefined;
 
@@ -120,7 +121,12 @@ function loadKatranGallery(model: Iphone17Model, color: string): string[] | unde
 
   try {
     const entry = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as ColorManifestEntry;
-    if (entry.provider === "katran" && entry.images?.length) {
+    if (
+      entry.images?.length &&
+      (entry.provider === "katran" ||
+        entry.provider === "jabko" ||
+        entry.provider === "apple")
+    ) {
       return entry.images.map(normalizeWebPath);
     }
   } catch {
@@ -150,8 +156,8 @@ function getRozetkaGallery(model: Iphone17Model, color: string): string[] | unde
 }
 
 export function getIphone17Images(model: Iphone17Model, color: string): string[] {
-  const katranGallery = loadKatranGallery(model, color);
-  if (katranGallery?.length) return katranGallery;
+  const folderGallery = loadColorFolderGallery(model, color);
+  if (folderGallery?.length) return folderGallery;
 
   const appleImage =
     imageByModelColor.get(`${model}::${color}`) ??

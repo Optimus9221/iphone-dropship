@@ -16,6 +16,7 @@
     "images:rozetka:all": "npx tsx scripts/scrape-all-rozetka-images.ts",
     "images:katran": "npx tsx scripts/scrape-katran-images.ts",
     "images:katran:import": "npx tsx scripts/import-katran-html.ts",
+    "images:jabko": "npx tsx scripts/scrape-jabko-images.ts",
     "db:push": "prisma db push"
   },
   "prisma": {

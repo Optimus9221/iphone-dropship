@@ -6,7 +6,7 @@ const APPLE_CDN = "https://store.storeimages.cdn-apple.com/1/as-images.apple.com
 const ROOT = path.join(process.cwd(), "public", "images", "iphone-17");
 
 async function downloadImage(assetName: string, destPath: string) {
-  const url = `${APPLE_CDN}/${assetName}?wid=1400&hei=1400&fmt=png&qlt=90`;
+  const url = `${APPLE_CDN}/${assetName}?wid=1400&hei=1400&fmt=png-alpha&qlt=90`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Failed ${assetName}: ${res.status} ${res.statusText}`);
