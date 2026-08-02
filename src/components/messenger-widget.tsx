@@ -28,7 +28,13 @@ export function MessengerWidget() {
       .catch(() => setSettings({ telegram_link: DEFAULT_TELEGRAM }));
   }, []);
 
-  if (pathname !== "/" || !settings) return null;
+  const showOn =
+    pathname === "/" ||
+    pathname === "/catalog" ||
+    pathname.startsWith("/product/") ||
+    pathname.startsWith("/dashboard");
+
+  if (!showOn || !settings) return null;
 
   const tgUrl = toTelegramUrl(settings.telegram_link);
 
