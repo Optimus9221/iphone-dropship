@@ -3,19 +3,12 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendPaymentProofSubmittedEmail, sendAdminPaymentProofReceivedNotification } from "@/lib/email";
+import { getUserEmailLocale } from "@/lib/user-locale";
 
 const MAX_BYTES = 15 * 1024 * 1024; // 15 MiB
 /** Base64 expands ~4/3; plus `data:<mime>;base64,` prefix */
 const MAX_DATA_URL_LENGTH = 4 * Math.ceil(MAX_BYTES / 3) + 64;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
-
-function localeFromRequest(req: Request): string | undefined {
-  const raw = req.headers.get("accept-language")?.split(",")[0]?.trim().toLowerCase() ?? "";
-  if (raw.startsWith("uk")) return "uk";
-  if (raw.startsWith("ru")) return "ru";
-  if (raw.startsWith("he")) return "he";
-  return "en";
-}
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -109,11 +102,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   const notifyTo = order.user.email ?? order.shippingEmail;
   if (notifyTo) {
+    const locale = await getUserEmailLocale(order.userId);
     await sendPaymentProofSubmittedEmail({
       to: notifyTo,
       orderNumber: updated.orderNumber,
       orderId: id,
-      locale: localeFromRequest(req),
+      locale,
       request: req,
     });
   }

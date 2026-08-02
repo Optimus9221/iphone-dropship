@@ -46,7 +46,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const issued = await issueEmailVerificationCode(user.id, user.email, locale as Locale | undefined);
+    if (locale) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { locale },
+      });
+    }
+
+    const issued = await issueEmailVerificationCode(
+      user.id,
+      user.email,
+      (locale ?? user.locale) as Locale | undefined
+    );
     if (!issued.ok && issued.error === "COOLDOWN") {
       return NextResponse.json({ ok: false }, { status: 429 });
     }

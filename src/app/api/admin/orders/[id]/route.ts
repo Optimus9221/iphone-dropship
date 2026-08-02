@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { accrueCashbackOnDelivery } from "@/lib/orders";
 import { sendOrderStatusUpdate, sendAwaitingPaymentEmail } from "@/lib/email";
+import { normalizeEmailLocale } from "@/lib/user-locale";
 import { z } from "zod";
 import type { OrderStatus } from "@prisma/client";
 
@@ -26,14 +27,6 @@ const updateSchema = z.object({
   paymentWalletAddress: z.string().optional(),
   paymentNetwork: z.string().optional(),
 });
-
-function localeFromRequest(req: Request): string | undefined {
-  const raw = req.headers.get("accept-language")?.split(",")[0]?.trim().toLowerCase() ?? "";
-  if (raw.startsWith("uk")) return "uk";
-  if (raw.startsWith("ru")) return "ru";
-  if (raw.startsWith("he")) return "he";
-  return "en";
-}
 
 export async function PATCH(
   req: Request,
@@ -115,7 +108,7 @@ export async function PATCH(
   const updated = await prisma.order.update({
     where: { id },
     data: updateData,
-    include: { user: { select: { email: true, phone: true } } },
+    include: { user: { select: { email: true, phone: true, locale: true } } },
   });
 
   if (parsed.data.status === "DELIVERED" && updated.deliveredAt) {
@@ -123,13 +116,14 @@ export async function PATCH(
   }
 
   const notifyTo = updated.user?.email ?? updated.shippingEmail;
+  const customerLocale = normalizeEmailLocale(updated.user?.locale);
 
   if (enteredAwaitingPayment && notifyTo) {
     await sendAwaitingPaymentEmail({
       to: notifyTo,
       orderNumber: updated.orderNumber,
       orderId: updated.id,
-      locale: localeFromRequest(req),
+      locale: customerLocale,
       request: req,
     });
   }
@@ -147,7 +141,7 @@ export async function PATCH(
       trackingNumber: updated.trackingNumber,
       imei: updated.imei,
       orderId: updated.id,
-      locale: localeFromRequest(req),
+      locale: customerLocale,
       request: req,
     });
   }

@@ -8,6 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { useSession } from "next-auth/react";
 import {
   type Locale,
   type TranslationKeys,
@@ -34,6 +35,7 @@ function interpolate(text: string, params?: Record<string, string | number>): st
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  const { status } = useSession();
   const [locale, setLocaleState] = useState<Locale>("uk");
   const [mounted, setMounted] = useState(false);
 
@@ -45,14 +47,24 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  const setLocale = useCallback((newLocale: Locale) => {
-    setLocaleState(newLocale);
-    localStorage.setItem(STORAGE_KEY, newLocale);
-    if (typeof document !== "undefined") {
-      document.documentElement.lang = newLocale;
-      document.documentElement.dir = newLocale === "he" ? "rtl" : "ltr";
-    }
-  }, []);
+  const setLocale = useCallback(
+    (newLocale: Locale) => {
+      setLocaleState(newLocale);
+      localStorage.setItem(STORAGE_KEY, newLocale);
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = newLocale;
+        document.documentElement.dir = newLocale === "he" ? "rtl" : "ltr";
+      }
+      if (status === "authenticated") {
+        void fetch("/api/dashboard/locale", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locale: newLocale }),
+        }).catch(() => undefined);
+      }
+    },
+    [status]
+  );
 
   useEffect(() => {
     if (typeof document !== "undefined") {

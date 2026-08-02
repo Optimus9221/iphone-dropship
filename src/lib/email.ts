@@ -167,15 +167,47 @@ export async function sendOrderConfirmation(params: {
   orderNumber: string;
   total: number;
   items: string;
+  locale?: string;
 }) {
   if (!resend) return;
   const from = getResendFrom();
   const siteUrl = getPublicSiteUrl();
-  await resendSend("order-confirmation", {
-    from,
-    to: params.to,
-    subject: `Order #${params.orderNumber} confirmed — ${SITE_NAME}`,
-    html: `
+  const loc =
+    params.locale === "ru" ? "ru" : params.locale === "uk" ? "uk" : "en";
+  const subject =
+    loc === "ru"
+      ? `Заказ #${params.orderNumber} подтверждён — ${SITE_NAME}`
+      : loc === "uk"
+        ? `Замовлення #${params.orderNumber} підтверджено — ${SITE_NAME}`
+        : `Order #${params.orderNumber} confirmed — ${SITE_NAME}`;
+  const html =
+    loc === "ru"
+      ? `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2>Заказ подтверждён</h2>
+          <p>Спасибо за ваш заказ!</p>
+          <p><strong>Заказ #${params.orderNumber}</strong></p>
+          <p>Товары: ${params.items}</p>
+          <p>Итого: $${params.total}</p>
+          <p>После проверки заказа мы отправим письмо с инструкциями по оплате криптовалютой. Адрес кошелька и сеть будут в личном кабинете в разделе «Заказы».</p>
+          <p>Отслеживать заказ можно в <a href="${siteUrl}/dashboard/orders">личном кабинете</a>.</p>
+          <p>— ${SITE_NAME}</p>
+        </div>
+      `
+      : loc === "uk"
+        ? `
+        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+          <h2>Замовлення підтверджено</h2>
+          <p>Дякуємо за ваше замовлення!</p>
+          <p><strong>Замовлення #${params.orderNumber}</strong></p>
+          <p>Товари: ${params.items}</p>
+          <p>Разом: $${params.total}</p>
+          <p>Після перевірки замовлення ми надішлемо лист з інструкціями щодо оплати криптовалютою. Адресу гаманця та мережу знайдете в особистому кабінеті в розділі «Замовлення».</p>
+          <p>Відстежувати замовлення можна в <a href="${siteUrl}/dashboard/orders">особистому кабінеті</a>.</p>
+          <p>— ${SITE_NAME}</p>
+        </div>
+      `
+      : `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2>Order confirmed</h2>
           <p>Thank you for your order!</p>
@@ -186,8 +218,8 @@ export async function sendOrderConfirmation(params: {
           <p>You can track your order in your <a href="${siteUrl}/dashboard/orders">dashboard</a>.</p>
           <p>— ${SITE_NAME}</p>
         </div>
-      `,
-  });
+      `;
+  await resendSend("order-confirmation", { from, to: params.to, subject, html }, localeLang(loc));
 }
 
 /** Sent when admin sets order to AWAITING_PAYMENT — asks customer to open site for crypto details */

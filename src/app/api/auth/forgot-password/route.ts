@@ -6,11 +6,13 @@ import { getPublicSiteUrl } from "@/lib/public-url";
 import { checkAuthEmailRateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/request-client";
 import { requireTurnstile } from "@/lib/turnstile";
+import { normalizeEmailLocale } from "@/lib/user-locale";
 import { z } from "zod";
 import crypto from "crypto";
 
 const schema = z.object({
   email: z.string().email(),
+  locale: z.enum(["en", "ru", "uk", "he"]).optional(),
   turnstileToken: z.string().optional(),
 });
 
@@ -48,7 +50,7 @@ export async function POST(req: Request) {
     await prisma.passwordResetToken.create({
       data: { userId: user.id, token, expiresAt },
     });
-    const locale = (body.locale as string) || "en";
+    const locale = normalizeEmailLocale(parsed.data.locale ?? user.locale);
     const baseUrl = getPublicSiteUrl(req);
     const resetLink = `${baseUrl}/reset-password?token=${token}`;
     await sendPasswordResetEmail({ to: email, resetLink, locale });

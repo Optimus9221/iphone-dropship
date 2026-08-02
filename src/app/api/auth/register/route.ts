@@ -75,6 +75,7 @@ export async function POST(req: Request) {
           phone: null,
           referredById,
           emailVerified: false,
+          locale: locale ?? "uk",
         },
       });
     } catch (e) {
