@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 
 type Product = {
@@ -135,7 +135,7 @@ export default function AdminProductsPage() {
     onCancel: () => void;
     submitLabel: string;
   }) => (
-    <form onSubmit={onSubmit} className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+    <form onSubmit={onSubmit} className="mt-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="block text-sm text-zinc-500">{t("adminProductName")}</label>
@@ -336,14 +336,6 @@ export default function AdminProductsPage() {
         />
       )}
 
-      {editing && (
-        <ProductForm
-          onSubmit={(e) => handleUpdate(e, editing)}
-          onCancel={() => setEditing(null)}
-          submitLabel={t("adminSave")}
-        />
-      )}
-
       {products.length === 0 ? (
         <p className="mt-8 text-zinc-500">{t("adminNoProducts")}</p>
       ) : (
@@ -360,46 +352,71 @@ export default function AdminProductsPage() {
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} className="border-b border-zinc-100 dark:border-zinc-800">
-                  <td className="px-4 py-3 font-medium">{p.name}</td>
-                  <td className="px-4 py-3">${p.price}</td>
-                  <td className="px-4 py-3">{p.stock}</td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="checkbox"
-                      data-testid={`pf-admin-product-published-${p.id}`}
-                      checked={p.isPublished}
-                      onChange={(e) => {
-                        fetch(`/api/admin/products/${p.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ isPublished: e.target.checked }),
-                        }).then(() => load());
-                      }}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      data-testid={`pf-admin-product-edit-${p.id}`}
-                      onClick={() => {
-                        openEdit(p);
-                        setShowAdd(false);
-                      }}
-                      className="mr-2 text-emerald-600 hover:underline"
-                    >
-                      {t("adminEditProduct")}
-                    </button>
-                    <button
-                      type="button"
-                      data-testid={`pf-admin-product-delete-${p.id}`}
-                      onClick={() => handleDelete(p.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      {t("adminDeleteProduct")}
-                    </button>
-                  </td>
-                </tr>
+                <Fragment key={p.id}>
+                  <tr
+                    className={`border-b border-zinc-100 dark:border-zinc-800 ${
+                      editing?.id === p.id ? "bg-emerald-50/80 dark:bg-emerald-950/30" : ""
+                    }`}
+                  >
+                    <td className="px-4 py-3 font-medium">{p.name}</td>
+                    <td className="px-4 py-3">${p.price}</td>
+                    <td className="px-4 py-3">{p.stock}</td>
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        data-testid={`pf-admin-product-published-${p.id}`}
+                        checked={p.isPublished}
+                        onChange={(e) => {
+                          fetch(`/api/admin/products/${p.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ isPublished: e.target.checked }),
+                          }).then(() => load());
+                        }}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        data-testid={`pf-admin-product-edit-${p.id}`}
+                        onClick={() => {
+                          if (editing?.id === p.id) {
+                            setEditing(null);
+                            setForm(emptyForm());
+                          } else {
+                            openEdit(p);
+                            setShowAdd(false);
+                          }
+                        }}
+                        className="mr-2 text-emerald-600 hover:underline"
+                      >
+                        {editing?.id === p.id ? t("adminCancel") : t("adminEditProduct")}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`pf-admin-product-delete-${p.id}`}
+                        onClick={() => handleDelete(p.id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        {t("adminDeleteProduct")}
+                      </button>
+                    </td>
+                  </tr>
+                  {editing?.id === p.id && (
+                    <tr className="border-b border-emerald-200 bg-zinc-50 dark:border-emerald-900 dark:bg-zinc-900/60">
+                      <td colSpan={5} className="px-4 pb-4">
+                        <ProductForm
+                          onSubmit={(e) => handleUpdate(e, editing)}
+                          onCancel={() => {
+                            setEditing(null);
+                            setForm(emptyForm());
+                          }}
+                          submitLabel={t("adminSave")}
+                        />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>

@@ -380,7 +380,7 @@ export const heOverrides: Partial<Record<string, string>> = {
     cashbackType_BONUS_15_REFERRALS: "בונוס 15 הפניות",
     cashbackType_BONUS_20_REFERRALS: "בונוס 20 הפניות",
     cashbackType_ADJUSTMENT: "התאמת יתרה",
-    cashbackStatus_PENDING: "זמין בעוד 14 יום",
+    cashbackStatus_PENDING: "ממתין",
     cashbackStatus_AVAILABLE: "מוכן לשימוש",
     cashbackStatus_PAID_OUT: "מומש ל-iPhone",
     noReferrals: "אין הפניות עדיין",
@@ -393,6 +393,10 @@ export const heOverrides: Partial<Record<string, string>> = {
     active: "פעיל",
     inactive: "לא פעיל",
     noCashback: "אין היסטוריית קאשבק",
+
+    notifications: "התראות",
+    notificationsEmpty: "אין התראות עדיין",
+    notificationsMarkAllRead: "סמן הכל כנקרא",
 
     // Admin
     adminPanel: "ניהול",

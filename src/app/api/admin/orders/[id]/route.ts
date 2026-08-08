@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { accrueCashbackOnDelivery } from "@/lib/orders";
-import { sendOrderStatusUpdate, sendAwaitingPaymentEmail } from "@/lib/email";
+import { sendOrderStatusUpdate, sendAwaitingPaymentEmail, sendReviewRequestEmail } from "@/lib/email";
+import { createReviewRequestNotification } from "@/lib/notifications";
 import { normalizeEmailLocale } from "@/lib/user-locale";
 import { z } from "zod";
 import type { OrderStatus } from "@prisma/client";
@@ -111,12 +112,29 @@ export async function PATCH(
     include: { user: { select: { email: true, phone: true, locale: true } } },
   });
 
-  if (parsed.data.status === "DELIVERED" && updated.deliveredAt) {
-    await accrueCashbackOnDelivery(id, updated.deliveredAt);
-  }
-
   const notifyTo = updated.user?.email ?? updated.shippingEmail;
   const customerLocale = normalizeEmailLocale(updated.user?.locale);
+
+  const enteredDelivered =
+    parsed.data.status === "DELIVERED" && order.status !== "DELIVERED";
+
+  if (enteredDelivered && updated.deliveredAt) {
+    await accrueCashbackOnDelivery(id, updated.deliveredAt);
+    await createReviewRequestNotification({
+      userId: updated.userId,
+      orderId: updated.id,
+      orderNumber: updated.orderNumber,
+      locale: updated.user?.locale,
+    });
+    if (notifyTo) {
+      await sendReviewRequestEmail({
+        to: notifyTo,
+        orderNumber: updated.orderNumber,
+        locale: customerLocale,
+        request: req,
+      });
+    }
+  }
 
   if (enteredAwaitingPayment && notifyTo) {
     await sendAwaitingPaymentEmail({

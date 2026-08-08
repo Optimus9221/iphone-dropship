@@ -148,7 +148,7 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        <div className="mt-4 border-t border-white/10 pt-4">
+        <div id="write-review" className="mt-4 scroll-mt-24 border-t border-white/10 pt-4">
           <WriteReviewForm testIdPrefix="pf-dashboard-review" variant="button" />
         </div>
 

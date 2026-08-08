@@ -6,7 +6,7 @@ function ukTerms(): string {
   return `
 <h2>ПУБЛІЧНИЙ ДОГОВІР (ОФЕРТА)</h2>
 <p>про участь у програмі кешбеку та реферальній програмі PhoneFree (Айфон Фрі)</p>
-<p><em>Чинний з ____ __________ 20__ р. · сайт: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
+<p><em>Чинний з 08.08.2026 р. · сайт: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
 
 <h3>1. Загальні положення</h3>
 <p>1.1. Цей документ є офіційною публічною пропозицією (офертою) PhoneFree (далі — «Компанія», «Айфон Фрі») укласти договір про участь у програмі кешбеку та реферальній програмі на викладених нижче умовах.</p>
@@ -61,10 +61,7 @@ function ukTerms(): string {
 
 <h3>8. Реквізити Компанії</h3>
 <p>PhoneFree (Айфон Фрі)<br>
-Сайт: <a href="${SITE_URL}">${SITE_URL}</a><br>
-Найменування / ФОП: ______________________________<br>
-Код / реєстраційні дані: ______________________________<br>
-Контактний e-mail: ______________________________</p>
+Сайт: <a href="${SITE_URL}">${SITE_URL}</a></p>
 `;
 }
 
@@ -72,7 +69,7 @@ function ruTerms(): string {
   return `
 <h2>ПУБЛИЧНЫЙ ДОГОВОР (ОФЕРТА)</h2>
 <p>об участии в программе кешбэка и реферальной программе PhoneFree (Айфон Фри)</p>
-<p><em>Действует с ____ __________ 20__ г. · сайт: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
+<p><em>Действует с 08.08.2026 г. · сайт: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
 
 <h3>1. Общие положения</h3>
 <p>1.1. Настоящий документ является официальным публичным предложением (офертой) PhoneFree (далее — «Компания», «Айфон Фри») заключить договор об участии в программе кешбэка и реферальной программе на изложенных ниже условиях.</p>
@@ -127,10 +124,7 @@ function ruTerms(): string {
 
 <h3>8. Реквизиты Компании</h3>
 <p>PhoneFree (Айфон Фри)<br>
-Сайт: <a href="${SITE_URL}">${SITE_URL}</a><br>
-Наименование / ФОП: ______________________________<br>
-Код / регистрационные данные: ______________________________<br>
-Контактный e-mail: ______________________________</p>
+Сайт: <a href="${SITE_URL}">${SITE_URL}</a></p>
 `;
 }
 
@@ -138,7 +132,7 @@ function enTerms(): string {
   return `
 <h2>PUBLIC AGREEMENT (OFFER)</h2>
 <p>on participation in the PhoneFree cashback and referral program</p>
-<p><em>Effective from ____ __________ 20__ · website: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
+<p><em>Effective from 08.08.2026 · website: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
 
 <h3>1. General provisions</h3>
 <p>1.1. This document is an official public offer by PhoneFree (the "Company") to enter into an agreement on participation in the cashback and referral program on the terms set out below.</p>
@@ -193,10 +187,7 @@ function enTerms(): string {
 
 <h3>8. Company details</h3>
 <p>PhoneFree<br>
-Website: <a href="${SITE_URL}">${SITE_URL}</a><br>
-Name / sole proprietor: ______________________________<br>
-Registration code / details: ______________________________<br>
-Contact e-mail: ______________________________</p>
+Website: <a href="${SITE_URL}">${SITE_URL}</a></p>
 `;
 }
 
@@ -204,7 +195,7 @@ function heTerms(): string {
   return `
 <h2>הסכם ציבורי (הצעה)</h2>
 <p>בנוגע להשתתפות בתוכנית הקэשבэק וההפניות של PhoneFree</p>
-<p><em>בתוקף מ-____ __________ 20__ · אתר: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
+<p><em>בתוקף מ-08.08.2026 · אתר: <a href="${SITE_URL}">${SITE_URL}</a></em></p>
 
 <h3>1. הוראות כלליות</h3>
 <p>1.1. מסמך זה מהווה הצעה ציבורית רשמית של PhoneFree (להלן — «החברה») להתקשר בהסכם על השתתפות בתוכנית הקэשבэק וההפניות בתנאים המפורטים להלן.</p>
@@ -259,10 +250,7 @@ function heTerms(): string {
 
 <h3>8. פרטי החברה</h3>
 <p>PhoneFree<br>
-אתר: <a href="${SITE_URL}">${SITE_URL}</a><br>
-שם / עוסק מורשה: ______________________________<br>
-קוד / פרטי רישום: ______________________________<br>
-דוא"ל ליצירת קשר: ______________________________</p>
+אתר: <a href="${SITE_URL}">${SITE_URL}</a></p>
 `;
 }
 

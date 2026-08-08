@@ -49,8 +49,27 @@ const STATUS_KEYS: Record<string, string> = {
   PAID_OUT: "cashbackStatus_PAID_OUT",
 };
 
+/** Whole calendar days from today until availableAt (can be 0 or negative). */
+function daysUntilAvailable(availableAt: string): number {
+  const now = new Date();
+  const start = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const endDate = new Date(availableAt);
+  const end = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+  return Math.round((end - start) / (1000 * 60 * 60 * 24));
+}
+
+function pendingStatusLabel(availableAt: string | undefined, locale: string, fallback: string): string {
+  if (!availableAt) return fallback;
+  const days = Math.max(0, daysUntilAvailable(availableAt));
+  try {
+    return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(days, "day");
+  } catch {
+    return fallback;
+  }
+}
+
 export default function CashbackPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { status } = useSession();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [payoutInfo, setPayoutInfo] = useState<PayoutInfo | null>(null);
@@ -251,12 +270,12 @@ export default function CashbackPage() {
                   +${e.amount.toFixed(2)} · {t(TYPE_KEYS[e.type] as "cashbackType_OWN_PURCHASE") ?? e.type}
                 </p>
                 <p className="text-sm text-slate-500">
-                  {new Date(e.createdAt).toLocaleDateString()}
+                  {new Date(e.createdAt).toLocaleDateString(locale)}
                   {e.status === "PENDING" && e.availableAt && (
                     <>
                       {" · "}
                       {t("cashbackPendingDetail", {
-                        date: new Date(e.availableAt).toLocaleDateString(),
+                        date: new Date(e.availableAt).toLocaleDateString(locale),
                       })}
                     </>
                   )}
@@ -271,7 +290,13 @@ export default function CashbackPage() {
                       : "bg-amber-500/20 text-amber-300"
                 }`}
               >
-                {t(STATUS_KEYS[e.status] as "cashbackStatus_PENDING") ?? e.status}
+                {e.status === "PENDING"
+                  ? pendingStatusLabel(
+                      e.availableAt,
+                      locale,
+                      t("cashbackStatus_PENDING")
+                    )
+                  : (t(STATUS_KEYS[e.status] as "cashbackStatus_AVAILABLE") ?? e.status)}
               </span>
             </motion.div>
           ))}

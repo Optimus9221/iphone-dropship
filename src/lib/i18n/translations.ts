@@ -393,7 +393,7 @@ const enTranslations = {
     cashbackType_BONUS_15_REFERRALS: "Bonus 15 ref",
     cashbackType_BONUS_20_REFERRALS: "Bonus 20 ref",
     cashbackType_ADJUSTMENT: "Balance adjustment",
-    cashbackStatus_PENDING: "Available in 14 days",
+    cashbackStatus_PENDING: "Pending",
     cashbackStatus_AVAILABLE: "Ready to use",
     cashbackStatus_PAID_OUT: "Redeemed toward iPhone",
     noReferrals: "No referrals yet",
@@ -406,6 +406,10 @@ const enTranslations = {
     active: "Active",
     inactive: "Inactive",
     noCashback: "No cashback history",
+
+    notifications: "Notifications",
+    notificationsEmpty: "No notifications yet",
+    notificationsMarkAllRead: "Mark all read",
 
     // Admin
     adminPanel: "Admin",
@@ -945,7 +949,7 @@ const ruTranslations = {
     cashbackType_BONUS_15_REFERRALS: "Бонус 15 реф",
     cashbackType_BONUS_20_REFERRALS: "Бонус 20 реф",
     cashbackType_ADJUSTMENT: "Корректировка баланса",
-    cashbackStatus_PENDING: "Через 14 дней",
+    cashbackStatus_PENDING: "В ожидании",
     cashbackStatus_AVAILABLE: "Готов к использованию",
     cashbackStatus_PAID_OUT: "Погашен на iPhone",
     noReferrals: "Рефералов пока нет",
@@ -958,6 +962,10 @@ const ruTranslations = {
     active: "Активен",
     inactive: "Неактивен",
     noCashback: "Истории кешбэка нет",
+
+    notifications: "Уведомления",
+    notificationsEmpty: "Пока нет уведомлений",
+    notificationsMarkAllRead: "Прочитать все",
 
     adminPanel: "Админка",
     adminDashboard: "Дашборд",
@@ -1494,7 +1502,7 @@ const ukTranslations = {
     cashbackType_BONUS_15_REFERRALS: "Бонус 15 реф",
     cashbackType_BONUS_20_REFERRALS: "Бонус 20 реф",
     cashbackType_ADJUSTMENT: "Коригування балансу",
-    cashbackStatus_PENDING: "Через 14 днів",
+    cashbackStatus_PENDING: "Очікує",
     cashbackStatus_AVAILABLE: "Готово до використання",
     cashbackStatus_PAID_OUT: "Погашено на iPhone",
     noReferrals: "Рефералів поки немає",
@@ -1507,6 +1515,10 @@ const ukTranslations = {
     active: "Активний",
     inactive: "Неактивний",
     noCashback: "Історії кешбеку немає",
+
+    notifications: "Сповіщення",
+    notificationsEmpty: "Поки немає сповіщень",
+    notificationsMarkAllRead: "Прочитати всі",
 
     adminPanel: "Адмінка",
     adminDashboard: "Дашборд",

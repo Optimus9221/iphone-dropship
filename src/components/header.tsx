@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SiteLogo } from "@/components/site-logo";
+import { NotificationBell } from "@/components/notification-bell";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinkClass = (isActive: boolean) =>
@@ -26,6 +27,7 @@ export function Header() {
   const navLinks = (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
       <LanguageSwitcher variant="headerDark" />
+      {status === "authenticated" && <NotificationBell />}
       <Link
         href="/"
         data-testid="pf-header-nav-home-link"

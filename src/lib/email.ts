@@ -506,3 +506,60 @@ export async function sendOrderStatusUpdate(params: {
       `,
   });
 }
+
+/** Ask customer to leave a review after delivery */
+export async function sendReviewRequestEmail(params: {
+  to: string;
+  orderNumber: string;
+  locale?: string;
+  request?: Request;
+}) {
+  if (!resend) return;
+  const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl(params.request).replace(/\/$/, "");
+  const reviewUrl = `${siteUrl}/dashboard#write-review`;
+  const loc = params.locale === "uk" ? "uk" : params.locale === "ru" ? "ru" : params.locale === "he" ? "he" : "en";
+
+  let subject: string;
+  let html: string;
+
+  if (loc === "ru") {
+    subject = `Оставьте отзыв о заказе #${params.orderNumber} — ${SITE_NAME}`;
+    html = `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>Заказ доставлен</h2>
+      <p>Заказ <strong>#${params.orderNumber}</strong> успешно доставлен. Будем благодарны за короткий отзыв о покупке — это помогает другим покупателям.</p>
+      <p style="margin:20px 0;"><a href="${reviewUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Оставить отзыв</a></p>
+      <p style="font-size:13px;color:#525252;">Или откройте ссылку:<br/><a href="${reviewUrl}">${reviewUrl}</a></p>
+      <p>— ${SITE_NAME}</p>
+    </div>`;
+  } else if (loc === "uk") {
+    subject = `Залиште відгук про замовлення #${params.orderNumber} — ${SITE_NAME}`;
+    html = `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>Замовлення доставлено</h2>
+      <p>Замовлення <strong>#${params.orderNumber}</strong> успішно доставлено. Будемо вдячні за короткий відгук про покупку — це допомагає іншим покупцям.</p>
+      <p style="margin:20px 0;"><a href="${reviewUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Залишити відгук</a></p>
+      <p style="font-size:13px;color:#525252;">Або відкрийте посилання:<br/><a href="${reviewUrl}">${reviewUrl}</a></p>
+      <p>— ${SITE_NAME}</p>
+    </div>`;
+  } else if (loc === "he") {
+    subject = `השאירו ביקורת על הזמנה #${params.orderNumber} — ${SITE_NAME}`;
+    html = `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; direction:rtl; text-align:right;">
+      <h2>ההזמנה נמסרה</h2>
+      <p>הזמנה <strong>#${params.orderNumber}</strong> נמסרה בהצלחה. נשמח לביקורת קצרה על הרכישה.</p>
+      <p style="margin:20px 0;"><a href="${reviewUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">השארת ביקורת</a></p>
+      <p>— ${SITE_NAME}</p>
+    </div>`;
+  } else {
+    subject = `Leave a review for order #${params.orderNumber} — ${SITE_NAME}`;
+    html = `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2>Order delivered</h2>
+      <p>Your order <strong>#${params.orderNumber}</strong> was delivered. We would love a short review of your purchase — it helps other buyers.</p>
+      <p style="margin:20px 0;"><a href="${reviewUrl}" style="display:inline-block;background:#059669;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">Leave a review</a></p>
+      <p style="font-size:13px;color:#525252;">Or open this link:<br/><a href="${reviewUrl}">${reviewUrl}</a></p>
+      <p>— ${SITE_NAME}</p>
+    </div>`;
+  }
+
+  await resendSend("review-request", { from, to: params.to, subject, html }, localeLang(loc));
+}
+
