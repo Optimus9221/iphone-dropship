@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { createOrder } from "@/lib/orders";
-import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderConfirmation, sendAdminNewOrderEmail } from "@/lib/email";
+import { notifyUserOrderConfirmed, notifyAdminsNewOrder } from "@/lib/notifications";
 import { getUserEmailLocale } from "@/lib/user-locale";
 import { getCryptoPaymentDefaults } from "@/lib/payment-settings";
 import { z } from "zod";
@@ -120,17 +121,43 @@ export async function POST(req: Request) {
       where: { id: order.id },
       include: { items: { include: { product: { select: { name: true } } } } },
     });
-    if (fullOrder?.shippingEmail) {
+    if (fullOrder) {
       const itemsStr = fullOrder.items
         .map((i) => `${i.product.name} × ${i.quantity}`)
         .join(", ");
       const locale = await getUserEmailLocale(session.user.id);
-      await sendOrderConfirmation({
-        to: fullOrder.shippingEmail,
+      const total = Number(fullOrder.total);
+
+      await notifyUserOrderConfirmed({
+        userId: session.user.id,
+        orderId: fullOrder.id,
         orderNumber: fullOrder.orderNumber,
-        total: Number(fullOrder.total),
-        items: itemsStr,
+        total,
         locale,
+      });
+      await notifyAdminsNewOrder({
+        orderId: fullOrder.id,
+        orderNumber: fullOrder.orderNumber,
+        total,
+        customerName: fullOrder.shippingName,
+      });
+
+      if (fullOrder.shippingEmail) {
+        await sendOrderConfirmation({
+          to: fullOrder.shippingEmail,
+          orderNumber: fullOrder.orderNumber,
+          total,
+          items: itemsStr,
+          locale,
+        });
+      }
+
+      await sendAdminNewOrderEmail({
+        orderNumber: fullOrder.orderNumber,
+        totalUsd: total,
+        customerName: fullOrder.shippingName,
+        customerEmail: fullOrder.shippingEmail,
+        items: itemsStr,
       });
     }
 

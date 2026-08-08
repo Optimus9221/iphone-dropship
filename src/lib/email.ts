@@ -351,6 +351,63 @@ export async function sendAdminPaymentProofReceivedNotification(params: {
   }
 }
 
+/**
+ * Internal/admin inbox — new customer order placed.
+ * Requires ADMIN_NOTIFICATION_EMAIL (comma-separated allowed).
+ */
+export async function sendAdminNewOrderEmail(params: {
+  orderNumber: string;
+  totalUsd: number;
+  customerName?: string | null;
+  customerEmail?: string | null;
+  items: string;
+}) {
+  const raw = process.env.ADMIN_NOTIFICATION_EMAIL?.trim();
+  if (!raw || !resend) return;
+
+  const recipients = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  if (recipients.length === 0) return;
+
+  const from = getResendFrom();
+  const siteUrl = getPublicSiteUrl().replace(/\/$/, "");
+  const adminOrdersUrl = `${siteUrl}/admin/orders`;
+  const num = escapeHtml(params.orderNumber);
+  const who = escapeHtml(params.customerName?.trim() || "—");
+  const email = escapeHtml(params.customerEmail?.trim() || "—");
+  const items = escapeHtml(params.items);
+  const totalStr = params.totalUsd.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const subject = `[${SITE_NAME}] Новый заказ №${params.orderNumber} — $${totalStr}`;
+
+  const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a; line-height: 1.55; font-size: 15px;">
+  <p style="margin: 0 0 18px;">Добрый день.</p>
+  <p style="margin: 0 0 18px;">
+    Поступил новый заказ <strong>№${num}</strong> на сумму <strong>$${totalStr}&nbsp;USD</strong>.
+  </p>
+  <p style="margin: 0 0 8px;"><strong>Клиент:</strong> ${who}</p>
+  <p style="margin: 0 0 8px;"><strong>Email:</strong> ${email}</p>
+  <p style="margin: 0 0 18px;"><strong>Товары:</strong> ${items}</p>
+  <p style="margin: 0 0 18px;">
+    Административная панель — заказы:<br />
+    <a href="${adminOrdersUrl}" style="color: #0f766e;">${adminOrdersUrl}</a>
+  </p>
+  <p style="margin: 0; color: #737373; font-size: 12px; border-top: 1px solid #e5e5e5; padding-top: 16px;">
+    Это автоматическое служебное уведомление. Ответ на это письмо не обрабатывается.
+  </p>
+</div>`;
+
+  for (const to of recipients) {
+    await resendSend("admin-new-order", { from, to, subject, html });
+  }
+}
+
 export async function sendOrderStatusUpdate(params: {
   to: string;
   orderNumber: string;

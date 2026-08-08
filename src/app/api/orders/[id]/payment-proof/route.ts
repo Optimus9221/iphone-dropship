@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendPaymentProofSubmittedEmail, sendAdminPaymentProofReceivedNotification } from "@/lib/email";
+import { notifyUserPaymentProofSubmitted, notifyAdminsPaymentProof } from "@/lib/notifications";
 import { getUserEmailLocale } from "@/lib/user-locale";
 
 const MAX_BYTES = 15 * 1024 * 1024; // 15 MiB
@@ -101,8 +102,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   });
 
   const notifyTo = order.user.email ?? order.shippingEmail;
+  const locale = await getUserEmailLocale(order.userId);
+
+  await notifyUserPaymentProofSubmitted({
+    userId: order.userId,
+    orderId: id,
+    orderNumber: updated.orderNumber,
+    locale,
+  });
+  await notifyAdminsPaymentProof({
+    orderId: id,
+    orderNumber: updated.orderNumber,
+    totalUsd: Number(order.total),
+  });
+
   if (notifyTo) {
-    const locale = await getUserEmailLocale(order.userId);
     await sendPaymentProofSubmittedEmail({
       to: notifyTo,
       orderNumber: updated.orderNumber,

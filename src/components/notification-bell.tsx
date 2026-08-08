@@ -37,7 +37,14 @@ export function NotificationBell() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    if (status !== "authenticated") return;
+    const id = window.setInterval(load, 30_000);
+    return () => window.clearInterval(id);
+  }, [load, status]);
+
+  useEffect(() => {
+    if (open) load();
+  }, [open, load]);
 
   useEffect(() => {
     if (!open) return;

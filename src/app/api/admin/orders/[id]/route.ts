@@ -4,7 +4,11 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { accrueCashbackOnDelivery } from "@/lib/orders";
 import { sendOrderStatusUpdate, sendAwaitingPaymentEmail, sendReviewRequestEmail } from "@/lib/email";
-import { createReviewRequestNotification } from "@/lib/notifications";
+import {
+  createReviewRequestNotification,
+  notifyUserAwaitingPayment,
+  notifyUserOrderStatus,
+} from "@/lib/notifications";
 import { normalizeEmailLocale } from "@/lib/user-locale";
 import { z } from "zod";
 import type { OrderStatus } from "@prisma/client";
@@ -136,14 +140,22 @@ export async function PATCH(
     }
   }
 
-  if (enteredAwaitingPayment && notifyTo) {
-    await sendAwaitingPaymentEmail({
-      to: notifyTo,
-      orderNumber: updated.orderNumber,
+  if (enteredAwaitingPayment) {
+    await notifyUserAwaitingPayment({
+      userId: updated.userId,
       orderId: updated.id,
+      orderNumber: updated.orderNumber,
       locale: customerLocale,
-      request: req,
     });
+    if (notifyTo) {
+      await sendAwaitingPaymentEmail({
+        to: notifyTo,
+        orderNumber: updated.orderNumber,
+        orderId: updated.id,
+        locale: customerLocale,
+        request: req,
+      });
+    }
   }
 
   const hasChanges =
@@ -151,18 +163,27 @@ export async function PATCH(
     (parsed.data.trackingNumber !== undefined && (order.trackingNumber ?? "") !== (parsed.data.trackingNumber ?? "")) ||
     (parsed.data.imei !== undefined && (order.imei ?? "") !== (parsed.data.imei ?? ""));
 
-  if (hasChanges && notifyTo && !enteredAwaitingPayment && !clearingRejectedProof) {
-    await sendOrderStatusUpdate({
-      to: notifyTo,
+  if (hasChanges && !enteredAwaitingPayment && !clearingRejectedProof) {
+    await notifyUserOrderStatus({
+      userId: updated.userId,
+      orderId: updated.id,
       orderNumber: updated.orderNumber,
       status: updated.status,
-      trackingNumber: updated.trackingNumber,
-      shippingAddress: updated.shippingAddress,
-      imei: updated.imei,
-      orderId: updated.id,
       locale: customerLocale,
-      request: req,
     });
+    if (notifyTo) {
+      await sendOrderStatusUpdate({
+        to: notifyTo,
+        orderNumber: updated.orderNumber,
+        status: updated.status,
+        trackingNumber: updated.trackingNumber,
+        shippingAddress: updated.shippingAddress,
+        imei: updated.imei,
+        orderId: updated.id,
+        locale: customerLocale,
+        request: req,
+      });
+    }
   }
 
   return NextResponse.json({
